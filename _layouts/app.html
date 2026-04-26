@@ -1,0 +1,127 @@
+---
+layout: default
+---
+<div class="app-detail">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ '/' | relative_url }}">首页</a>
+            <span>/</span>
+            <a href="{{ '/browse/' | relative_url }}">浏览</a>
+            <span>/</span>
+            <span class="current">{{ page.title }}</span>
+        </nav>
+        
+        <div class="app-header">
+            <div class="app-thumbnail">
+                <img src="{{ page.thumbnail | default: '/assets/thumbnails/default.png' }}" alt="{{ page.title }}">
+                {% if page.featured %}
+                <span class="featured-badge">⭐ 精选</span>
+                {% endif %}
+            </div>
+            <div class="app-info">
+                <div class="app-category {% if page.category == 'teacher' %}category-teacher{% else %}category-student{% endif %}">
+                    {{ page.category_icon | default: '🎨' }} {{ page.category_name }}
+                </div>
+                <h1 class="app-title">{{ page.title }}</h1>
+                <div class="app-author">
+                    <img src="{{ page.author_avatar }}" alt="{{ page.author }}" class="author-avatar">
+                    <div class="author-info">
+                        <span class="author-name">{{ page.author }}</span>
+                        <span class="author-school">{{ page.school_icon | default: '🏫' }} {{ page.school }}</span>
+                        {% if page.grade %}
+                        <span class="author-grade">{{ page.grade }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <p class="app-description">{{ page.description }}</p>
+                <div class="app-tags">
+                    {% for tag in page.tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                <div class="app-actions">
+                    <a href="{{ page.url }}" target="_blank" class="btn btn-primary btn-lg">
+                        🚀 访问应用
+                    </a>
+                    {% if page.repo %}
+                    <a href="{{ page.repo }}" target="_blank" class="btn btn-secondary">
+                        📦 源代码
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="app-stats">
+            <div class="stat-item">
+                <span class="stat-icon">👁️</span>
+                <span class="stat-value">{{ page.views | default: 0 }}</span>
+                <span class="stat-label">浏览</span>
+            </div>
+            <div class="stat-item like-btn" data-app-id="{{ page.id }}">
+                <span class="stat-icon">❤️</span>
+                <span class="stat-value likes-count">{{ page.likes | default: 0 }}</span>
+                <span class="stat-label">点赞</span>
+            </div>
+            <div class="stat-item favorite-btn" data-app-id="{{ page.id }}">
+                <span class="stat-icon">⭐</span>
+                <span class="stat-value favorites-count">0</span>
+                <span class="stat-label">收藏</span>
+            </div>
+        </div>
+
+        {% if page.long_description %}
+        <section class="app-section">
+            <h2>📝 详细介绍</h2>
+            <div class="long-description">
+                {{ page.long_description | markdownify }}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if page.features %}
+        <section class="app-section">
+            <h2>✨ 功能特点</h2>
+            <ul class="features-list">
+                {% for feature in page.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+
+        {% if page.tech_stack %}
+        <section class="app-section">
+            <h2>🛠️ 技术栈</h2>
+            <div class="tech-stack">
+                {% for tech in page.tech_stack %}
+                <span class="tech-badge">{{ tech }}</span>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="app-section">
+            <h2>💬 评论区</h2>
+            <div class="comments-wrapper">
+                <div class="giscus"></div>
+            </div>
+        </section>
+
+        <section class="app-section">
+            <h2>🙋 为它点赞</h2>
+            <div class="vote-section">
+                <button class="vote-btn like-vote" data-app-id="{{ page.id }}">
+                    <span class="vote-icon">❤️</span>
+                    <span class="vote-text">点赞支持</span>
+                    <span class="vote-count">{{ page.likes | default: 0 }}</span>
+                </button>
+                <button class="vote-btn favorite-vote" data-app-id="{{ page.id }}">
+                    <span class="vote-icon">⭐</span>
+                    <span class="vote-text">收藏作品</span>
+                    <span class="vote-count">0</span>
+                </button>
+            </div>
+        </section>
+    </div>
+</div>

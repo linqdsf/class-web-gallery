@@ -1,0 +1,26 @@
+# Jekyll
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ruby
+.bundle/
+vendor/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Environment
+.env
+.env.local

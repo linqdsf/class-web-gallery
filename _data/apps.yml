@@ -1,0 +1,188 @@
+# 应用数据
+# 使用说明：在下方按格式添加新作品，或通过 GitHub Issue/PR 提交
+
+apps:
+  # ===== 教师作品 =====
+  - id: teacher-001
+    title: 数学可视化工具
+    slug: math-visualizer
+    author: 李明老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher1
+    school: 第一中学
+    school_icon: 🏫
+    category: teacher
+    description: 一个交互式的数学函数可视化工具，支持绘制各种数学函数图像，动态展示函数变换过程。
+    long_description: |
+      本工具旨在帮助数学教师在课堂上进行函数教学的演示。学生可以通过拖动参数滑块，
+      实时观察函数图像的变化，加深对函数性质的理解。支持正弦、余弦、正切等三角函数，
+      以及二次函数、指对数函数等多种常见函数类型。
+    url: https://example.com/math-visualizer
+    repo: https://github.com/school/math-visualizer
+    tags: [数学, 可视化, 教学工具]
+    thumbnail: /assets/thumbnails/math-visualizer.png
+    features:
+      - 支持20+种数学函数
+      - 实时参数调节
+      - 导出图像为PNG
+      - 响应式设计
+    tech_stack: [JavaScript, Canvas API, Math.js]
+    date: 2024-03-15
+    featured: true
+    likes: 128
+    views: 2340
+    status: published
+
+  - id: teacher-002
+    title: 英语单词卡片
+    slug: english-cards
+    author: 王芳老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher2
+    school: 实验中学
+    school_icon: 🏫
+    category: teacher
+    description: 基于间隔重复算法的英语单词记忆工具，帮助学生高效记忆词汇。
+    url: https://example.com/english-cards
+    repo: https://github.com/school/english-cards
+    tags: [英语, 学习工具, 记忆法]
+    thumbnail: /assets/thumbnails/english-cards.png
+    features:
+      - 间隔重复算法
+      - 发音朗读
+      - 学习进度追踪
+      - 多种复习模式
+    tech_stack: [Vue.js, IndexedDB, Web Speech API]
+    date: 2024-02-20
+    featured: false
+    likes: 89
+    views: 1567
+    status: published
+
+  - id: teacher-003
+    title: 历史时间线
+    slug: history-timeline
+    author: 张历史老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher3
+    school: 省重点中学
+    school_icon: 🏫
+    category: teacher
+    description: 交互式历史事件时间线，支持添加事件、关联事件、分组展示。
+    url: https://example.com/history-timeline
+    repo: https://github.com/school/history-timeline
+    tags: [历史, 时间线, 可视化]
+    thumbnail: /assets/thumbnails/history-timeline.png
+    features:
+      - 缩放时间线
+      - 添加事件描述
+      - 关联事件连线
+      - 导出分享
+    tech_stack: [React, D3.js, Firebase]
+    date: 2024-01-10
+    featured: false
+    likes: 56
+    views: 892
+    status: published
+
+  # ===== 学生作品 =====
+  - id: student-001
+    title: 像素鸟游戏
+    slug: pixel-bird
+    author: 陈小明
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student1
+    school: 第一中学
+    school_icon: 🎮
+    category: student
+    grade: 高二
+    description: 经典像素鸟游戏的网页重制版，增加了道具系统和多人对战模式。
+    url: https://example.com/pixel-bird
+    repo: https://github.com/student/pixel-bird
+    tags: [游戏, 像素风, 多人游戏]
+    thumbnail: /assets/thumbnails/pixel-bird.png
+    features:
+      - 道具系统
+      - 排行榜
+      - 皮肤商城
+      - 音效支持
+    tech_stack: [HTML5 Canvas, JavaScript, Node.js]
+    date: 2024-03-18
+    featured: true
+    likes: 256
+    views: 4567
+    status: published
+
+  - id: student-002
+    title: 待办事项清单
+    slug: todo-list
+    author: 刘小红
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student2
+    school: 实验中学
+    school_icon: 🎮
+    category: student
+    grade: 高一
+    description: 简洁美观的待办事项应用，支持分类、优先级、番茄钟。
+    url: https://example.com/todo-list
+    repo: https://github.com/student/todo-list
+    tags: [工具, 效率, 待办]
+    thumbnail: /assets/thumbnails/todo-list.png
+    features:
+      - 分类管理
+      - 优先级设置
+      - 番茄钟计时
+      - 数据同步
+    tech_stack: [React, LocalStorage, PWA]
+    date: 2024-02-28
+    featured: false
+    likes: 134
+    views: 2134
+    status: published
+
+  - id: student-003
+    title: 天气预报
+    slug: weather-app
+    author: 周学生
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student3
+    school: 外国语学校
+    school_icon: 🎮
+    category: student
+    grade: 高三
+    description: 实时天气查询应用，支持一周预报、穿衣建议、生活指数。
+    url: https://example.com/weather-app
+    repo: https://github.com/student/weather-app
+    tags: [工具, 天气, API]
+    thumbnail: /assets/thumbnails/weather-app.png
+    features:
+      - 实时天气
+      - 一周预报
+      - 生活指数
+      - 动画效果
+    tech_stack: [Vue.js, OpenWeatherMap API, CSS动画]
+    date: 2024-01-25
+    featured: false
+    likes: 98
+    views: 1789
+    status: published
+
+# 分类配置
+categories:
+  teacher:
+    name: 教师作品
+    icon: 👨‍🏫
+    description: 教师们精心制作的课堂教学工具
+    color: "#4A90D9"
+  student:
+    name: 学生作品
+    icon: 🎓
+    description: 学生们的创意网页作品
+    color: "#E91E63"
+
+# 热门标签
+popular_tags:
+  - name: 游戏
+    count: 2
+  - name: 工具
+    count: 3
+  - name: 可视化
+    count: 2
+  - name: 教学工具
+    count: 1
+  - name: 学习工具
+    count: 1

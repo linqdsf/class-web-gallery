@@ -1,0 +1,51 @@
+# Site settings
+title: "创意网页工坊"
+description: "收录和展示优秀的网页应用作品，支持教师和学生作品展示，欢迎各校投稿"
+url: "https://yourusername.github.io"
+baseurl: ""
+github_url: "https://github.com/yourusername/class-web-gallery"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: /:title/
+
+# Collections
+collections:
+  apps:
+    output: true
+    permalink: /apps/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: "_apps"
+    values:
+      layout: app-detail
+      featured: false
+      likes: 0
+      views: 0
+
+# Jekyll settings
+sass:
+  sass_dir: _sass
+  style: compressed
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-relative-links
+  - jemoji
+
+# Giscus comments (GitHub Discussions)
+giscus:
+  repo: "yourusername/class-web-gallery"
+  repo_id: "R_xxx"
+  category: "App Comments"
+  category_id: "DIC_xxx"
+  mapping: "pathname"
+  theme: light
+
+# Statistics (不蒜子)
+busuanzi: true

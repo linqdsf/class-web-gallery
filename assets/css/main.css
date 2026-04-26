@@ -472,6 +472,7 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
     height: 160px;
     overflow: hidden;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
 }
 
 .app-card-image img {
@@ -479,6 +480,21 @@ h1, h2, h3, h4, h5, h6 {
     height: 100%;
     object-fit: cover;
     transition: var(--transition);
+}
+
+.app-card-image img[src=""],
+.app-card-image img:not([src]) {
+    opacity: 0;
+}
+
+.app-card-image::after {
+    content: '🎨';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    opacity: 0.3;
 }
 
 .card-badge {
@@ -491,6 +507,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 20px;
     font-size: 0.7rem;
     font-weight: 600;
+    z-index: 2;
 }
 
 .card-type {
@@ -502,6 +519,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.7rem;
     font-weight: 600;
     color: white;
+    z-index: 2;
 }
 
 .card-type-teacher {
@@ -514,6 +532,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .app-card-content {
     padding: 16px;
+    position: relative;
+    z-index: 1;
+    background: white;
 }
 
 .app-card-title {

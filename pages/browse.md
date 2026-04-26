@@ -52,7 +52,7 @@ permalink: /browse/
             {% for app in all_apps %}
             <article class="app-card" data-category="{{ app.category }}" data-views="{{ app.views }}" data-likes="{{ app.likes }}" data-date="{{ app.date }}">
                 <div class="app-card-image">
-                    <img src="{{ app.thumbnail | default: '/assets/thumbnails/default.png' }}" alt="{{ app.title }}">
+                    <img src="{{ app.thumbnail | default: '/assets/thumbnails/default.svg' }}" alt="{{ app.title }}" onerror="this.style.display='none'">
                     {% if app.featured %}
                     <span class="card-badge">⭐ 精选</span>
                     {% endif %}

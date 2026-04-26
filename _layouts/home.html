@@ -66,7 +66,7 @@ bodyclass: gradient-bg
         {% for app in featured_apps %}
         <article class="app-card" data-category="{{ app.category }}">
             <div class="app-card-image">
-                <img src="{{ app.thumbnail | default: '/assets/thumbnails/default.png' }}" alt="{{ app.title }}">
+                <img src="{{ app.thumbnail | default: '/assets/thumbnails/default.svg' }}" alt="{{ app.title }}" onerror="this.style.display='none'">
                 {% if app.featured %}
                 <span class="card-badge">⭐ 精选</span>
                 {% endif %}

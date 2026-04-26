@@ -4,6 +4,39 @@
 apps:
   # ===== 教师作品 =====
   # ===== 真实作品 =====
+  - id: teacher-real-002
+    title: 细胞分裂3D可视化
+    slug: cell-division-3d
+    author: 云自白
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=yunbaibai2
+    school: 未知
+    school_icon: 🏫
+    category: teacher
+    description: 交互式3D细胞分裂动画，清晰展示有丝分裂和减数分裂的各个阶段，支持360度旋转观察。
+    long_description: |
+      一款专为生物教学设计的3D可视化工具：
+      - 有丝分裂6个阶段完整展示
+      - 减数分裂9个阶段详细演示
+      - 360度自由旋转观察
+      - 动画播放控制与速度调节
+      - 详细的阶段说明信息
+    url: /_src/teacher/cell-division-3d/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/_src/teacher/cell-division-3d
+    tags: [细胞分裂, 3D动画, 生物学]
+    thumbnail: /assets/thumbnails/cell-division-3d.svg
+    features:
+      - 有丝分裂6阶段
+      - 减数分裂9阶段
+      - 360度旋转
+      - 播放控制
+      - 视角预设
+    tech_stack: [Three.js, WebGL, JavaScript]
+    date: 2024-03-25
+    featured: true
+    likes: 89
+    views: 567
+    status: published
+
   - id: teacher-real-001
     title: 智慧成绩管理系统
     slug: score-manager

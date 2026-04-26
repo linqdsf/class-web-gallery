@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#667eea;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect fill="url(#bg)" width="400" height="240" rx="12"/>
+  
+  <!-- 发光效果 -->
+  <circle cx="200" cy="120" r="80" fill="url(#glow)"/>
+  
+  <!-- 细胞膜 -->
+  <ellipse cx="200" cy="120" rx="70" ry="65" fill="none" stroke="#66cc66" stroke-width="2" opacity="0.6"/>
+  <ellipse cx="200" cy="120" rx="70" ry="65" fill="rgba(102,204,102,0.1)"/>
+  
+  <!-- 细胞核 -->
+  <circle cx="200" cy="120" r="30" fill="rgba(255,204,102,0.3)" stroke="#ffcc66" stroke-width="1.5" opacity="0.7"/>
+  
+  <!-- 染色体 -->
+  <!-- 染色体1 -->
+  <g transform="translate(170,90) rotate(30)">
+    <rect x="-8" y="-3" width="16" height="6" fill="#e74c3c" rx="3"/>
+    <rect x="-8" y="-3" width="16" height="6" fill="#c0392b" rx="3" transform="rotate(90)"/>
+  </g>
+  
+  <!-- 染色体2 -->
+  <g transform="translate(230,100) rotate(-45)">
+    <rect x="-8" y="-3" width="16" height="6" fill="#e74c3c" rx="3"/>
+    <rect x="-8" y="-3" width="16" height="6" fill="#c0392b" rx="3" transform="rotate(90)"/>
+  </g>
+  
+  <!-- 染色体3 -->
+  <g transform="translate(190,145) rotate(60)">
+    <rect x="-7" y="-3" width="14" height="6" fill="#e74c3c" rx="3"/>
+  </g>
+  
+  <!-- 染色体4 -->
+  <g transform="translate(215,130) rotate(-20)">
+    <rect x="-7" y="-3" width="14" height="6" fill="#e74c3c" rx="3"/>
+  </g>
+  
+  <!-- 染色体5 -->
+  <g transform="translate(180,130) rotate(15)">
+    <rect x="-6" y="-2.5" width="12" height="5" fill="#e74c3c" rx="2.5"/>
+  </g>
+  
+  <!-- 纺锤丝 -->
+  <line x1="130" y1="80" x2="170" y2="90" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+  <line x1="270" y1="80" x2="230" y2="100" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+  <line x1="130" y1="160" x2="190" y2="145" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+  <line x1="270" y1="160" x2="215" y2="130" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+  
+  <!-- 中心粒 -->
+  <circle cx="130" cy="120" r="4" fill="#9999ff"/>
+  <circle cx="270" cy="120" r="4" fill="#9999ff"/>
+  
+  <!-- 标题 -->
+  <text x="200" y="25" fill="white" font-size="12" text-anchor="middle" font-weight="bold">🧬 细胞分裂3D可视化</text>
+  
+  <!-- 阶段标签 -->
+  <rect x="290" y="200" width="90" height="25" rx="12" fill="rgba(102,126,234,0.3)"/>
+  <text x="335" y="217" fill="white" font-size="10" text-anchor="middle">中期</text>
+  
+  <!-- 图例 -->
+  <circle cx="20" cy="220" r="5" fill="#e74c3c"/>
+  <text x="30" y="224" fill="#aaa" font-size="8">染色体</text>
+  <line x1="75" y1="220" x2="95" y2="220" stroke="#3498db" stroke-width="2"/>
+  <text x="100" y="224" fill="#aaa" font-size="8">纺锤丝</text>
+</svg>

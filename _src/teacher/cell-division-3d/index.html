@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>细胞分裂3D可视化 - 有丝分裂与减数分裂</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        /* 顶部标题栏 */
+        .header {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 {
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .badge {
+            background: rgba(102, 126, 234, 0.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+        /* 3D画布 */
+        #canvas-container {
+            flex: 1;
+            position: relative;
+        }
+        #canvas-container canvas {
+            display: block;
+        }
+        /* 3D提示 */
+        .rotate-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        /* 左侧控制面板 */
+        .control-panel {
+            width: 280px;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel-section {
+            margin-bottom: 25px;
+        }
+        .panel-title {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        /* 分裂类型切换 */
+        .type-switch {
+            display: flex;
+            gap: 10px;
+        }
+        .type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        .type-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+        }
+        .type-btn:hover:not(.active) {
+            border-color: #667eea;
+        }
+        /* 阶段选择 */
+        .phase-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .phase-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .phase-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .phase-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+        .phase-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .phase-item.active .phase-num {
+            background: #667eea;
+        }
+        .phase-info {
+            flex: 1;
+        }
+        .phase-name {
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+        .phase-desc {
+            font-size: 0.75rem;
+            color: #888;
+        }
+        /* 播放控制 */
+        .playback-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .control-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .play-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+        .play-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(72, 187, 120, 0.4);
+        }
+        .reset-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .reset-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        /* 进度条 */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        /* 速度控制 */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .speed-label {
+            font-size: 0.85rem;
+            min-width: 50px;
+        }
+        .speed-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        /* 视角预设 */
+        .view-presets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .view-btn {
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        .view-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #667eea;
+        }
+        /* 颜色图例 */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        /* 信息弹窗 */
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 300px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .info-panel h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .info-panel p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .control-panel {
+                width: 240px;
+            }
+        }
+        @media (max-width: 700px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .control-panel {
+                width: 100%;
+                max-height: 40vh;
+                border-right: none;
+                border-top: 1px solid rgba(255,255,255,0.1);
+            }
+            .phase-list {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .phase-item {
+                flex: 1 1 45%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🧬 细胞分裂3D可视化</h1>
+            <div class="header-info">
+                <span class="badge">Three.js 3D渲染</span>
+                <span class="badge">WebGL 加速</span>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <aside class="control-panel">
+                <!-- 分裂类型 -->
+                <div class="panel-section">
+                    <div class="panel-title">分裂类型</div>
+                    <div class="type-switch">
+                        <button class="type-btn active" onclick="setDivisionType('mitosis')">有丝分裂</button>
+                        <button class="type-btn" onclick="setDivisionType('meiosis')">减数分裂</button>
+                    </div>
+                </div>
+                
+                <!-- 阶段选择 -->
+                <div class="panel-section">
+                    <div class="panel-title" id="phase-title">有丝分裂阶段</div>
+                    <div class="phase-list" id="phase-list">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 播放控制 -->
+                <div class="panel-section">
+                    <div class="panel-title">播放控制</div>
+                    <div class="playback-controls">
+                        <button class="control-btn play-btn" id="playBtn" onclick="togglePlay()">▶ 播放</button>
+                        <button class="control-btn reset-btn" onclick="resetAnimation()">⏮ 重置</button>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="currentPhaseName">间期</span>
+                            <span id="progressText">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 动画速度 -->
+                <div class="panel-section">
+                    <div class="panel-title">动画速度</div>
+                    <div class="speed-control">
+                        <span class="speed-label">慢速</span>
+                        <input type="range" class="speed-slider" min="0.1" max="3" step="0.1" value="1" id="speedSlider" oninput="setSpeed(this.value)">
+                        <span class="speed-label">快速</span>
+                    </div>
+                </div>
+                
+                <!-- 视角预设 -->
+                <div class="panel-section">
+                    <div class="panel-title">视角预设</div>
+                    <div class="view-presets">
+                        <button class="view-btn" onclick="setCameraView('front')">正视图</button>
+                        <button class="view-btn" onclick="setCameraView('top')">俯视图</button>
+                        <button class="view-btn" onclick="setCameraView('side')">侧视图</button>
+                        <button class="view-btn" onclick="setCameraView('iso')">等距视图</button>
+                    </div>
+                </div>
+                
+                <!-- 图例 -->
+                <div class="panel-section">
+                    <div class="panel-title">图例</div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #e74c3c;"></div>
+                            <span>染色体</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #3498db;"></div>
+                            <span>纺锤丝</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: rgba(255,200,100,0.5);"></div>
+                            <span>核膜</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: rgba(100,200,100,0.5);"></div>
+                            <span>细胞膜</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            
+            <div id="canvas-container">
+                <div class="rotate-hint">
+                    🖱️ 拖拽旋转 | 滚轮缩放 | 右键平移
+                </div>
+                <div class="info-panel" id="infoPanel">
+                    <button class="close-btn" onclick="hideInfo()">×</button>
+                    <h3 id="infoTitle">间期</h3>
+                    <p id="infoText">细胞处于分裂前的准备阶段，DNA进行复制，细胞适度生长。</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== 配置 ====================
+        const mitosisPhases = [
+            { 
+                name: '间期', 
+                shortName: 'G1/S/G2',
+                desc: 'DNA复制准备',
+                info: '细胞处于分裂前的准备阶段，DNA进行复制，细胞适度生长。染色体呈染色质状态，核膜完整。'
+            },
+            { 
+                name: '前期', 
+                shortName: 'Prophase',
+                desc: '染色体凝缩',
+                info: '染色体逐渐凝缩变粗，核膜开始解体，核仁逐渐消失。中心体发出星射线，形成纺锤体。'
+            },
+            { 
+                name: '中期', 
+                shortName: 'Metaphase',
+                desc: '染色体排列',
+                info: '所有染色体整齐排列在细胞中央的赤道板上。纺锤体完全形成，纺锤丝与着丝点相连。'
+            },
+            { 
+                name: '后期', 
+                shortName: 'Anaphase',
+                desc: '姐妹分离',
+                info: '着丝点分裂，姐妹染色单体分离，成为独立的染色体。在纺锤丝牵引下，两组染色体向两极移动。'
+            },
+            { 
+                name: '末期', 
+                shortName: 'Telophase',
+                desc: '新核形成',
+                info: '染色体到达两极，开始解旋恢复染色质状态。核膜重新形成，核仁重现。细胞膜开始凹陷。'
+            },
+            { 
+                name: '胞质分裂', 
+                shortName: 'Cytokinesis',
+                desc: '细胞分裂',
+                info: '细胞膜从赤道部位向内凹陷，最终缢裂成两个子细胞。每个子细胞获得一套完整的染色体。'
+            }
+        ];
+
+        const meiosisPhases = [
+            { 
+                name: '间期', 
+                shortName: 'Interphase',
+                desc: 'DNA复制',
+                info: '与有丝分裂间期相同，DNA进行复制，为减数分裂做准备。'
+            },
+            { 
+                name: '减数分裂Ⅰ-前期', 
+                shortName: 'Prophase I',
+                desc: '同源联会',
+                info: '同源染色体两两配对形成四分体，发生交叉互换。核膜解体，纺锤体形成。'
+            },
+            { 
+                name: '减数分裂Ⅰ-中期', 
+                shortName: 'Metaphase I',
+                desc: '四分体排列',
+                info: '四分体排列在赤道板上，但同源染色体不分开。纺锤丝与各着丝点相连。'
+            },
+            { 
+                name: '减数分裂Ⅰ-后期', 
+                shortName: 'Anaphase I',
+                desc: '同源分离',
+                info: '同源染色体分离，向两极移动。每极只得到每对同源染色体中的一条。'
+            },
+            { 
+                name: '减数分裂Ⅰ-末期', 
+                shortName: 'Telophase I',
+                desc: '形成次级母细胞',
+                info: '细胞分裂成两个次级精母细胞（或次级卵母细胞）。每极染色体数目减半。'
+            },
+            { 
+                name: '减数分裂Ⅱ-前期', 
+                shortName: 'Prophase II',
+                desc: '准备第二次分裂',
+                info: '两个子细胞各自形成新的纺锤体，染色体再次凝缩。'
+            },
+            { 
+                name: '减数分裂Ⅱ-中期', 
+                shortName: 'Metaphase II',
+                desc: '着丝点排列',
+                info: '染色体的着丝点整齐排列在各个细胞的赤道板上。'
+            },
+            { 
+                name: '减数分裂Ⅱ-后期', 
+                shortName: 'Anaphase II',
+                desc: '姐妹分离',
+                info: '着丝点分裂，姐妹染色单体分离，向两极移动。'
+            },
+            { 
+                name: '减数分裂Ⅱ-末期', 
+                shortName: 'Telophase II',
+                desc: '形成配子',
+                info: '染色体到达两极，核膜重建，细胞缢裂。最终形成4个配子细胞，染色体数目为体细胞的一半。'
+            }
+        ];
+
+        // ==================== Three.js 场景 ====================
+        let scene, camera, renderer, controls;
+        let cell, nucleus, chromosomes = [], spindleFibers = [], centrioles = [];
+        let currentPhase = 0;
+        let isPlaying = false;
+        let animationSpeed = 1;
+        let divisionType = 'mitosis';
+        let animationProgress = 0;
+
+        // 初始化场景
+        function init() {
+            const container = document.getElementById('canvas-container');
+            
+            // 场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e);
+            
+            // 相机
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 5, 10);
+            camera.lookAt(0, 0, 0);
+            
+            // 渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.insertBefore(renderer.domElement, container.firstChild);
+            
+            // 灯光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7);
+            scene.add(directionalLight);
+            
+            const pointLight = new THREE.PointLight(0x667eea, 0.5);
+            pointLight.position.set(-5, 5, -5);
+            scene.add(pointLight);
+            
+            // 创建细胞
+            createCell();
+            
+            // 更新阶段列表
+            updatePhaseList();
+            
+            // 鼠标控制
+            setupMouseControls();
+            
+            // 窗口大小变化
+            window.addEventListener('resize', onWindowResize);
+            
+            // 开始渲染
+            animate();
+        }
+
+        // 创建细胞
+        function createCell() {
+            // 清除旧对象
+            clearScene();
+            
+            // 细胞膜
+            const cellGeometry = new THREE.SphereGeometry(4, 64, 64);
+            const cellMaterial = new THREE.MeshPhongMaterial({
+                color: 0x66cc66,
+                transparent: true,
+                opacity: 0.15,
+                side: THREE.DoubleSide
+            });
+            cell = new THREE.Mesh(cellGeometry, cellMaterial);
+            scene.add(cell);
+            
+            // 细胞膜线框
+            const wireframe = new THREE.LineSegments(
+                new THREE.WireframeGeometry(cellGeometry),
+                new THREE.LineBasicMaterial({ color: 0x66cc66, transparent: true, opacity: 0.3 })
+            );
+            cell.add(wireframe);
+            
+            // 细胞核
+            const nucleusGeometry = new THREE.SphereGeometry(1.8, 32, 32);
+            const nucleusMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffcc66,
+                transparent: true,
+                opacity: 0.4
+            });
+            nucleus = new THREE.Mesh(nucleusGeometry, nucleusMaterial);
+            scene.add(nucleus);
+            
+            // 核膜线框
+            const nucleusWireframe = new THREE.LineSegments(
+                new THREE.WireframeGeometry(nucleusGeometry),
+                new THREE.LineBasicMaterial({ color: 0xffcc66, transparent: true, opacity: 0.5 })
+            );
+            nucleus.add(nucleusWireframe);
+            
+            // 中心粒
+            createCentrioles();
+            
+            // 创建染色体（根据阶段）
+            updateChromosomes();
+        }
+
+        // 创建中心粒
+        function createCentrioles() {
+            centrioles = [];
+            const centrioleGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.5, 8);
+            const centrioleMaterial = new THREE.MeshPhongMaterial({ color: 0x9999ff });
+            
+            // 两个中心粒
+            for (let i = 0; i < 2; i++) {
+                const centriole = new THREE.Mesh(centrioleGeometry, centrioleMaterial);
+                centriole.position.set((i === 0 ? -2 : 2), 0, 0);
+                centrioles.push(centriole);
+                scene.add(centriole);
+            }
+        }
+
+        // 更新染色体
+        function updateChromosomes() {
+            // 清除旧染色体
+            chromosomes.forEach(chrom => scene.remove(chrom));
+            chromosomes = [];
+            
+            const phase = divisionType === 'mitosis' ? mitosisPhases[currentPhase] : meiosisPhases[currentPhase];
+            
+            // 根据阶段创建染色体
+            let chromosomeCount, chromosomeLength, paired;
+            
+            if (currentPhase === 0) {
+                // 间期 - 染色质
+                chromosomeCount = 6;
+                chromosomeLength = 0.3;
+                paired = false;
+            } else if (currentPhase < 5) {
+                // 有丝分裂各阶段
+                chromosomeCount = 6;
+                chromosomeLength = 1.2;
+                paired = true;
+            } else {
+                // 胞质分裂
+                chromosomeCount = 6;
+                chromosomeLength = 1.0;
+                paired = true;
+            }
+            
+            // 减数分裂特殊处理
+            if (divisionType === 'meiosis') {
+                if (currentPhase === 0) {
+                    chromosomeCount = 6;
+                    chromosomeLength = 0.3;
+                } else if (currentPhase <= 4) {
+                    // 减数分裂I - 同源染色体配对
+                    chromosomeCount = 3; // 3对同源染色体
+                    chromosomeLength = 1.3;
+                } else {
+                    // 减数分裂II
+                    chromosomeCount = 3;
+                    chromosomeLength = 1.0;
+                }
+            }
+            
+            // 创建染色体
+            for (let i = 0; i < chromosomeCount; i++) {
+                const chrom = createChromosome(chromosomeLength, paired, i);
+                chromosomes.push(chrom);
+                scene.add(chrom);
+            }
+            
+            updateSpindleFibers();
+        }
+
+        // 创建单个染色体
+        function createChromosome(length, paired, index) {
+            const group = new THREE.Group();
+            
+            // 染色体主体 - X形状
+            const chromMaterial = new THREE.MeshPhongMaterial({ color: 0xe74c3c });
+            
+            // 两条臂
+            const armGeometry = new THREE.CapsuleGeometry(0.15, length * 0.4, 4, 8);
+            
+            const arm1 = new THREE.Mesh(armGeometry, chromMaterial);
+            arm1.rotation.z = Math.PI / 4;
+            group.add(arm1);
+            
+            const arm2 = new THREE.Mesh(armGeometry, chromMaterial);
+            arm2.rotation.z = -Math.PI / 4;
+            group.add(arm2);
+            
+            // 配对染色体（减数分裂）
+            if (paired && divisionType === 'meiosis' && currentPhase <= 4) {
+                const arm3 = new THREE.Mesh(armGeometry, new THREE.MeshPhongMaterial({ color: 0x3498db }));
+                arm3.position.x = 0.5;
+                arm3.rotation.z = Math.PI / 4;
+                group.add(arm3);
+                
+                const arm4 = new THREE.Mesh(armGeometry, new THREE.MeshPhongMaterial({ color: 0x3498db }));
+                arm4.position.x = 0.5;
+                arm4.rotation.z = -Math.PI / 4;
+                group.add(arm4);
+                
+                // 连接线（四分体）
+                const lineGeometry = new THREE.BufferGeometry();
+                const points = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.5, 0, 0)];
+                lineGeometry.setFromPoints(points);
+                const line = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0xffff00 }));
+                group.add(line);
+            }
+            
+            // 定位染色体
+            const angle = (index / chromosomeCount) * Math.PI * 2;
+            const radius = currentPhase === 0 ? 0.8 : 1.5;
+            group.position.set(
+                Math.cos(angle) * radius,
+                Math.sin(angle) * radius * 0.5,
+                Math.sin(angle) * radius * 0.3
+            );
+            
+            return group;
+        }
+
+        // 更新纺锤丝
+        function updateSpindleFibers() {
+            // 清除旧纺锤丝
+            spindleFibers.forEach(fiber => scene.remove(fiber));
+            spindleFibers = [];
+            
+            if (currentPhase === 0) return; // 间期无纺锤丝
+            
+            const fiberMaterial = new THREE.LineBasicMaterial({ color: 0x3498db, transparent: true, opacity: 0.6 });
+            
+            // 从中心粒到染色体
+            chromosomes.forEach((chrom, i) => {
+                centrioles.forEach((centriole, j) => {
+                    const points = [
+                        centriole.position.clone(),
+                        chrom.position.clone()
+                    ];
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const fiber = new THREE.Line(geometry, fiberMaterial);
+                    spindleFibers.push(fiber);
+                    scene.add(fiber);
+                });
+            });
+            
+            // 极间纺锤丝（后期和末期）
+            if (currentPhase >= 3 && currentPhase <= 5) {
+                const points = [
+                    new THREE.Vector3(-3, 0, 0),
+                    new THREE.Vector3(3, 0, 0)
+                ];
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const polarFiber = new THREE.Line(geometry, fiberMaterial);
+                spindleFibers.push(polarFiber);
+                scene.add(polarFiber);
+            }
+        }
+
+        // 清除场景
+        function clearScene() {
+            if (cell) scene.remove(cell);
+            if (nucleus) scene.remove(nucleus);
+            chromosomes.forEach(chrom => scene.remove(chrom));
+            chromosomes = [];
+            spindleFibers.forEach(fiber => scene.remove(fiber));
+            spindleFibers = [];
+            centrioles.forEach(cent => scene.remove(cent));
+            centrioles = [];
+        }
+
+        // 鼠标控制
+        function setupMouseControls() {
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            let cameraAngle = { theta: 0, phi: Math.PI / 4 };
+            let cameraDistance = 12;
+            
+            const container = renderer.domElement;
+            
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+            
+            container.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                
+                cameraAngle.theta -= deltaX * 0.01;
+                cameraAngle.phi = Math.max(0.1, Math.min(Math.PI - 0.1, cameraAngle.phi + deltaY * 0.01));
+                
+                updateCameraPosition();
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+            
+            container.addEventListener('mouseup', () => isDragging = false);
+            container.addEventListener('mouseleave', () => isDragging = false);
+            
+            // 滚轮缩放
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cameraDistance = Math.max(5, Math.min(20, cameraDistance + e.deltaY * 0.01));
+                updateCameraPosition();
+            });
+            
+            function updateCameraPosition() {
+                camera.position.x = cameraDistance * Math.sin(cameraAngle.phi) * Math.sin(cameraAngle.theta);
+                camera.position.y = cameraDistance * Math.cos(cameraAngle.phi);
+                camera.position.z = cameraDistance * Math.sin(cameraAngle.phi) * Math.cos(cameraAngle.theta);
+                camera.lookAt(0, 0, 0);
+            }
+            
+            // 存储控制状态供视角预设使用
+            window.cameraControl = { theta: cameraAngle.theta, phi: cameraAngle.phi, distance: cameraDistance, update: updateCameraPosition };
+        }
+
+        // 设置分裂类型
+        function setDivisionType(type) {
+            divisionType = type;
+            currentPhase = 0;
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶ 播放';
+            
+            // 更新按钮状态
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 更新阶段列表
+            updatePhaseList();
+            
+            // 重建细胞
+            createCell();
+            
+            // 更新进度
+            updateProgress();
+        }
+
+        // 更新阶段列表
+        function updatePhaseList() {
+            const phases = divisionType === 'mitosis' ? mitosisPhases : meiosisPhases;
+            const title = divisionType === 'mitosis' ? '有丝分裂阶段' : '减数分裂阶段';
+            document.getElementById('phase-title').textContent = title;
+            
+            const list = document.getElementById('phase-list');
+            list.innerHTML = phases.map((phase, i) => `
+                <div class="phase-item ${i === currentPhase ? 'active' : ''}" onclick="goToPhase(${i})">
+                    <div class="phase-num">${i + 1}</div>
+                    <div class="phase-info">
+                        <div class="phase-name">${phase.name}</div>
+                        <div class="phase-desc">${phase.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 跳转到指定阶段
+        function goToPhase(phase) {
+            currentPhase = phase;
+            animationProgress = 0;
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶ 播放';
+            
+            updatePhaseList();
+            createCell();
+            updateProgress();
+            updateInfoPanel();
+        }
+
+        // 播放/暂停
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            document.getElementById('playBtn').textContent = isPlaying ? '⏸ 暂停' : '▶ 播放';
+        }
+
+        // 重置动画
+        function resetAnimation() {
+            currentPhase = 0;
+            animationProgress = 0;
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶ 播放';
+            
+            updatePhaseList();
+            createCell();
+            updateProgress();
+            updateInfoPanel();
+        }
+
+        // 设置速度
+        function setSpeed(value) {
+            animationSpeed = parseFloat(value);
+        }
+
+        // 设置视角
+        function setCameraView(view) {
+            const ctrl = window.cameraControl;
+            switch(view) {
+                case 'front':
+                    ctrl.theta = 0; ctrl.phi = Math.PI / 2;
+                    break;
+                case 'top':
+                    ctrl.theta = 0; ctrl.phi = 0.1;
+                    break;
+                case 'side':
+                    ctrl.theta = Math.PI / 2; ctrl.phi = Math.PI / 2;
+                    break;
+                case 'iso':
+                    ctrl.theta = Math.PI / 4; ctrl.phi = Math.PI / 3;
+                    break;
+            }
+            ctrl.update();
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const phases = divisionType === 'mitosis' ? mitosisPhases : meiosisPhases;
+            const percent = ((currentPhase + animationProgress) / phases.length) * 100;
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = Math.round(percent) + '%';
+            document.getElementById('currentPhaseName').textContent = phases[currentPhase].name;
+        }
+
+        // 更新信息面板
+        function updateInfoPanel() {
+            const phases = divisionType === 'mitosis' ? mitosisPhases : meiosisPhases;
+            const phase = phases[currentPhase];
+            document.getElementById('infoTitle').textContent = phase.name;
+            document.getElementById('infoText').textContent = phase.info;
+        }
+
+        // 隐藏信息面板
+        function hideInfo() {
+            document.getElementById('infoPanel').style.display = 'none';
+        }
+
+        // 窗口大小变化
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isPlaying) {
+                animationProgress += 0.005 * animationSpeed;
+                
+                if (animationProgress >= 1) {
+                    animationProgress = 0;
+                    const phases = divisionType === 'mitosis' ? mitosisPhases.length : meiosisPhases.length;
+                    currentPhase = (currentPhase + 1) % phases;
+                    updatePhaseList();
+                    createCell();
+                    updateInfoPanel();
+                }
+                
+                updateProgress();
+            }
+            
+            // 轻微动画
+            if (cell) {
+                cell.rotation.y += 0.001;
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>

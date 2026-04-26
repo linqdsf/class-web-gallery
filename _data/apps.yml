@@ -52,7 +52,7 @@ apps:
       - 支持Excel批量导入导出
       - 自动计算平均分、及格率等统计
       - 可视化图表展示成绩分布
-    url: /_src/teacher/demo-project/成绩录入工具.html
+    url: /_src/teacher/demo-project/index.html
     repo: https://github.com/linqdsf/class-web-gallery/tree/main/_src/teacher/demo-project
     tags: [成绩管理, Excel, 数据分析]
     thumbnail: /assets/thumbnails/成绩录入工具.svg

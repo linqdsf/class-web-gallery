@@ -31,6 +31,10 @@ sass:
   sass_dir: _sass
   style: compressed
 
+# Include _src directory for direct file serving
+include:
+  - _src
+
 # Plugins
 plugins:
   - jekyll-feed

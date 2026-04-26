@@ -1,164 +1,523 @@
 # 应用数据
-# 使用说明：在下方按格式添加新作品，或通过 GitHub Issue/PR 提交
+# 高中生物学科网页应用作品集
 
 apps:
   # ===== 教师作品 =====
   - id: teacher-001
-    title: 数学可视化工具
-    slug: math-visualizer
-    author: 李明老师
+    title: 细胞分裂3D可视化
+    slug: cell-division-3d
+    author: 张伟民老师
     author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher1
-    school: 第一中学
+    school: 北京四中
     school_icon: 🏫
     category: teacher
-    description: 一个交互式的数学函数可视化工具，支持绘制各种数学函数图像，动态展示函数变换过程。
+    description: 交互式3D细胞分裂动画，清晰展示有丝分裂和减数分裂的各个阶段，支持360度旋转观察。
     long_description: |
-      本工具旨在帮助数学教师在课堂上进行函数教学的演示。学生可以通过拖动参数滑块，
-      实时观察函数图像的变化，加深对函数性质的理解。支持正弦、余弦、正切等三角函数，
-      以及二次函数、指对数函数等多种常见函数类型。
-    url: https://example.com/math-visualizer
-    repo: https://github.com/school/math-visualizer
-    tags: [数学, 可视化, 教学工具]
-    thumbnail: /assets/thumbnails/math-visualizer.png
+      本工具帮助学生直观理解细胞分裂的过程。通过3D动画，学生可以：
+      - 观察染色体行为变化
+      - 理解DNA复制与分配
+      - 区分有丝分裂与减数分裂
+      - 自主控制动画播放速度
+    url: https://bioviz.cn/cell-division
+    repo: https://github.com/zhang-bio/cell-division
+    tags: [细胞生物学, 3D动画, 可视化]
+    thumbnail: /assets/thumbnails/cell-division.svg
     features:
-      - 支持20+种数学函数
-      - 实时参数调节
-      - 导出图像为PNG
-      - 响应式设计
-    tech_stack: [JavaScript, Canvas API, Math.js]
-    date: 2024-03-15
+      - 有丝分裂全流程动画
+      - 减数分裂详细展示
+      - 染色体行为追踪
+      - 关键阶段截图保存
+    tech_stack: [Three.js, JavaScript, CSS3]
+    date: 2024-03-10
     featured: true
-    likes: 128
-    views: 2340
+    likes: 326
+    views: 4521
     status: published
 
   - id: teacher-002
-    title: 英语单词卡片
-    slug: english-cards
-    author: 王芳老师
+    title: DNA双螺旋构建器
+    slug: dna-builder
+    author: 李秀英老师
     author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher2
-    school: 实验中学
+    school: 上海中学
     school_icon: 🏫
     category: teacher
-    description: 基于间隔重复算法的英语单词记忆工具，帮助学生高效记忆词汇。
-    url: https://example.com/english-cards
-    repo: https://github.com/school/english-cards
-    tags: [英语, 学习工具, 记忆法]
-    thumbnail: /assets/thumbnails/english-cards.png
+    description: 拖拽式DNA双螺旋结构构建工具，学生可自由组合碱基对，理解DNA复制原理。
+    url: https://bioviz.cn/dna-builder
+    repo: https://github.com/li-bio/dna-builder
+    tags: [遗传学, DNA, 交互式学习]
+    thumbnail: /assets/thumbnails/dna-builder.svg
     features:
-      - 间隔重复算法
-      - 发音朗读
-      - 学习进度追踪
-      - 多种复习模式
-    tech_stack: [Vue.js, IndexedDB, Web Speech API]
-    date: 2024-02-20
-    featured: false
-    likes: 89
-    views: 1567
+      - 拖拽碱基配对
+      - DNA复制模拟
+      - 转录翻译过程
+      - 遗传密码表查询
+    tech_stack: [Vue.js, SVG动画, LocalStorage]
+    date: 2024-02-28
+    featured: true
+    likes: 289
+    views: 3890
     status: published
 
   - id: teacher-003
-    title: 历史时间线
-    slug: history-timeline
-    author: 张历史老师
+    title: 光合作用实验模拟
+    slug: photosynthesis-lab
+    author: 王建国老师
     author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher3
-    school: 省重点中学
+    school: 深圳外国语学校
     school_icon: 🏫
     category: teacher
-    description: 交互式历史事件时间线，支持添加事件、关联事件、分组展示。
-    url: https://example.com/history-timeline
-    repo: https://github.com/school/history-timeline
-    tags: [历史, 时间线, 可视化]
-    thumbnail: /assets/thumbnails/history-timeline.png
+    description: 虚拟光合作用实验平台，模拟不同光照强度CO2浓度对光合作用速率的影响。
+    url: https://bioviz.cn/photosynthesis
+    repo: https://github.com/wang-bio/photosynthesis
+    tags: [光合作用, 实验模拟, 植物学]
+    thumbnail: /assets/thumbnails/photosynthesis.svg
     features:
-      - 缩放时间线
-      - 添加事件描述
-      - 关联事件连线
-      - 导出分享
-    tech_stack: [React, D3.js, Firebase]
-    date: 2024-01-10
+      - 光照强度调节
+      - CO2浓度控制
+      - 温度变量
+      - 数据曲线实时绘制
+    tech_stack: [Canvas API, JavaScript, Chart.js]
+    date: 2024-03-05
+    featured: true
+    likes: 198
+    views: 2654
+    status: published
+
+  - id: teacher-004
+    title: 神经冲动传导演示
+    slug: nerve-impulse
+    author: 陈静怡老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher4
+    school: 人大附中
+    school_icon: 🏫
+    category: teacher
+    description: 动态演示静息电位、动作电位的形成过程，支持离子通道开关控制。
+    url: https://bioviz.cn/nerve-impulse
+    repo: https://github.com/chen-bio/nerve-impulse
+    tags: [神经生物学, 电生理, 动画演示]
+    thumbnail: /assets/thumbnails/nerve-impulse.svg
+    features:
+      - 离子通道动画
+      - 电位变化曲线
+      - 突触传递过程
+      - 神经冲动传导速度对比
+    tech_stack: [React, SVG, Framer Motion]
+    date: 2024-02-15
     featured: false
-    likes: 56
-    views: 892
+    likes: 156
+    views: 1892
+    status: published
+
+  - id: teacher-005
+    title: 生态系统能量流动图
+    slug: ecosystem-energy
+    author: 刘永强老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher5
+    school: 南京金陵中学
+    school_icon: 🏫
+    category: teacher
+    description: 可视化展示生态系统中能量流动和物质循环，支持自定义食物网结构。
+    url: https://bioviz.cn/ecosystem
+    repo: https://github.com/liu-bio/ecosystem
+    tags: [生态学, 能量流动, 可视化]
+    thumbnail: /assets/thumbnails/ecosystem.svg
+    features:
+      - 食物网编辑器
+      - 能量流动动画
+      - 碳循环展示
+      - 生物量金字塔
+    tech_stack: [D3.js, JavaScript, Firebase]
+    date: 2024-01-20
+    featured: false
+    likes: 134
+    views: 1654
+    status: published
+
+  - id: teacher-006
+    title: 有丝分裂与减数分裂对比
+    slug: mitosis-vs-meiosis
+    author: 赵红梅老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher6
+    school: 成都七中
+    school_icon: 🏫
+    category: teacher
+    description: 并排对比有丝分裂和减数分裂全过程，标注关键差异点。
+    url: https://bioviz.cn/mitosis-meiosis
+    repo: https://github.com/zhao-bio/mitosis-meiosis
+    tags: [细胞分裂, 对比学习, 遗传学]
+    thumbnail: /assets/thumbnails/mitosis-meiosis.svg
+    features:
+      - 双画面同步播放
+      - 阶段对比标注
+      - 染色体数目追踪
+      - 知识点测验
+    tech_stack: [HTML5, CSS动画, JavaScript]
+    date: 2024-03-12
+    featured: false
+    likes: 178
+    views: 2234
+    status: published
+
+  - id: teacher-007
+    title: 孟德尔遗传定律演示
+    slug: mendel-laws
+    author: 孙丽华老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher7
+    school: 武汉外国语学校
+    school_icon: 🏫
+    category: teacher
+    description: 通过豌豆杂交实验模拟，理解分离定律和自由组合定律。
+    url: https://bioviz.cn/mendel
+    repo: https://github.com/sun-bio/mendel
+    tags: [遗传学, 孟德尔, 实验模拟]
+    thumbnail: /assets/thumbnails/mendel.svg
+    features:
+      - 豌豆性状选择
+      - 杂交实验模拟
+      - 后代表现型统计
+      - 遗传图谱绘制
+    tech_stack: [Vue.js, Canvas, 概率算法]
+    date: 2024-02-08
+    featured: false
+    likes: 212
+    views: 2876
+    status: published
+
+  - id: teacher-008
+    title: 呼吸作用与光合作用对比
+    slug: respire-photosynth
+    author: 周明辉老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher8
+    school: 杭州高级中学
+    school_icon: 🏫
+    category: teacher
+    description: 交互式对比两种作用的物质变化、能量转换、反应场所等。
+    url: https://bioviz.cn/respire-photosynth
+    repo: https://github.com/zhou-bio/respire-photosynth
+    tags: [新陈代谢, 对比学习, 植物学]
+    thumbnail: /assets/thumbnails/respire-photosynth.svg
+    features:
+      - 方程式对比展示
+      - 流程图动画
+      - 场所位置示意
+      - 反应条件对照
+    tech_stack: [React, SVG, CSS动画]
+    date: 2024-01-30
+    featured: false
+    likes: 145
+    views: 1923
+    status: published
+
+  - id: teacher-009
+    title: 人体器官系统探险
+    slug: human-body-systems
+    author: 吴晓燕老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher9
+    school: 天津南开中学
+    school_icon: 🏫
+    category: teacher
+    description: 互动式人体系统学习，点击各器官了解功能与相互协作关系。
+    url: https://bioviz.cn/human-body
+    repo: https://github.com/wu-bio/human-body
+    tags: [人体解剖, 器官系统, 交互学习]
+    thumbnail: /assets/thumbnails/human-body.svg
+    features:
+      - 人体系统概览
+      - 器官详细说明
+      - 系统协作动画
+      - 知识点测验
+    tech_stack: [Three.js, JavaScript, A-Frame VR]
+    date: 2024-02-22
+    featured: true
+    likes: 356
+    views: 5234
+    status: published
+
+  - id: teacher-010
+    title: 蛋白质合成流程图
+    slug: protein-synthesis
+    author: 郑文静老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher10
+    school: 西安交通大学附中
+    school_icon: 🏫
+    category: teacher
+    description: 动画展示转录和翻译全过程，详解中心法则。
+    url: https://bioviz.cn/protein-synthesis
+    repo: https://github.com/zheng-bio/protein-synthesis
+    tags: [分子生物学, 中心法则, 蛋白质合成]
+    thumbnail: /assets/thumbnails/protein-synthesis.svg
+    features:
+      - DNA转录动画
+      - mRNA加工过程
+      - 翻译各阶段
+      - 多肽链折叠
+    tech_stack: [Canvas, JavaScript, 动画引擎]
+    date: 2024-03-18
+    featured: false
+    likes: 189
+    views: 2456
     status: published
 
   # ===== 学生作品 =====
   - id: student-001
-    title: 像素鸟游戏
-    slug: pixel-bird
-    author: 陈小明
+    title: 细菌生长曲线绘制器
+    slug: bacteria-growth
+    author: 李浩然
     author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student1
-    school: 第一中学
-    school_icon: 🎮
+    school: 北京四中
+    school_icon: 🎓
     category: student
     grade: 高二
-    description: 经典像素鸟游戏的网页重制版，增加了道具系统和多人对战模式。
-    url: https://example.com/pixel-bird
-    repo: https://github.com/student/pixel-bird
-    tags: [游戏, 像素风, 多人游戏]
-    thumbnail: /assets/thumbnails/pixel-bird.png
+    description: 输入细菌初始数量和培养条件，自动生成生长曲线并计算代时。
+    url: https://biolearn.cn/bacteria-growth
+    repo: https://github.com/lihaoran/bacteria-growth
+    tags: [微生物, 曲线绘制, 数据分析]
+    thumbnail: /assets/thumbnails/bacteria-growth.svg
     features:
-      - 道具系统
-      - 排行榜
-      - 皮肤商城
-      - 音效支持
-    tech_stack: [HTML5 Canvas, JavaScript, Node.js]
-    date: 2024-03-18
+      - 多菌种对比
+      - 生长阶段标注
+      - 数据导出
+      - 实验报告生成
+    tech_stack: [Chart.js, JavaScript, LocalStorage]
+    date: 2024-03-15
     featured: true
-    likes: 256
-    views: 4567
+    likes: 178
+    views: 2345
     status: published
 
   - id: student-002
-    title: 待办事项清单
-    slug: todo-list
-    author: 刘小红
+    title: 血型遗传计算器
+    slug: blood-type-calculator
+    author: 王思琪
     author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student2
-    school: 实验中学
-    school_icon: 🎮
+    school: 上海中学
+    school_icon: 🎓
     category: student
     grade: 高一
-    description: 简洁美观的待办事项应用，支持分类、优先级、番茄钟。
-    url: https://example.com/todo-list
-    repo: https://github.com/student/todo-list
-    tags: [工具, 效率, 待办]
-    thumbnail: /assets/thumbnails/todo-list.png
+    description: 根据父母血型预测子女可能的血型分布概率。
+    url: https://biolearn.cn/blood-type
+    repo: https://github.com/wangsiqi/blood-type
+    tags: [血型, 遗传计算, 概率]
+    thumbnail: /assets/thumbnails/blood-type.svg
     features:
-      - 分类管理
-      - 优先级设置
-      - 番茄钟计时
-      - 数据同步
-    tech_stack: [React, LocalStorage, PWA]
-    date: 2024-02-28
-    featured: false
-    likes: 134
-    views: 2134
+      - 血型组合预测
+      - 概率分布图
+      - Rh因子支持
+      - 遗传图谱显示
+    tech_stack: [Vue.js, SVG, 数学算法]
+    date: 2024-02-20
+    featured: true
+    likes: 234
+    views: 3456
     status: published
 
   - id: student-003
-    title: 天气预报
-    slug: weather-app
-    author: 周学生
+    title: 植物蒸腾作用实验
+    slug: transpiration-experiment
+    author: 张雨萱
     author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student3
-    school: 外国语学校
-    school_icon: 🎮
+    school: 深圳外国语学校
+    school_icon: 🎓
     category: student
-    grade: 高三
-    description: 实时天气查询应用，支持一周预报、穿衣建议、生活指数。
-    url: https://example.com/weather-app
-    repo: https://github.com/student/weather-app
-    tags: [工具, 天气, API]
-    thumbnail: /assets/thumbnails/weather-app.png
+    grade: 高二
+    description: 模拟探究影响蒸腾作用因素的实验，记录数据并分析结论。
+    url: https://biolearn.cn/transpiration
+    repo: https://github.com/zhangyuxuan/transpiration
+    tags: [植物学, 实验, 探究学习]
+    thumbnail: /assets/thumbnails/transpiration.svg
     features:
-      - 实时天气
-      - 一周预报
-      - 生活指数
-      - 动画效果
-    tech_stack: [Vue.js, OpenWeatherMap API, CSS动画]
-    date: 2024-01-25
+      - 变量对照实验
+      - 数据记录表格
+      - 曲线图绘制
+      - 实验报告模板
+    tech_stack: [React, Canvas, Chart.js]
+    date: 2024-03-08
+    featured: true
+    likes: 156
+    views: 1987
+    status: published
+
+  - id: student-004
+    title: 细胞器功能配对游戏
+    slug: organelle-game
+    author: 陈思远
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student4
+    school: 人大附中
+    school_icon: 🎓
+    category: student
+    grade: 高一
+    description: 通过配对游戏学习各种细胞器的名称、功能和分布位置。
+    url: https://biolearn.cn/organelle-game
+    repo: https://github.com/chensiyuan/organelle-game
+    tags: [细胞器, 游戏化学习, 记忆训练]
+    thumbnail: /assets/thumbnails/organelle-game.svg
+    features:
+      - 闯关模式
+      - 计时挑战
+      - 分数排行榜
+      - 学习进度追踪
+    tech_stack: [HTML5, CSS3, JavaScript]
+    date: 2024-02-12
+    featured: false
+    likes: 289
+    views: 4123
+    status: published
+
+  - id: student-005
+    title: 生物多样性指数计算器
+    slug: biodiversity-index
+    author: 刘子涵
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student5
+    school: 南京金陵中学
+    school_icon: 🎓
+    category: student
+    grade: 高二
+    description: 输入样方调查数据，计算物种丰富度指数、Simpson指数和Shannon指数。
+    url: https://biolearn.cn/biodiversity
+    repo: https://github.com/liuzihan/biodiversity
+    tags: [生态学, 生物多样性, 数据处理]
+    thumbnail: /assets/thumbnails/biodiversity.svg
+    features:
+      - 多种指数计算
+      - 数据可视化
+      - 样方数据管理
+      - 结果对比分析
+    tech_stack: [Vue.js, ECharts, 数学公式库]
+    date: 2024-03-01
     featured: false
     likes: 98
-    views: 1789
+    views: 1234
+    status: published
+
+  - id: student-006
+    title: 有丝分裂时期识别
+    slug: mitosis-identify
+    author: 赵文博
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student6
+    school: 成都七中
+    school_icon: 🎓
+    category: student
+    grade: 高二
+    description: 看图识别细胞分裂时期的小测验，附带详细解析。
+    url: https://biolearn.cn/mitosis-identify
+    repo: https://github.com/zhaowenbo/mitosis-identify
+    tags: [细胞分裂, 测验, 图像识别]
+    thumbnail: /assets/thumbnails/mitosis-identify.svg
+    features:
+      - 随机出题
+      - 答案解析
+      - 学习记录
+      - 正确率统计
+    tech_stack: [HTML5, JavaScript, LocalStorage]
+    date: 2024-02-25
+    featured: false
+    likes: 167
+    views: 2156
+    status: published
+
+  - id: student-007
+    title: 基因频率进化模拟器
+    slug: gene-frequency-evolution
+    author: 孙佳怡
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student7
+    school: 武汉外国语学校
+    school_icon: 🎓
+    category: student
+    grade: 高三
+    description: 模拟基因频率在不同选择压力下的变化，直观理解进化机制。
+    url: https://biolearn.cn/gene-evolution
+    repo: https://github.com/sunjiayi/gene-evolution
+    tags: [进化论, 基因频率, 模拟实验]
+    thumbnail: /assets/thumbnails/gene-evolution.svg
+    features:
+      - 哈迪-温伯格平衡
+      - 自然选择模拟
+      - 基因漂变演示
+      - 世代演变动画
+    tech_stack: [Canvas, JavaScript, 遗传算法]
+    date: 2024-03-10
+    featured: true
+    likes: 223
+    views: 2876
+    status: published
+
+  - id: student-008
+    title: 免疫系统工作流程图
+    slug: immune-system
+    author: 周天翔
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student8
+    school: 杭州高级中学
+    school_icon: 🎓
+    category: student
+    grade: 高二
+    description: 交互式学习人体三道防线的组成和免疫反应过程。
+    url: https://biolearn.cn/immune-system
+    repo: https://github.com/zhoutianxiang/immune-system
+    tags: [免疫学, 人体健康, 交互学习]
+    thumbnail: /assets/thumbnails/immune-system.svg
+    features:
+      - 三道防线详解
+      - 体液免疫动画
+      - 细胞免疫动画
+      - 疫苗原理说明
+    tech_stack: [SVG动画, JavaScript, 响应式设计]
+    date: 2024-02-18
+    featured: false
+    likes: 198
+    views: 2654
+    status: published
+
+  - id: student-009
+    title: 染色体核型分析工具
+    slug: karyotype-analysis
+    author: 吴欣怡
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student9
+    school: 天津南开中学
+    school_icon: 🎓
+    category: student
+    grade: 高三
+    description: 学习染色体核型分析的基本方法，模拟排列和异常识别。
+    url: https://biolearn.cn/karyotype
+    repo: https://github.com/wuxinyi/karyotype
+    tags: [遗传学, 染色体, 核型分析]
+    thumbnail: /assets/thumbnails/karyotype.svg
+    features:
+      - 染色体拖拽排列
+      - 异常核型识别
+      - 常见遗传病介绍
+      - 学习模式切换
+    tech_stack: [React, HTML5拖拽, CSS动画]
+    date: 2024-03-05
+    featured: false
+    likes: 145
+    views: 1876
+    status: published
+
+  - id: student-010
+    title: ATP与能量代谢图谱
+    slug: atp-energy-metabolism
+    author: 郑宇轩
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=student10
+    school: 西安交通大学附中
+    school_icon: 🎓
+    category: student
+    grade: 高一
+    description: 了解ATP的结构、合成和分解，以及它在细胞能量代谢中的作用。
+    url: https://biolearn.cn/atp-metabolism
+    repo: https://github.com/zhengyuxuan/atp-metabolism
+    tags: [新陈代谢, ATP, 能量转换]
+    thumbnail: /assets/thumbnails/atp-metabolism.svg
+    features:
+      - ATP结构3D展示
+      - 合成与分解动画
+      - 能量代谢总图
+      - 相关知识点链接
+    tech_stack: [Three.js, JavaScript, CSS3]
+    date: 2024-02-28
+    featured: false
+    likes: 134
+    views: 1654
     status: published
 
 # 分类配置
@@ -166,23 +525,29 @@ categories:
   teacher:
     name: 教师作品
     icon: 👨‍🏫
-    description: 教师们精心制作的课堂教学工具
+    description: 教师们精心制作的生物课堂教学工具
     color: "#4A90D9"
   student:
     name: 学生作品
     icon: 🎓
-    description: 学生们的创意网页作品
+    description: 学生们的生物学科创意网页作品
     color: "#E91E63"
 
 # 热门标签
 popular_tags:
-  - name: 游戏
-    count: 2
-  - name: 工具
-    count: 3
   - name: 可视化
+    count: 8
+  - name: 实验模拟
+    count: 6
+  - name: 遗传学
+    count: 5
+  - name: 细胞生物学
+    count: 5
+  - name: 动画演示
+    count: 7
+  - name: 交互学习
+    count: 8
+  - name: 生态学
+    count: 3
+  - name: 游戏化学习
     count: 2
-  - name: 教学工具
-    count: 1
-  - name: 学习工具
-    count: 1

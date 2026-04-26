@@ -54,20 +54,36 @@ body {
     overflow-x: hidden;
 }
 
-/* Gradient Background */
+/* Gradient Background - 跟随内容滚动，渐变覆盖整个页面 */
 .gradient-bg {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    background: linear-gradient(
+        180deg, 
+        #667eea 0%,      /* 深紫色 */
+        #764ba2 25%,     /* 紫色 */
+        #f093fb 50%,     /* 粉色 */
+        #f5576c 75%,     /* 珊瑚色 */
+        #f7fafc 100%     /* 淡灰白 */
+    );
 }
 
-body.gradient-bg::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 350px;
+body.gradient-bg {
+    /* 背景渐变直接应用在 body 上，随内容滚动 */
+    background: linear-gradient(
+        180deg, 
+        #667eea 0%,      /* 深紫色 */
+        #764ba2 25%,     /* 紫色 */
+        #f093fb 50%,     /* 粉色 */
+        #f5576c 75%,     /* 珊瑚色 */
+        #f7fafc 100%     /* 淡灰白 */
+    );
+    background-attachment: scroll; /* 随内容滚动 */
+}
+
+/* Hero 区域 - 使用渐变背景 */
+.hero {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    z-index: -1;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.15);
 }
 
 /* Typography */
@@ -259,6 +275,8 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
     padding: 50px 16px 40px;
     color: white;
+    /* Hero 使用透明背景，让渐变从 body 透上来 */
+    background: transparent;
 }
 
 .hero-content {

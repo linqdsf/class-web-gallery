@@ -7,9 +7,9 @@ apps:
   - id: teacher-real-001
     title: 智慧成绩管理系统
     slug: score-manager
-    author: 林老师
-    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=linteacher
-    school: 林老师学校
+    author: 云自白
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=yunbaibai
+    school: 未知
     school_icon: 🏫
     category: teacher
     description: 本地安全录入成绩，支持导入导出Excel，自动统计分析和可视化图表。

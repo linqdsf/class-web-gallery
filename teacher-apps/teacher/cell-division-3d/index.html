@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>细胞分裂3D可视化 - 有丝分裂与减数分裂</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // WebGL支持检测
+        (function() {
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (!gl) {
+                    document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1a1a2e;color:#fff;font-family:sans-serif;text-align:center;padding:20px;"><div><h1>⚠️ WebGL 未启用</h1><p>请在浏览器设置中启用 WebGL，或尝试使用 Chrome/Firefox 最新版本</p></div></div>';
+                }
+            } catch(e) {
+                console.error('WebGL检测失败:', e);
+            }
+        })();
+    </script>
     <style>
         * {
             margin: 0;
@@ -563,7 +577,13 @@
 
         // 初始化场景
         function init() {
+            try {
             const container = document.getElementById('canvas-container');
+            
+            if (!container) {
+                console.error('找不到 canvas-container 元素');
+                return;
+            }
             
             // 场景
             scene = new THREE.Scene();
@@ -606,6 +626,10 @@
             
             // 开始渲染
             animate();
+            } catch (error) {
+                console.error('3D初始化失败:', error);
+                container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100%;color:#fff;font-family:sans-serif;text-align:center;"><div><h2>⚠️ 3D渲染初始化失败</h2><p>' + error.message + '</p><p>请尝试使用 Chrome 或 Firefox 最新版本</p></div></div>';
+            }
         }
 
         // 创建细胞

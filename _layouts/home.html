@@ -95,7 +95,12 @@ bodyclass: gradient-bg
                         <span>👁️ {{ app.views }}</span>
                         <span>❤️ {{ app.likes }}</span>
                     </div>
-                    <a href="{{ app.url }}" target="_blank" class="btn btn-sm btn-primary">访问</a>
+                    <div class="card-actions">
+                        <a href="{{ app.url }}" target="_blank" class="btn btn-sm btn-primary">🚀 访问</a>
+                        {% if app.repo %}
+                        <a href="{{ app.repo }}" target="_blank" class="btn btn-sm btn-secondary">📥 下载</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </article>

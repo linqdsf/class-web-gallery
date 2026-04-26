@@ -587,6 +587,8 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     padding-top: 10px;
     border-top: 1px solid var(--bg-primary);
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .app-stats-mini {
@@ -594,6 +596,16 @@ h1, h2, h3, h4, h5, h6 {
     gap: 12px;
     font-size: 0.8rem;
     color: var(--text-secondary);
+}
+
+.card-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.card-actions .btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
 }
 
 /* ========================================

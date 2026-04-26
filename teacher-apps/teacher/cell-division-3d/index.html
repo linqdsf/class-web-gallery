@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>细胞分裂3D可视化 - 有丝分裂与减数分裂</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
     <script>
         // WebGL支持检测
         (function() {
@@ -755,8 +755,8 @@
             // 染色体主体 - X形状
             const chromMaterial = new THREE.MeshPhongMaterial({ color: 0xe74c3c });
             
-            // 两条臂
-            const armGeometry = new THREE.CapsuleGeometry(0.15, length * 0.4, 4, 8);
+            // 两条臂 - 使用圆柱体（兼容r128）
+            const armGeometry = new THREE.CylinderGeometry(0.12, 0.12, length * 0.4, 8);
             
             const arm1 = new THREE.Mesh(armGeometry, chromMaterial);
             arm1.rotation.z = Math.PI / 4;

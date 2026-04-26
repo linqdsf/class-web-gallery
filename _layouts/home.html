@@ -53,113 +53,104 @@ layout: default
 
 <!-- Featured Apps -->
 <section class="section featured-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">
-                <span class="title-icon">⭐</span>
-                精选作品
-            </h2>
-            <a href="{{ '/browse/' | relative_url }}" class="section-more">查看更多 →</a>
-        </div>
-        <div class="apps-grid" id="featuredApps">
-            {% assign featured_apps = site.data.apps.apps | where: "featured", true %}
-            {% for app in featured_apps %}
-            <article class="app-card" data-category="{{ app.category }}">
-                <div class="app-card-image">
-                    <img src="{{ app.thumbnail | default: '/assets/thumbnails/default.png' }}" alt="{{ app.title }}">
-                    {% if app.featured %}
-                    <span class="card-badge">⭐ 精选</span>
-                    {% endif %}
-                    {% if app.category == 'teacher' %}
-                    <span class="card-type card-type-teacher">👨‍🏫 教师</span>
-                    {% else %}
-                    <span class="card-type card-type-student">🎓 学生</span>
-                    {% endif %}
+    <div class="section-header">
+        <h2 class="section-title">
+            <span class="title-icon">⭐</span>
+            精选作品
+        </h2>
+        <a href="{{ '/browse/' | relative_url }}" class="section-more">查看更多 →</a>
+    </div>
+    <div class="apps-grid" id="featuredApps">
+        {% assign featured_apps = site.data.apps.apps | where: "featured", true %}
+        {% for app in featured_apps %}
+        <article class="app-card" data-category="{{ app.category }}">
+            <div class="app-card-image">
+                <img src="{{ app.thumbnail | default: '/assets/thumbnails/default.png' }}" alt="{{ app.title }}">
+                {% if app.featured %}
+                <span class="card-badge">⭐ 精选</span>
+                {% endif %}
+                {% if app.category == 'teacher' %}
+                <span class="card-type card-type-teacher">👨‍🏫</span>
+                {% else %}
+                <span class="card-type card-type-student">🎓</span>
+                {% endif %}
+            </div>
+            <div class="app-card-content">
+                <h3 class="app-card-title">{{ app.title }}</h3>
+                <p class="app-card-desc">{{ app.description | truncate: 60 }}</p>
+                <div class="app-card-meta">
+                    <span class="app-author">
+                        <img src="{{ app.author_avatar }}" alt="{{ app.author }}" class="meta-avatar">
+                        {{ app.author }}
+                    </span>
                 </div>
-                <div class="app-card-content">
-                    <h3 class="app-card-title">{{ app.title }}</h3>
-                    <p class="app-card-desc">{{ app.description | truncate: 60 }}</p>
-                    <div class="app-card-meta">
-                        <span class="app-author">
-                            <img src="{{ app.author_avatar }}" alt="{{ app.author }}" class="meta-avatar">
-                            {{ app.author }}
-                        </span>
-                        <span class="app-school">{{ app.school_icon }} {{ app.school }}</span>
-                    </div>
-                    <div class="app-card-tags">
-                        {% for tag in app.tags limit: 3 %}
-                        <span class="tag">{{ tag }}</span>
-                        {% endfor %}
-                    </div>
-                    <div class="app-card-footer">
-                        <div class="app-stats-mini">
-                            <span>👁️ {{ app.views }}</span>
-                            <span>❤️ {{ app.likes }}</span>
-                        </div>
-                        <a href="{{ app.url }}" target="_blank" class="btn btn-sm btn-primary">访问</a>
-                    </div>
+                <div class="app-card-tags">
+                    {% for tag in app.tags limit: 3 %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
                 </div>
-            </article>
-            {% endfor %}
-        </div>
+                <div class="app-card-footer">
+                    <div class="app-stats-mini">
+                        <span>👁️ {{ app.views }}</span>
+                        <span>❤️ {{ app.likes }}</span>
+                    </div>
+                    <a href="{{ app.url }}" target="_blank" class="btn btn-sm btn-primary">访问</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
     </div>
 </section>
 
 <!-- Categories Overview -->
 <section class="section categories-overview">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">
-                <span class="title-icon">📂</span>
-                作品分类
-            </h2>
-        </div>
-        <div class="categories-grid">
-            {% for cat in site.data.apps.categories %}
-            <a href="{{ '/browse/' | relative_url }}?category={{ cat[0] }}" class="category-card" style="--cat-color: {{ cat[1].color }}">
-                <div class="category-icon">{{ cat[1].icon }}</div>
-                <h3 class="category-name">{{ cat[1].name }}</h3>
-                <p class="category-desc">{{ cat[1].description }}</p>
-                <span class="category-count">
-                    {% assign cat_count = site.data.apps.apps | where: "category", cat[0] | size %}
-                    {{ cat_count }} 个作品
-                </span>
-            </a>
-            {% endfor %}
-        </div>
+    <div class="section-header">
+        <h2 class="section-title">
+            <span class="title-icon">📂</span>
+            作品分类
+        </h2>
+    </div>
+    <div class="categories-grid">
+        {% for cat in site.data.apps.categories %}
+        <a href="{{ '/browse/' | relative_url }}?category={{ cat[0] }}" class="category-card" style="--cat-color: {{ cat[1].color }}">
+            <div class="category-icon">{{ cat[1].icon }}</div>
+            <h3 class="category-name">{{ cat[1].name }}</h3>
+            <p class="category-desc">{{ cat[1].description }}</p>
+            <span class="category-count">
+                {% assign cat_count = site.data.apps.apps | where: "category", cat[0] | size %}
+                {{ cat_count }} 个作品
+            </span>
+        </a>
+        {% endfor %}
     </div>
 </section>
 
 <!-- Popular Tags -->
 <section class="section tags-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">
-                <span class="title-icon">🏷️</span>
-                热门标签
-            </h2>
-        </div>
-        <div class="tags-cloud">
-            {% for tag in site.data.apps.popular_tags %}
-            <a href="{{ '/browse/' | relative_url }}?tag={{ tag.name }}" class="tag-item">
-                {{ tag.name }}
-                <span class="tag-count">{{ tag.count }}</span>
-            </a>
-            {% endfor %}
-        </div>
+    <div class="section-header">
+        <h2 class="section-title">
+            <span class="title-icon">🏷️</span>
+            热门标签
+        </h2>
+    </div>
+    <div class="tags-cloud">
+        {% for tag in site.data.apps.popular_tags %}
+        <a href="{{ '/browse/' | relative_url }}?tag={{ tag.name }}" class="tag-item">
+            {{ tag.name }}
+            <span class="tag-count">{{ tag.count }}</span>
+        </a>
+        {% endfor %}
     </div>
 </section>
 
 <!-- CTA Section -->
 <section class="section cta-section">
-    <div class="container">
-        <div class="cta-box">
-            <h2 class="cta-title">📢 欢迎投稿</h2>
-            <p class="cta-desc">无论你是老师还是学生，只要你有创意的网页作品，都可以提交到这里展示！</p>
-            <div class="cta-actions">
-                <a href="{{ '/submit/' | relative_url }}" class="btn btn-primary btn-lg">查看投稿指南</a>
-                <a href="{{ site.github_url }}" target="_blank" class="btn btn-outline btn-lg">访问 GitHub</a>
-            </div>
+    <div class="cta-box">
+        <h2 class="cta-title">📢 欢迎投稿</h2>
+        <p class="cta-desc">无论你是老师还是学生，只要你有创意的网页作品，都可以提交到这里展示！</p>
+        <div class="cta-actions">
+            <a href="{{ '/submit/' | relative_url }}" class="btn btn-primary btn-lg">查看投稿指南</a>
+            <a href="{{ site.github_url }}" target="_blank" class="btn btn-outline btn-lg">访问 GitHub</a>
         </div>
     </div>
 </section>

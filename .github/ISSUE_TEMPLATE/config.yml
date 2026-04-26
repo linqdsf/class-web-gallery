@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: "\U0001F4AC 讨论区"
-    url: https://github.com/yourusername/class-web-gallery/discussions
+    url: https://github.com/linqdsf/class-web-gallery/discussions
     about: "General questions and discussions"
   - name: "\U0001F41B Bug 报告"
-    url: https://github.com/yourusername/class-web-gallery/issues/new?labels=bug
+    url: https://github.com/linqdsf/class-web-gallery/issues/new?labels=bug
     about: "Report a bug or issue"

@@ -1,9 +1,9 @@
 # Site settings
 title: "创意网页工坊"
 description: "收录和展示优秀的网页应用作品，支持教师和学生作品展示，欢迎各校投稿"
-url: "https://yourusername.github.io"
-baseurl: ""
-github_url: "https://github.com/yourusername/class-web-gallery"
+url: "https://linqdsf.github.io"
+baseurl: "/class-web-gallery"
+github_url: "https://github.com/linqdsf/class-web-gallery"
 
 # Build settings
 markdown: kramdown
@@ -40,7 +40,7 @@ plugins:
 
 # Giscus comments (GitHub Discussions)
 giscus:
-  repo: "yourusername/class-web-gallery"
+  repo: "linqdsf/class-web-gallery"
   repo_id: "R_xxx"
   category: "App Comments"
   category_id: "DIC_xxx"

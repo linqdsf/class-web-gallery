@@ -27,7 +27,7 @@ bundle exec jekyll serve
 3. 提交 Pull Request
 4. 审核通过后自动发布
 
-详细指南：[投稿说明](https://yourusername.github.io/submit/)
+详细指南：[投稿说明](https://linqdsf.github.io/class-web-gallery/submit/)
 
 ## 技术栈
 

@@ -3,6 +3,39 @@
 
 apps:
   # ===== 教师作品 =====
+  # ===== 真实作品 =====
+  - id: teacher-real-001
+    title: 智慧成绩管理系统
+    slug: score-manager
+    author: 林老师
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=linteacher
+    school: 林老师学校
+    school_icon: 🏫
+    category: teacher
+    description: 本地安全录入成绩，支持导入导出Excel，自动统计分析和可视化图表。
+    long_description: |
+      一款专为教师设计的成绩管理工具：
+      - 本地数据存储，保护隐私安全
+      - 支持Excel批量导入导出
+      - 自动计算平均分、及格率等统计
+      - 可视化图表展示成绩分布
+    url: /_src/teacher/demo-project/成绩录入工具.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/_src/teacher/demo-project
+    tags: [成绩管理, Excel, 数据分析]
+    thumbnail: /assets/thumbnails/成绩录入工具.svg
+    features:
+      - 本地数据存储
+      - Excel导入导出
+      - 自动统计分析
+      - 图表可视化
+    tech_stack: [HTML5, JavaScript, SheetJS]
+    date: 2024-03-20
+    featured: true
+    likes: 45
+    views: 234
+    status: published
+
+  # ===== 示例作品 =====
   - id: teacher-001
     title: 细胞分裂3D可视化
     slug: cell-division-3d

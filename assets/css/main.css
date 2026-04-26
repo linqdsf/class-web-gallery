@@ -345,7 +345,7 @@ h1, h2, h3, h4, h5, h6 {
    Sections
    ======================================== */
 .section {
-    padding: 40px 0;
+    padding: 24px 0;
 }
 
 .section-header {
@@ -354,7 +354,7 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     padding: 0 16px;
     max-width: 1200px;
     margin-left: auto;
@@ -1367,7 +1367,7 @@ h1, h2, h3, h4, h5, h6 {
     
     /* Sections */
     .section {
-        padding: 50px 0;
+        padding: 30px 0;
     }
     
     .section-header {
@@ -1561,11 +1561,11 @@ h1, h2, h3, h4, h5, h6 {
     
     /* Sections */
     .section {
-        padding: 70px 0;
+        padding: 40px 0;
     }
     
     .section-header {
-        margin-bottom: 35px;
+        margin-bottom: 20px;
     }
     
     .section-title {
@@ -1620,11 +1620,11 @@ h1, h2, h3, h4, h5, h6 {
     
     /* Footer */
     .footer {
-        padding: 70px 24px 30px;
+        padding: 40px 24px 30px;
     }
     
     .footer-content {
-        gap: 60px;
+        gap: 40px;
     }
     
     .footer-logo {

@@ -20,8 +20,8 @@ apps:
       - 360度自由旋转观察
       - 动画播放控制与速度调节
       - 详细的阶段说明信息
-    url: /_src/teacher/cell-division-3d/index.html
-    repo: https://github.com/linqdsf/class-web-gallery/tree/main/_src/teacher/cell-division-3d
+    url: /teacher-apps/teacher/cell-division-3d/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/cell-division-3d
     tags: [细胞分裂, 3D动画, 生物学]
     thumbnail: /assets/thumbnails/cell-division-3d.svg
     features:
@@ -52,8 +52,8 @@ apps:
       - 支持Excel批量导入导出
       - 自动计算平均分、及格率等统计
       - 可视化图表展示成绩分布
-    url: /_src/teacher/demo-project/index.html
-    repo: https://github.com/linqdsf/class-web-gallery/tree/main/_src/teacher/demo-project
+    url: /teacher-apps/teacher/demo-project/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/demo-project
     tags: [成绩管理, Excel, 数据分析]
     thumbnail: /assets/thumbnails/成绩录入工具.svg
     features:

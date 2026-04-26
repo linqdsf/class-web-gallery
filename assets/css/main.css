@@ -306,6 +306,16 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: column;
     gap: 12px;
     align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.hero-actions .btn {
+    width: 100%;
+    max-width: 200px;
+    text-align: center;
 }
 
 .hero-stats {
@@ -340,29 +350,38 @@ h1, h2, h3, h4, h5, h6 {
 
 .section-header {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 12px;
     margin-bottom: 24px;
-    text-align: center;
+    padding: 0 16px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .section-title {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
+    color: var(--text-primary);
+}
+
+.section-more {
+    font-size: 0.9rem;
+    color: var(--primary);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.section-more:hover {
+    text-decoration: underline;
 }
 
 .title-icon {
     font-size: 1.25rem;
-}
-
-.section-more {
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
 }
 
 /* ========================================
@@ -421,6 +440,15 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 1fr;
     gap: 16px;
     padding: 0 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 确保卡片内容对齐 */
+.app-card {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
 }
 
 /* ========================================
@@ -568,6 +596,8 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 1fr;
     gap: 16px;
     padding: 0 16px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .category-card {
@@ -622,6 +652,8 @@ h1, h2, h3, h4, h5, h6 {
     gap: 8px;
     justify-content: center;
     padding: 0 16px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .tag-item {
@@ -662,6 +694,9 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
     color: white;
     margin: 0 16px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .cta-title {
@@ -680,6 +715,12 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: column;
     gap: 12px;
     align-items: center;
+    justify-content: center;
+}
+
+.cta-actions .btn {
+    width: 100%;
+    max-width: 200px;
 }
 
 /* ========================================

@@ -740,7 +740,7 @@
             
             // 创建染色体
             for (let i = 0; i < chromosomeCount; i++) {
-                const chrom = createChromosome(chromosomeLength, paired, i);
+                const chrom = createChromosome(chromosomeLength, paired, i, chromosomeCount);
                 chromosomes.push(chrom);
                 scene.add(chrom);
             }
@@ -749,7 +749,7 @@
         }
 
         // 创建单个染色体
-        function createChromosome(length, paired, index) {
+        function createChromosome(length, paired, index, totalCount) {
             const group = new THREE.Group();
             
             // 染色体主体 - X形状
@@ -787,7 +787,7 @@
             }
             
             // 定位染色体
-            const angle = (index / chromosomeCount) * Math.PI * 2;
+            const angle = (index / totalCount) * Math.PI * 2;
             const radius = currentPhase === 0 ? 0.8 : 1.5;
             group.position.set(
                 Math.cos(angle) * radius,

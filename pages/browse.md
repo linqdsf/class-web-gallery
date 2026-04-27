@@ -83,7 +83,7 @@ permalink: /browse/
                             <span>❤️ {{ app.likes }}</span>
                         </div>
                         <div class="card-actions">
-                            <a href="{{ app.url }}" target="_blank" class="btn btn-sm btn-primary">🚀 访问</a>
+                            <a href="{{ site.baseurl }}{{ app.url }}" target="_blank" class="btn btn-sm btn-primary">🚀 访问</a>
                             {% if app.repo %}
                             <a href="{{ app.repo }}" target="_blank" class="btn btn-sm btn-secondary">📥 下载</a>
                             {% endif %}

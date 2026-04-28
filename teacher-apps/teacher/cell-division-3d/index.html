@@ -566,14 +566,28 @@
             }
         ];
 
+        // ==================== 阶段状态管理 ====================
+        let phaseStates = {
+            nucleusVisible: true,      // 核膜可见
+            nucleusOpacity: 0.4,       // 核膜透明度
+            cellPinching: 0,           // 细胞缢裂程度 0-1
+            chromosomeState: 'dispersed', // dispersed, condensed, aligned, separating, arrived
+            homologPairing: false,      // 同源染色体配对（减数分裂）
+            splitting: false,           // 是否在分裂中
+            poles: { top: [], bottom: [] } // 两极的染色体
+        };
+
         // ==================== Three.js 场景 ====================
         let scene, camera, renderer, controls;
         let cell, nucleus, chromosomes = [], spindleFibers = [], centrioles = [];
+        let daughterCells = []; // 子细胞（胞质分裂后）
         let currentPhase = 0;
         let isPlaying = false;
         let animationSpeed = 1;
         let divisionType = 'mitosis';
         let animationProgress = 0;
+        let transitionProgress = 1; // 阶段过渡进度 0-1
+        let previousPhase = 0;
 
         // 初始化场景
         function init() {
@@ -637,7 +651,10 @@
             // 清除旧对象
             clearScene();
             
-            // 细胞膜
+            // 更新阶段状态
+            updatePhaseState();
+            
+            // 细胞膜 - 根据阶段变化
             const cellGeometry = new THREE.SphereGeometry(4, 64, 64);
             const cellMaterial = new THREE.MeshPhongMaterial({
                 color: 0x66cc66,
@@ -655,14 +672,15 @@
             );
             cell.add(wireframe);
             
-            // 细胞核
+            // 细胞核 - 根据阶段透明度变化
             const nucleusGeometry = new THREE.SphereGeometry(1.8, 32, 32);
             const nucleusMaterial = new THREE.MeshPhongMaterial({
                 color: 0xffcc66,
                 transparent: true,
-                opacity: 0.4
+                opacity: phaseStates.nucleusOpacity || 0.4
             });
             nucleus = new THREE.Mesh(nucleusGeometry, nucleusMaterial);
+            nucleus.visible = phaseStates.nucleusVisible;
             scene.add(nucleus);
             
             // 核膜线框
@@ -670,9 +688,10 @@
                 new THREE.WireframeGeometry(nucleusGeometry),
                 new THREE.LineBasicMaterial({ color: 0xffcc66, transparent: true, opacity: 0.5 })
             );
+            nucleusWireframe.visible = phaseStates.nucleusVisible;
             nucleus.add(nucleusWireframe);
             
-            // 中心粒
+            // 中心粒 - 位置根据阶段变化
             createCentrioles();
             
             // 创建染色体（根据阶段）
@@ -685,62 +704,65 @@
             const centrioleGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.5, 8);
             const centrioleMaterial = new THREE.MeshPhongMaterial({ color: 0x9999ff });
             
-            // 两个中心粒
-            for (let i = 0; i < 2; i++) {
-                const centriole = new THREE.Mesh(centrioleGeometry, centrioleMaterial);
-                centriole.position.set((i === 0 ? -2 : 2), 0, 0);
-                centrioles.push(centriole);
-                scene.add(centriole);
+            if (divisionType === 'meiosis' && currentPhase >= 5 && currentPhase <= 4) {
+                // 减数分裂II和后期前的特殊位置
+                centrioles = [];
+            } else if (divisionType === 'meiosis' && currentPhase >= 3) {
+                // 减数分裂I后期：两对中心粒
+                const positions = [
+                    [-3, 0, -2], [-3, 0, 2], [3, 0, -2], [3, 0, 2]
+                ];
+                positions.forEach(pos => {
+                    const centriole = new THREE.Mesh(centrioleGeometry, centrioleMaterial);
+                    centriole.position.set(...pos);
+                    centriole.rotation.x = Math.PI / 2;
+                    centrioles.push(centriole);
+                    scene.add(centriole);
+                });
+            } else if (currentPhase >= 3) {
+                // 有丝分裂后期/末期：中心粒在两极
+                const positions = [[0, 0, -3], [0, 0, 3]];
+                positions.forEach(pos => {
+                    const centriole = new THREE.Mesh(centrioleGeometry, centrioleMaterial);
+                    centriole.position.set(...pos);
+                    centriole.rotation.x = Math.PI / 2;
+                    centrioles.push(centriole);
+                    scene.add(centriole);
+                });
+            } else {
+                // 前期和中期：中心粒在细胞两极
+                const positions = [[0, 0, -3], [0, 0, 3]];
+                positions.forEach(pos => {
+                    const centriole = new THREE.Mesh(centrioleGeometry, centrioleMaterial);
+                    centriole.position.set(...pos);
+                    centriole.rotation.x = Math.PI / 2;
+                    centrioles.push(centriole);
+                    scene.add(centriole);
+                });
             }
         }
 
-        // 更新染色体
+        // 更新染色体 - 根据各时期特点
         function updateChromosomes() {
             // 清除旧染色体
             chromosomes.forEach(chrom => scene.remove(chrom));
             chromosomes = [];
             
-            const phase = divisionType === 'mitosis' ? mitosisPhases[currentPhase] : meiosisPhases[currentPhase];
+            // 清除子细胞
+            daughterCells.forEach(cell => scene.remove(cell));
+            daughterCells = [];
             
-            // 根据阶段创建染色体
-            let chromosomeCount, chromosomeLength, paired;
+            // 根据分裂类型和阶段确定染色体数量
+            let chromosomeCount = 4; // 默认4对染色体
+            let isMeiosis = divisionType === 'meiosis';
+            let isMeiosisII = isMeiosis && currentPhase >= 5;
             
-            if (currentPhase === 0) {
-                // 间期 - 染色质
-                chromosomeCount = 6;
-                chromosomeLength = 0.3;
-                paired = false;
-            } else if (currentPhase < 5) {
-                // 有丝分裂各阶段
-                chromosomeCount = 6;
-                chromosomeLength = 1.2;
-                paired = true;
-            } else {
-                // 胞质分裂
-                chromosomeCount = 6;
-                chromosomeLength = 1.0;
-                paired = true;
-            }
-            
-            // 减数分裂特殊处理
-            if (divisionType === 'meiosis') {
-                if (currentPhase === 0) {
-                    chromosomeCount = 6;
-                    chromosomeLength = 0.3;
-                } else if (currentPhase <= 4) {
-                    // 减数分裂I - 同源染色体配对
-                    chromosomeCount = 3; // 3对同源染色体
-                    chromosomeLength = 1.3;
-                } else {
-                    // 减数分裂II
-                    chromosomeCount = 3;
-                    chromosomeLength = 1.0;
-                }
-            }
+            // 更新阶段状态
+            updatePhaseState();
             
             // 创建染色体
             for (let i = 0; i < chromosomeCount; i++) {
-                const chrom = createChromosome(chromosomeLength, paired, i, chromosomeCount);
+                const chrom = createChromosomeForPhase(i, chromosomeCount);
                 chromosomes.push(chrom);
                 scene.add(chrom);
             }
@@ -748,54 +770,388 @@
             updateSpindleFibers();
         }
 
-        // 创建单个染色体
-        function createChromosome(length, paired, index, totalCount) {
+        // 根据当前阶段更新状态
+        function updatePhaseState() {
+            const phases = divisionType === 'mitosis' ? mitosisPhases : meiosisPhases;
+            const phase = phases[currentPhase];
+            
+            // 重置状态
+            phaseStates.nucleusVisible = true;
+            phaseStates.cellPinching = 0;
+            phaseStates.splitting = false;
+            phaseStates.homologPairing = false;
+            
+            if (divisionType === 'mitosis') {
+                switch(currentPhase) {
+                    case 0: // 间期
+                        phaseStates.nucleusOpacity = 0.4;
+                        phaseStates.chromosomeState = 'dispersed';
+                        break;
+                    case 1: // 前期
+                        phaseStates.nucleusOpacity = 0.2;
+                        phaseStates.nucleusVisible = true;
+                        phaseStates.chromosomeState = 'condensing';
+                        break;
+                    case 2: // 中期
+                        phaseStates.nucleusVisible = false;
+                        phaseStates.chromosomeState = 'aligned';
+                        break;
+                    case 3: // 后期
+                        phaseStates.nucleusVisible = false;
+                        phaseStates.chromosomeState = 'separating';
+                        break;
+                    case 4: // 末期
+                        phaseStates.nucleusVisible = true;
+                        phaseStates.nucleusOpacity = 0.2;
+                        phaseStates.chromosomeState = 'arrived';
+                        break;
+                    case 5: // 胞质分裂
+                        phaseStates.nucleusVisible = true;
+                        phaseStates.nucleusOpacity = 0.4;
+                        phaseStates.cellPinching = 0.8;
+                        phaseStates.splitting = true;
+                        phaseStates.chromosomeState = 'arrived';
+                        break;
+                }
+            } else {
+                // 减数分裂
+                switch(currentPhase) {
+                    case 0: // 间期
+                        phaseStates.nucleusOpacity = 0.4;
+                        phaseStates.chromosomeState = 'dispersed';
+                        phaseStates.homologPairing = false;
+                        break;
+                    case 1: // 减数分裂I-前期（重点：同源染色体配对形成四分体）
+                        phaseStates.nucleusOpacity = 0.15;
+                        phaseStates.nucleusVisible = true;
+                        phaseStates.chromosomeState = 'condensing';
+                        phaseStates.homologPairing = true;
+                        break;
+                    case 2: // 减数分裂I-中期（四分体排列在赤道板）
+                        phaseStates.nucleusVisible = false;
+                        phaseStates.chromosomeState = 'aligned';
+                        phaseStates.homologPairing = true;
+                        break;
+                    case 3: // 减数分裂I-后期（同源染色体分离）
+                        phaseStates.nucleusVisible = false;
+                        phaseStates.chromosomeState = 'separating';
+                        phaseStates.homologPairing = true;
+                        break;
+                    case 4: // 减数分裂I-末期（形成两个次级母细胞）
+                        phaseStates.nucleusVisible = true;
+                        phaseStates.nucleusOpacity = 0.4;
+                        phaseStates.cellPinching = 0.9;
+                        phaseStates.splitting = true;
+                        phaseStates.homologPairing = false;
+                        break;
+                    case 5: // 减数分裂II-前期
+                        phaseStates.nucleusOpacity = 0.2;
+                        phaseStates.nucleusVisible = true;
+                        phaseStates.chromosomeState = 'condensing';
+                        phaseStates.homologPairing = false;
+                        break;
+                    case 6: // 减数分裂II-中期（着丝点排列）
+                        phaseStates.nucleusVisible = false;
+                        phaseStates.chromosomeState = 'aligned';
+                        break;
+                    case 7: // 减数分裂II-后期（姐妹染色单体分离）
+                        phaseStates.nucleusVisible = false;
+                        phaseStates.chromosomeState = 'separating';
+                        break;
+                    case 8: // 减数分裂II-末期（形成4个配子）
+                        phaseStates.nucleusVisible = true;
+                        phaseStates.nucleusOpacity = 0.4;
+                        phaseStates.cellPinching = 0.9;
+                        phaseStates.splitting = true;
+                        phaseStates.chromosomeState = 'arrived';
+                        break;
+                }
+            }
+        }
+
+        // 根据阶段创建染色体
+        function createChromosomeForPhase(index, totalCount) {
             const group = new THREE.Group();
+            group.userData = { index: index };
             
-            // 染色体主体 - X形状
-            const chromMaterial = new THREE.MeshPhongMaterial({ color: 0xe74c3c });
+            // 染色体颜色 - 用不同颜色区分同源染色体
+            const colors = [0xe74c3c, 0x3498db, 0x2ecc71, 0x9b59b6];
+            const color = colors[index % colors.length];
+            const chromMaterial = new THREE.MeshPhongMaterial({ color: color });
             
-            // 两条臂 - 使用圆柱体（兼容r128）
-            const armGeometry = new THREE.CylinderGeometry(0.12, 0.12, length * 0.4, 8);
+            // 根据状态确定染色体形态
+            let length = 0.3; // 默认短小（染色质状态）
+            let radius = 0.08;
+            let pairingOffset = 0;
             
-            const arm1 = new THREE.Mesh(armGeometry, chromMaterial);
-            arm1.rotation.z = Math.PI / 4;
-            group.add(arm1);
-            
-            const arm2 = new THREE.Mesh(armGeometry, chromMaterial);
-            arm2.rotation.z = -Math.PI / 4;
-            group.add(arm2);
-            
-            // 配对染色体（减数分裂）
-            if (paired && divisionType === 'meiosis' && currentPhase <= 4) {
-                const arm3 = new THREE.Mesh(armGeometry, new THREE.MeshPhongMaterial({ color: 0x3498db }));
-                arm3.position.x = 0.5;
-                arm3.rotation.z = Math.PI / 4;
-                group.add(arm3);
-                
-                const arm4 = new THREE.Mesh(armGeometry, new THREE.MeshPhongMaterial({ color: 0x3498db }));
-                arm4.position.x = 0.5;
-                arm4.rotation.z = -Math.PI / 4;
-                group.add(arm4);
-                
-                // 连接线（四分体）
-                const lineGeometry = new THREE.BufferGeometry();
-                const points = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.5, 0, 0)];
-                lineGeometry.setFromPoints(points);
-                const line = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0xffff00 }));
-                group.add(line);
+            switch(phaseStates.chromosomeState) {
+                case 'dispersed':
+                    // 间期：染色质丝状
+                    length = 0.4;
+                    radius = 0.05;
+                    break;
+                case 'condensing':
+                    // 前期：开始凝缩
+                    length = 0.8 + Math.sin(transitionProgress * Math.PI) * 0.4;
+                    break;
+                case 'aligned':
+                    // 中期：完全凝缩，整齐排列在赤道板
+                    length = 1.2;
+                    break;
+                case 'separating':
+                    // 后期/减数I后期：正在分离
+                    length = 1.0;
+                    break;
+                case 'arrived':
+                    // 末期：到达两极
+                    length = 0.8;
+                    break;
             }
             
-            // 定位染色体
-            const angle = (index / totalCount) * Math.PI * 2;
-            const radius = currentPhase === 0 ? 0.8 : 1.5;
-            group.position.set(
-                Math.cos(angle) * radius,
-                Math.sin(angle) * radius * 0.5,
-                Math.sin(angle) * radius * 0.3
-            );
+            // 减数分裂同源染色体配对
+            if (phaseStates.homologPairing && divisionType === 'meiosis') {
+                // 创建同源染色体对（四分体）
+                const homologGroup = new THREE.Group();
+                
+                // 第一条（父本来源）
+                const arm1a = new THREE.Mesh(
+                    new THREE.CylinderGeometry(radius, radius, length * 0.45, 8),
+                    chromMaterial
+                );
+                arm1a.rotation.z = Math.PI / 4;
+                
+                const arm1b = new THREE.Mesh(
+                    new THREE.CylinderGeometry(radius, radius, length * 0.45, 8),
+                    chromMaterial
+                );
+                arm1b.rotation.z = -Math.PI / 4;
+                
+                const chromatid1 = new THREE.Group();
+                chromatid1.add(arm1a);
+                chromatid1.add(arm1b);
+                homologGroup.add(chromatid1);
+                
+                // 第二条（母本来源）- 配对的同源染色体
+                const homologMaterial = new THREE.MeshPhongMaterial({ color: 0xf39c12 }); // 橙黄色区分
+                const arm2a = new THREE.Mesh(
+                    new THREE.CylinderGeometry(radius, radius, length * 0.45, 8),
+                    homologMaterial
+                );
+                arm2a.rotation.z = -Math.PI / 4;
+                arm2a.position.x = 0.5;
+                
+                const arm2b = new THREE.Mesh(
+                    new THREE.CylinderGeometry(radius, radius, length * 0.45, 8),
+                    homologMaterial
+                );
+                arm2b.rotation.z = Math.PI / 4;
+                arm2b.position.x = 0.5;
+                
+                const chromatid2 = new THREE.Group();
+                chromatid2.add(arm2a);
+                chromatid2.add(arm2b);
+                homologGroup.add(chromatid2);
+                
+                // 交叉互换连接（联会复合体）
+                const crossingPoints = [];
+                const crossCount = 2;
+                for (let c = 0; c < crossCount; c++) {
+                    const y = (c / (crossCount - 1) - 0.5) * length * 0.5;
+                    crossingPoints.push(new THREE.Vector3(0.25, y, 0));
+                }
+                const crossGeometry = new THREE.BufferGeometry().setFromPoints(crossingPoints);
+                const crossLine = new THREE.Line(crossGeometry, 
+                    new THREE.LineBasicMaterial({ color: 0xffff00, linewidth: 2 }));
+                homologGroup.add(crossLine);
+                
+                // 四分体连接线
+                const tetradGeometry = new THREE.BufferGeometry();
+                const tetradPoints = [
+                    new THREE.Vector3(0, -length * 0.3, 0),
+                    new THREE.Vector3(0, length * 0.3, 0)
+                ];
+                tetradGeometry.setFromPoints(tetradPoints);
+                const tetradLine = new THREE.Line(tetradGeometry,
+                    new THREE.LineBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 }));
+                homologGroup.add(tetradLine);
+                
+                group.add(homologGroup);
+            } else {
+                // 普通染色体（X形，姐妹染色单体）
+                const arm1 = new THREE.Mesh(
+                    new THREE.CylinderGeometry(radius, radius, length * 0.45, 8),
+                    chromMaterial
+                );
+                arm1.rotation.z = Math.PI / 4;
+                
+                const arm2 = new THREE.Mesh(
+                    new THREE.CylinderGeometry(radius, radius, length * 0.45, 8),
+                    chromMaterial
+                );
+                arm2.rotation.z = -Math.PI / 4;
+                
+                group.add(arm1);
+                group.add(arm2);
+                
+                // 减数分裂II：只有一条染色体（姐妹染色单体未分离状态）
+                if (divisionType === 'meiosis' && currentPhase >= 5 && currentPhase < 7) {
+                    // 显示着丝点
+                    const centromere = new THREE.SphereGeometry(0.1, 8, 8);
+                    const centromereMesh = new THREE.Mesh(centromere,
+                        new THREE.MeshPhongMaterial({ color: 0xffd700 }));
+                    group.add(centromereMesh);
+                }
+            }
+            
+            // 根据阶段确定位置
+            setChromosomePosition(group, index, totalCount);
             
             return group;
+        }
+
+        // 设置染色体位置
+        function setChromosomePosition(group, index, totalCount) {
+            const angle = (index / totalCount) * Math.PI * 2;
+            const horizontalAngle = angle;
+            
+            // 有丝分裂位置变化
+            if (divisionType === 'mitosis') {
+                switch(currentPhase) {
+                    case 0: // 间期：分散在核内
+                        const radius = 0.6 + Math.random() * 0.3;
+                        group.position.set(
+                            Math.cos(horizontalAngle) * radius,
+                            (Math.random() - 0.5) * 0.5,
+                            Math.sin(horizontalAngle) * radius * 0.3
+                        );
+                        group.rotation.set(
+                            Math.random() * Math.PI,
+                            Math.random() * Math.PI,
+                            Math.random() * Math.PI
+                        );
+                        break;
+                    case 1: // 前期：向核膜边缘移动，开始凝缩
+                        group.position.set(
+                            Math.cos(horizontalAngle) * 1.0,
+                            (Math.random() - 0.5) * 0.8,
+                            Math.sin(horizontalAngle) * 0.5
+                        );
+                        group.rotation.set(0, horizontalAngle, 0);
+                        break;
+                    case 2: // 中期：整齐排列在赤道板上
+                        group.position.set(
+                            Math.cos(horizontalAngle) * 1.8,
+                            0,
+                            Math.sin(horizontalAngle) * 0.3
+                        );
+                        group.rotation.set(Math.PI / 2, 0, horizontalAngle);
+                        break;
+                    case 3: // 后期：分离向两极移动
+                        const separation = transitionProgress;
+                        const direction = index % 2 === 0 ? 1 : -1;
+                        group.position.set(
+                            direction * (2 + separation * 2),
+                            (Math.random() - 0.5) * 0.5,
+                            (Math.random() - 0.5) * 0.3
+                        );
+                        group.rotation.set(0, direction * horizontalAngle, 0);
+                        break;
+                    case 4: // 末期：到达两极
+                        const finalDirection = index % 2 === 0 ? 1 : -1;
+                        group.position.set(
+                            finalDirection * 3.0,
+                            (Math.random() - 0.5) * 0.3,
+                            (Math.random() - 0.5) * 0.2
+                        );
+                        group.rotation.set(
+                            Math.random() * 0.5,
+                            Math.random() * Math.PI,
+                            Math.random() * 0.5
+                        );
+                        break;
+                    case 5: // 胞质分裂：两极各有完整的染色体组
+                        const cellDirection = index % 2 === 0 ? 1 : -1;
+                        group.position.set(
+                            cellDirection * (3.0 + (cellDirection > 0 ? 0 : phaseStates.cellPinching * 1.5)),
+                            (Math.random() - 0.5) * 0.3,
+                            (Math.random() - 0.5) * 0.2
+                        );
+                        break;
+                }
+            } else {
+                // 减数分裂位置变化
+                switch(currentPhase) {
+                    case 0: // 间期：同源染色体分散
+                        group.position.set(
+                            Math.cos(horizontalAngle) * 0.7,
+                            (Math.random() - 0.5) * 0.4,
+                            Math.sin(horizontalAngle) * 0.3
+                        );
+                        break;
+                    case 1: // 减数I-前期：同源染色体配对
+                        group.position.set(
+                            Math.cos(horizontalAngle) * 1.2,
+                            0,
+                            Math.sin(horizontalAngle) * 0.4
+                        );
+                        break;
+                    case 2: // 减数I-中期：四分体排列
+                        group.position.set(
+                            Math.cos(horizontalAngle) * 1.8,
+                            0,
+                            Math.sin(horizontalAngle) * 0.2
+                        );
+                        break;
+                    case 3: // 减数I-后期：同源染色体分离（不分离姐妹染色单体）
+                        const meiosisDirection = index % 2 === 0 ? 1 : -1;
+                        group.position.set(
+                            meiosisDirection * (2 + transitionProgress * 1.5),
+                            (Math.random() - 0.5) * 0.4,
+                            (Math.random() - 0.5) * 0.2
+                        );
+                        break;
+                    case 4: // 减数I-末期：形成两个次级母细胞
+                        const meiosisIDirection = index % 2 === 0 ? 1 : -1;
+                        group.position.set(
+                            meiosisIDirection * 3.2,
+                            (Math.random() - 0.5) * 0.3,
+                            (Math.random() - 0.5) * 0.2
+                        );
+                        break;
+                    case 5: // 减数II-前期
+                        group.position.set(
+                            Math.cos(horizontalAngle) * 1.0,
+                            (Math.random() - 0.5) * 0.5,
+                            Math.sin(horizontalAngle) * 0.3
+                        );
+                        break;
+                    case 6: // 减数II-中期
+                        group.position.set(
+                            Math.cos(horizontalAngle) * 1.5,
+                            0,
+                            Math.sin(horizontalAngle) * 0.2
+                        );
+                        break;
+                    case 7: // 减数II-后期：姐妹染色单体分离
+                        const meiosisIIDirection = index % 2 === 0 ? 1 : -1;
+                        group.position.set(
+                            meiosisIIDirection * (1.5 + transitionProgress * 1.2),
+                            (Math.random() - 0.5) * 0.3,
+                            (Math.random() - 0.5) * 0.2
+                        );
+                        break;
+                    case 8: // 减数II-末期：形成4个配子
+                        // 分成4个象限
+                        const quadrant = index % 4;
+                        const qAngle = (quadrant / 4) * Math.PI * 2;
+                        group.position.set(
+                            Math.cos(qAngle) * 2.5,
+                            (Math.random() - 0.5) * 0.2,
+                            Math.sin(qAngle) * 0.2
+                        );
+                        break;
+                }
+            }
         }
 
         // 更新纺锤丝
@@ -804,34 +1160,104 @@
             spindleFibers.forEach(fiber => scene.remove(fiber));
             spindleFibers = [];
             
-            if (currentPhase === 0) return; // 间期无纺锤丝
+            // 间期无纺锤丝
+            if (currentPhase === 0) return;
             
-            const fiberMaterial = new THREE.LineBasicMaterial({ color: 0x3498db, transparent: true, opacity: 0.6 });
+            const fiberMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x3498db, 
+                transparent: true, 
+                opacity: 0.5 
+            });
             
-            // 从中心粒到染色体
+            // 减数分裂II时只有一个细胞，中心粒在中心
+            // 其他情况中心粒在两极
+            let centriolePositions = [];
+            
+            if (divisionType === 'meiosis' && currentPhase >= 5) {
+                // 减数分裂II：中心粒在细胞两端
+                centriolePositions = [
+                    new THREE.Vector3(0, 0, -2.5),
+                    new THREE.Vector3(0, 0, 2.5)
+                ];
+            } else if (divisionType === 'meiosis' && currentPhase >= 3) {
+                // 减数分裂I后期：两组纺锤体
+                centriolePositions = [
+                    new THREE.Vector3(-3, 0, -2),
+                    new THREE.Vector3(-3, 0, 2),
+                    new THREE.Vector3(3, 0, -2),
+                    new THREE.Vector3(3, 0, 2)
+                ];
+            } else {
+                // 有丝分裂和减数分裂I前期/中期
+                centriolePositions = [
+                    new THREE.Vector3(0, 0, -3),
+                    new THREE.Vector3(0, 0, 3)
+                ];
+            }
+            
+            // 为每个染色体绘制纺锤丝
             chromosomes.forEach((chrom, i) => {
-                centrioles.forEach((centriole, j) => {
-                    const points = [
-                        centriole.position.clone(),
-                        chrom.position.clone()
-                    ];
-                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                    const fiber = new THREE.Line(geometry, fiberMaterial);
-                    spindleFibers.push(fiber);
-                    scene.add(fiber);
-                });
+                if (phaseStates.chromosomeState === 'aligned') {
+                    // 中期：从两极到染色体着丝点
+                    centriolePositions.forEach(pos => {
+                        const points = [
+                            pos.clone(),
+                            chrom.position.clone()
+                        ];
+                        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                        const fiber = new THREE.Line(geometry, fiberMaterial);
+                        spindleFibers.push(fiber);
+                        scene.add(fiber);
+                    });
+                } else if (phaseStates.chromosomeState === 'separating') {
+                    // 后期：牵引染色体向极移动
+                    const direction = chrom.position.x > 0 ? 1 : -1;
+                    centriolePositions.forEach(pos => {
+                        if ((direction > 0 && pos.x > 0) || (direction < 0 && pos.x < 0)) {
+                            const points = [
+                                pos.clone(),
+                                chrom.position.clone()
+                            ];
+                            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                            const fiber = new THREE.Line(geometry, fiberMaterial);
+                            spindleFibers.push(fiber);
+                            scene.add(fiber);
+                        }
+                    });
+                }
             });
             
             // 极间纺锤丝（后期和末期）
-            if (currentPhase >= 3 && currentPhase <= 5) {
-                const points = [
-                    new THREE.Vector3(-3, 0, 0),
-                    new THREE.Vector3(3, 0, 0)
-                ];
-                const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                const polarFiber = new THREE.Line(geometry, fiberMaterial);
-                spindleFibers.push(polarFiber);
-                scene.add(polarFiber);
+            if (phaseStates.chromosomeState === 'separating' || phaseStates.chromosomeState === 'arrived') {
+                const polarFiberMaterial = new THREE.LineBasicMaterial({ 
+                    color: 0x3498db, 
+                    transparent: true, 
+                    opacity: 0.3 
+                });
+                
+                if (divisionType === 'meiosis' && currentPhase >= 3 && currentPhase < 5) {
+                    // 减数分裂I：两组极间纤维
+                    [-3, 3].forEach(x => {
+                        const points = [
+                            new THREE.Vector3(x, 0, -2),
+                            new THREE.Vector3(x, 0, 2)
+                        ];
+                        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                        const fiber = new THREE.Line(geometry, polarFiberMaterial);
+                        spindleFibers.push(fiber);
+                        scene.add(fiber);
+                    });
+                } else if (divisionType !== 'meiosis' || currentPhase >= 5) {
+                    // 有丝分裂或减数分裂II
+                    const points = [
+                        new THREE.Vector3(0, 0, -3),
+                        new THREE.Vector3(0, 0, 3)
+                    ];
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const fiber = new THREE.Line(geometry, polarFiberMaterial);
+                    spindleFibers.push(fiber);
+                    scene.add(fiber);
+                }
             }
         }
 
@@ -936,8 +1362,26 @@
 
         // 跳转到指定阶段
         function goToPhase(phase) {
+            previousPhase = currentPhase;
             currentPhase = phase;
             animationProgress = 0;
+            transitionProgress = 1; // 立即显示目标阶段
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶ 播放';
+            
+            updatePhaseState();
+            updatePhaseList();
+            createCell();
+            updateProgress();
+            updateInfoPanel();
+        }
+
+        // 重置动画
+        function resetAnimation() {
+            currentPhase = 0;
+            previousPhase = 0;
+            animationProgress = 0;
+            transitionProgress = 1;
             isPlaying = false;
             document.getElementById('playBtn').textContent = '▶ 播放';
             
@@ -951,19 +1395,6 @@
         function togglePlay() {
             isPlaying = !isPlaying;
             document.getElementById('playBtn').textContent = isPlaying ? '⏸ 暂停' : '▶ 播放';
-        }
-
-        // 重置动画
-        function resetAnimation() {
-            currentPhase = 0;
-            animationProgress = 0;
-            isPlaying = false;
-            document.getElementById('playBtn').textContent = '▶ 播放';
-            
-            updatePhaseList();
-            createCell();
-            updateProgress();
-            updateInfoPanel();
         }
 
         // 设置速度
@@ -1026,14 +1457,49 @@
             requestAnimationFrame(animate);
             
             if (isPlaying) {
+                // 阶段内过渡动画
+                if (transitionProgress < 1) {
+                    transitionProgress += 0.01 * animationSpeed;
+                    transitionProgress = Math.min(1, transitionProgress);
+                    
+                    // 更新染色体位置（平滑过渡）
+                    updateChromosomePositions();
+                    
+                    // 更新核膜透明度
+                    if (nucleus && nucleus.material) {
+                        const targetOpacity = phaseStates.nucleusVisible ? 
+                            (phaseStates.nucleusOpacity || 0.4) : 0;
+                        nucleus.material.opacity += (targetOpacity - nucleus.material.opacity) * 0.05;
+                        nucleus.visible = nucleus.material.opacity > 0.01;
+                        
+                        if (nucleus.children[0]) {
+                            nucleus.children[0].visible = nucleus.visible;
+                        }
+                    }
+                    
+                    // 更新细胞膜（胞质分裂）
+                    updateCellShape();
+                }
+                
+                // 阶段切换
                 animationProgress += 0.005 * animationSpeed;
                 
                 if (animationProgress >= 1) {
                     animationProgress = 0;
+                    transitionProgress = 0;
+                    previousPhase = currentPhase;
                     const phases = divisionType === 'mitosis' ? mitosisPhases.length : meiosisPhases.length;
                     currentPhase = (currentPhase + 1) % phases;
+                    
+                    // 胞质分裂后重新创建场景
+                    if (currentPhase === 0) {
+                        createCell();
+                    } else {
+                        updatePhaseState();
+                        createCell();
+                    }
+                    
                     updatePhaseList();
-                    createCell();
                     updateInfoPanel();
                 }
                 
@@ -1042,10 +1508,34 @@
             
             // 轻微动画
             if (cell) {
-                cell.rotation.y += 0.001;
+                cell.rotation.y += 0.002;
             }
             
             renderer.render(scene, camera);
+        }
+
+        // 更新染色体位置（平滑过渡）
+        function updateChromosomePositions() {
+            chromosomes.forEach((group, i) => {
+                // 根据当前阶段和过渡进度更新位置
+                setChromosomePosition(group, group.userData.index, chromosomes.length);
+            });
+        }
+
+        // 更新细胞形态（胞质分裂缢裂效果）
+        function updateCellShape() {
+            if (!cell) return;
+            
+            const pinchAmount = phaseStates.cellPinching;
+            
+            if (pinchAmount > 0) {
+                // 创建缢裂效果 - 修改细胞膜几何体
+                // 由于Three.js球体几何体不能直接变形，我们通过缩放来模拟
+                const scale = 1 - pinchAmount * 0.15;
+                cell.scale.set(scale, 1 - pinchAmount * 0.25, scale);
+            } else {
+                cell.scale.set(1, 1, 1);
+            }
         }
 
         // 启动

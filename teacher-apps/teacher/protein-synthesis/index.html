@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蛋白质合成流程图 - 中心法则动画</title>
+    <script src="https://unpkg.com/three@0.150.0/build/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #0c1445 0%, #1a237e 50%, #0d47a1 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        /* 顶部标题栏 */
+        .header {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 {
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, #00bcd4, #26c6da);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .central-dogma-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,188,212,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .central-dogma-badge .arrow {
+            color: #00bcd4;
+            font-weight: bold;
+        }
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+        /* 控制面板 */
+        .control-panel {
+            width: 300px;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel-section {
+            margin-bottom: 25px;
+        }
+        .panel-title {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        /* 阶段选择 */
+        .stage-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .stage-btn {
+            padding: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .stage-btn:hover {
+            border-color: #00bcd4;
+            background: rgba(0,188,212,0.1);
+        }
+        .stage-btn.active {
+            background: linear-gradient(135deg, #00bcd4, #0097a7);
+            border-color: transparent;
+        }
+        .stage-icon {
+            font-size: 1.5rem;
+        }
+        .stage-info h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .stage-info p {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+        /* 播放控制 */
+        .playback-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .control-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .play-btn {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            color: white;
+        }
+        .play-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(76,175,80,0.4);
+        }
+        .reset-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .reset-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        /* 速度控制 */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .speed-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #00bcd4;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        /* 颜色图例 */
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+        .legend-color {
+            width: 24px;
+            height: 12px;
+            border-radius: 6px;
+        }
+        /* 3D画布区域 */
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            min-height: 400px;
+        }
+        /* 信息面板 */
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 350px;
+            border: 1px solid rgba(0,188,212,0.3);
+        }
+        .info-panel h3 {
+            color: #00bcd4;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .info-panel p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #ccc;
+        }
+        .info-panel .key-point {
+            background: rgba(0,188,212,0.15);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border-left: 3px solid #00bcd4;
+        }
+        /* 流程图导航 */
+        .process-flow {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0,0,0,0.6);
+            padding: 15px 25px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .flow-step.active {
+            background: rgba(0,188,212,0.3);
+        }
+        .flow-step.completed {
+            background: rgba(76,175,80,0.3);
+        }
+        .flow-arrow {
+            color: #00bcd4;
+            font-size: 1.2rem;
+        }
+        /* 旋转提示 */
+        .rotate-hint {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        /* 分子标注 */
+        .molecule-label {
+            position: absolute;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .control-panel { width: 250px; }
+        }
+        @media (max-width: 700px) {
+            .main-content { flex-direction: column; }
+            .control-panel { width: 100%; max-height: 40vh; }
+            .process-flow { flex-wrap: wrap; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🧬 蛋白质合成流程图 - 中心法则动画</h1>
+            <div class="central-dogma-badge">
+                <span>DNA</span>
+                <span class="arrow">→</span>
+                <span>RNA</span>
+                <span class="arrow">→</span>
+                <span>蛋白质</span>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <aside class="control-panel">
+                <!-- 阶段选择 -->
+                <div class="panel-section">
+                    <div class="panel-title">选择阶段</div>
+                    <div class="stage-buttons">
+                        <button class="stage-btn active" onclick="setStage('overview')">
+                            <span class="stage-icon">🔬</span>
+                            <div class="stage-info">
+                                <h4>中心法则概览</h4>
+                                <p>DNA → RNA → 蛋白质</p>
+                            </div>
+                        </button>
+                        <button class="stage-btn" onclick="setStage('transcription')">
+                            <span class="stage-icon">📝</span>
+                            <div class="stage-info">
+                                <h4>转录</h4>
+                                <p>DNA → mRNA</p>
+                            </div>
+                        </button>
+                        <button class="stage-btn" onclick="setStage('translation')">
+                            <span class="stage-icon">🏭</span>
+                            <div class="stage-info">
+                                <h4>翻译</h4>
+                                <p>mRNA → 蛋白质</p>
+                            </div>
+                        </button>
+                        <button class="stage-btn" onclick="setStage('complete')">
+                            <span class="stage-icon">✨</span>
+                            <div class="stage-info">
+                                <h4>完整流程</h4>
+                                <p>蛋白质合成全过程</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 播放控制 -->
+                <div class="panel-section">
+                    <div class="panel-title">播放控制</div>
+                    <div class="playback-controls">
+                        <button class="control-btn play-btn" id="playBtn" onclick="togglePlay()">▶ 播放</button>
+                        <button class="control-btn reset-btn" onclick="resetAnimation()">⏮ 重置</button>
+                    </div>
+                </div>
+                
+                <!-- 动画速度 -->
+                <div class="panel-section">
+                    <div class="panel-title">动画速度</div>
+                    <div class="speed-control">
+                        <span>慢</span>
+                        <input type="range" class="speed-slider" min="0.1" max="3" step="0.1" value="1" id="speedSlider" oninput="setSpeed(this.value)">
+                        <span>快</span>
+                    </div>
+                </div>
+                
+                <!-- 图例 -->
+                <div class="panel-section">
+                    <div class="panel-title">图例说明</div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #e74c3c, #c0392b);"></div>
+                            <span>DNA（遗传信息）</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #3498db, #2980b9);"></div>
+                            <span>mRNA（信使RNA）</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #9b59b6, #8e44ad);"></div>
+                            <span>tRNA（转运RNA）</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #f39c12, #d68910);"></div>
+                            <span>核糖体</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #2ecc71, #27ae60);"></div>
+                            <span>氨基酸/多肽链</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #e91e63, #c2185b);"></div>
+                            <span>RNA聚合酶</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            
+            <div class="canvas-area">
+                <div id="canvas-container"></div>
+                
+                <!-- 信息面板 -->
+                <div class="info-panel" id="infoPanel">
+                    <h3 id="infoTitle">中心法则</h3>
+                    <p id="infoText">中心法则描述了遗传信息在细胞中的流动方向：DNA上的遗传信息通过转录形成mRNA，再通过翻译合成蛋白质。这是生命活动的基本规律。</p>
+                    <div class="key-point" id="keyPoint">
+                        💡 关键点：遗传信息从DNA到RNA再到蛋白质，单向流动，不可逆转。
+                    </div>
+                </div>
+                
+                <!-- 流程图导航 -->
+                <div class="process-flow">
+                    <div class="flow-step active" id="flowDNA">
+                        <span>🧬</span> DNA
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" id="flowRNA">
+                        <span>📝</span> mRNA
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" id="flowProtein">
+                        <span>✨</span> 蛋白质
+                    </div>
+                </div>
+                
+                <div class="rotate-hint">
+                    🖱️ 拖拽旋转 | 滚轮缩放
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== 阶段配置 ====================
+        const stages = {
+            overview: {
+                name: '中心法则概览',
+                icon: '🔬',
+                info: '中心法则描述了遗传信息在细胞中的流动方向：DNA上的遗传信息通过转录形成mRNA，再通过翻译合成蛋白质。这是生命活动的基本规律。',
+                keyPoint: '💡 关键点：遗传信息从DNA到RNA再到蛋白质，单向流动，不可逆转。'
+            },
+            transcription: {
+                name: '转录过程',
+                icon: '📝',
+                info: '转录是遗传信息从DNA到mRNA的过程。在细胞核中，RNA聚合酶识别基因启动子，解开DNA双链，以一条链为模板合成互补的mRNA分子。',
+                keyPoint: '💡 关键点：转录过程中，A-T配对变为A-U配对（因为RNA使用U而不是T）。'
+            },
+            translation: {
+                name: '翻译过程',
+                icon: '🏭',
+                info: '翻译是遗传信息从mRNA到蛋白质的过程。在细胞质中，核糖体读取mRNA上的密码子，tRNA携带相应氨基酸进行配对，合成多肽链。',
+                keyPoint: '💡 关键点：每3个mRNA碱基对应一个氨基酸，这3个碱基叫做密码子。'
+            },
+            complete: {
+                name: '完整蛋白质合成',
+                icon: '✨',
+                info: '从DNA到功能性蛋白质需要经过：DNA转录→mRNA加工→mRNA出核→翻译→蛋白质折叠。整个过程体现了中心法则的核心思想。',
+                keyPoint: '💡 关键点：蛋白质的结构和功能完全由DNA中的遗传信息决定。'
+            }
+        };
+
+        // ==================== Three.js 场景 ====================
+        let scene, camera, renderer;
+        let dnaStrand = [];
+        let mrnaStrand = [];
+        let trnaMolecules = [];
+        let ribosome = null;
+        let aminoAcids = [];
+        let peptideChain = null;
+        let rnaPolymerase = null;
+        let currentStage = 'overview';
+        let isPlaying = false;
+        let animationSpeed = 1;
+        let animationProgress = 0;
+        let sceneObjects = [];
+
+        // DNA/RNA碱基颜色
+        const baseColors = {
+            A: 0xe74c3c, // 腺嘌呤 - 红色
+            T: 0x3498db, // 胸腺嘧啶 - 蓝色
+            G: 0x2ecc71, // 鸟嘌呤 - 绿色
+            C: 0xf39c12, // 胞嘧啶 - 橙色
+            U: 0x9b59b6  // 尿嘧啶 - 紫色（RNA）
+        };
+
+        // DNA序列示例
+        const dnaSequence = ['A', 'T', 'G', 'C', 'A', 'T', 'T', 'G', 'A', 'C', 'G', 'T'];
+
+        // 初始化场景
+        function init() {
+            const container = document.getElementById('canvas-container');
+            
+            // 场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0c1445);
+            
+            // 添加星空背景
+            addStars();
+            
+            // 相机
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 5, 15);
+            camera.lookAt(0, 0, 0);
+            
+            // 渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.insertBefore(renderer.domElement, container.firstChild);
+            
+            // 灯光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7);
+            scene.add(directionalLight);
+            
+            // 创建场景元素
+            createScene(currentStage);
+            
+            // 鼠标控制
+            setupMouseControls();
+            
+            // 窗口大小变化
+            window.addEventListener('resize', onWindowResize);
+            
+            // 开始渲染
+            animate();
+        }
+
+        // 添加星空背景
+        function addStars() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const starsVertices = [];
+            for (let i = 0; i < 1000; i++) {
+                const x = (Math.random() - 0.5) * 100;
+                const y = (Math.random() - 0.5) * 100;
+                const z = (Math.random() - 0.5) * 100;
+                starsVertices.push(x, y, z);
+            }
+            
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+        }
+
+        // 创建场景元素
+        function createScene(stage) {
+            // 清除旧元素
+            clearScene();
+            
+            if (stage === 'overview') {
+                createCentralDogmaOverview();
+            } else if (stage === 'transcription') {
+                createTranscriptionScene();
+            } else if (stage === 'translation') {
+                createTranslationScene();
+            } else if (stage === 'complete') {
+                createCompleteScene();
+            }
+            
+            updateInfoPanel(stage);
+        }
+
+        // 创建中心法则概览
+        function createCentralDogmaOverview() {
+            // DNA双螺旋
+            createDNAHelix(-8, 0, 0, 6, 0.8);
+            
+            // mRNA链
+            createMRNAChain(0, 1, 0, 6, false);
+            
+            // 蛋白质链
+            createProteinChain(8, 0, 0, 5);
+            
+            // 箭头指示
+            createFlowArrows();
+        }
+
+        // 创建DNA双螺旋
+        function createDNAHelix(x, y, z, length, radius) {
+            const baseGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+            
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 4;
+                
+                // 第一条链
+                const material1 = new THREE.MeshPhongMaterial({
+                    color: baseColors[dnaSequence[i]],
+                    emissive: baseColors[dnaSequence[i]],
+                    emissiveIntensity: 0.3
+                });
+                const base1 = new THREE.Mesh(baseGeometry, material1);
+                base1.position.set(
+                    x + Math.cos(angle) * radius,
+                    y + (i / 12) * length - length / 2,
+                    z + Math.sin(angle) * radius
+                );
+                scene.add(base1);
+                sceneObjects.push(base1);
+                
+                // 第二条链（互补）
+                const complement = getComplement(dnaSequence[i]);
+                const material2 = new THREE.MeshPhongMaterial({
+                    color: baseColors[complement],
+                    emissive: baseColors[complement],
+                    emissiveIntensity: 0.3
+                });
+                const base2 = new THREE.Mesh(baseGeometry, material2);
+                base2.position.set(
+                    x + Math.cos(angle + Math.PI) * radius,
+                    y + (i / 12) * length - length / 2,
+                    z + Math.sin(angle + Math.PI) * radius
+                );
+                scene.add(base2);
+                sceneObjects.push(base2);
+                
+                // 连接线
+                const lineGeometry = new THREE.BufferGeometry();
+                const points = [base1.position, base2.position];
+                lineGeometry.setFromPoints(points);
+                const lineMaterial = new THREE.LineBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                scene.add(line);
+                sceneObjects.push(line);
+                
+                // 存储DNA信息
+                dnaStrand.push({
+                    base1: base1,
+                    base2: base2,
+                    type1: dnaSequence[i],
+                    type2: complement
+                });
+            }
+        }
+
+        // 获取互补碱基
+        function getComplement(base) {
+            const complements = { 'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G' };
+            return complements[base];
+        }
+
+        // 创建mRNA链
+        function createMRNAChain(x, y, z, length, processed) {
+            const baseGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+            
+            for (let i = 0; i < 10; i++) {
+                const base = processed ? 'U' : (i % 4 === 0 ? 'A' : i % 4 === 1 ? 'U' : i % 4 === 2 ? 'G' : 'C');
+                const material = new THREE.MeshPhongMaterial({
+                    color: baseColors[base === 'U' ? 'U' : base],
+                    emissive: baseColors[base === 'U' ? 'U' : base],
+                    emissiveIntensity: 0.4
+                });
+                const baseMesh = new THREE.Mesh(baseGeometry, material);
+                baseMesh.position.set(
+                    x + (i / 10) * length - length / 2,
+                    y,
+                    z
+                );
+                scene.add(baseMesh);
+                sceneObjects.push(baseMesh);
+                mrnaStrand.push(baseMesh);
+            }
+        }
+
+        // 创建蛋白质链
+        function createProteinChain(x, y, z, length) {
+            const aminoGeometry = new THREE.SphereGeometry(0.35, 16, 16);
+            
+            const colors = [0x2ecc71, 0x27ae60, 0x1abc9c, 0x16a085, 0xf39c12];
+            
+            for (let i = 0; i < 8; i++) {
+                const material = new THREE.MeshPhongMaterial({
+                    color: colors[i % colors.length],
+                    emissive: colors[i % colors.length],
+                    emissiveIntensity: 0.3
+                });
+                const amino = new THREE.Mesh(aminoGeometry, material);
+                amino.position.set(
+                    x + (i / 8) * length - length / 2,
+                    y,
+                    z
+                );
+                scene.add(amino);
+                sceneObjects.push(amino);
+                aminoAcids.push(amino);
+            }
+            
+            // 连接成链
+            for (let i = 0; i < 7; i++) {
+                const lineGeometry = new THREE.BufferGeometry();
+                const points = [
+                    aminoAcids[i].position.clone(),
+                    aminoAcids[i + 1].position.clone()
+                ];
+                lineGeometry.setFromPoints(points);
+                const lineMaterial = new THREE.LineBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                scene.add(line);
+                sceneObjects.push(line);
+            }
+        }
+
+        // 创建流程箭头
+        function createFlowArrows() {
+            // DNA → mRNA 箭头
+            createArrow(-1, 1, 0, 0.8);
+            createArrow(3, 1, 0, 0.8);
+            createArrow(11, 0, 0, 0.8);
+            
+            // 标注
+            createLabel('DNA', -8, -2, 0);
+            createLabel('mRNA', 0, -1, 0);
+            createLabel('蛋白质', 8, -2, 0);
+            createLabel('转录', -4.5, 2.5, 0);
+            createLabel('翻译', 4.5, 2.5, 0);
+        }
+
+        // 创建箭头
+        function createArrow(x, y, z, scale) {
+            const arrowGeometry = new THREE.ConeGeometry(0.2 * scale, 0.5 * scale, 8);
+            const arrowMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00bcd4,
+                emissive: 0x00bcd4,
+                emissiveIntensity: 0.3
+            });
+            const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+            arrow.position.set(x, y, z);
+            arrow.rotation.z = -Math.PI / 2;
+            scene.add(arrow);
+            sceneObjects.push(arrow);
+        }
+
+        // 创建标签
+        function createLabel(text, x, y, z) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 64;
+            
+            context.fillStyle = 'rgba(0,0,0,0.7)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            context.font = 'bold 36px Microsoft YaHei';
+            context.fillStyle = 'white';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(x, y, z);
+            sprite.scale.set(3, 0.75, 1);
+            scene.add(sprite);
+            sceneObjects.push(sprite);
+        }
+
+        // ==================== 转录场景 ====================
+        function createTranscriptionScene() {
+            // DNA模板
+            createDNAForTranscription(-8, 0, 0);
+            
+            // RNA聚合酶
+            createRNAPolymerase(0, 0, 0);
+            
+            // 新合成的mRNA
+            createMRNAForTranscription(4, 0, 0, 0);
+            
+            // 标注
+            createLabel('DNA模板链', -10, 2, 0);
+            createLabel('RNA聚合酶', 0, 2, 0);
+            createLabel('新合成mRNA', 8, 2, 0);
+            createLabel('转录方向', 4, -2, 0);
+        }
+
+        // 创建转录用DNA
+        function createDNAForTranscription(x, y, z) {
+            const baseGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+            
+            for (let i = 0; i < 15; i++) {
+                const angle = (i / 15) * Math.PI * 3;
+                
+                // 模板链
+                const templateBase = dnaSequence[i % dnaSequence.length];
+                const material1 = new THREE.MeshPhongMaterial({
+                    color: baseColors[templateBase],
+                    emissive: baseColors[templateBase],
+                    emissiveIntensity: 0.4
+                });
+                const base1 = new THREE.Mesh(baseGeometry, material1);
+                base1.position.set(
+                    x + Math.cos(angle) * 1,
+                    y + (i / 15) * 8 - 4,
+                    z
+                );
+                scene.add(base1);
+                sceneObjects.push(base1);
+                
+                // 非模板链（配对）
+                const complement = getComplement(templateBase);
+                const material2 = new THREE.MeshPhongMaterial({
+                    color: baseColors[complement],
+                    emissive: baseColors[complement],
+                    emissiveIntensity: 0.2
+                });
+                const base2 = new THREE.Mesh(baseGeometry, material2);
+                base2.position.set(
+                    x + Math.cos(angle) * 1.8,
+                    y + (i / 15) * 8 - 4,
+                    z
+                );
+                scene.add(base2);
+                sceneObjects.push(base2);
+                
+                // 连接线
+                if (i < 10) {
+                    const lineGeometry = new THREE.BufferGeometry();
+                    const points = [base1.position, base2.position];
+                    lineGeometry.setFromPoints(points);
+                    const line = new THREE.Line(lineGeometry,
+                        new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 }));
+                    scene.add(line);
+                    sceneObjects.push(line);
+                }
+                
+                dnaStrand.push({ base1, base2, type1: templateBase, type2: complement });
+            }
+        }
+
+        // 创建RNA聚合酶
+        function createRNAPolymerase(x, y, z) {
+            const geometry = new THREE.SphereGeometry(1.2, 32, 32);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xe91e63,
+                emissive: 0xe91e63,
+                emissiveIntensity: 0.3,
+                transparent: true,
+                opacity: 0.8
+            });
+            rnaPolymerase = new THREE.Mesh(geometry, material);
+            rnaPolymerase.position.set(x, y, z);
+            scene.add(rnaPolymerase);
+            sceneObjects.push(rnaPolymerase);
+        }
+
+        // 创建转录中的mRNA
+        function createMRNAForTranscription(x, y, z, progress) {
+            const baseGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+            const visibleCount = Math.floor(progress * 12);
+            
+            for (let i = 0; i < visibleCount; i++) {
+                const rnaBase = dnaSequence[i % dnaSequence.length];
+                const actualBase = rnaBase === 'T' ? 'U' : rnaBase;
+                
+                const material = new THREE.MeshPhongMaterial({
+                    color: baseColors[actualBase],
+                    emissive: baseColors[actualBase],
+                    emissiveIntensity: 0.5
+                });
+                const base = new THREE.Mesh(baseGeometry, material);
+                base.position.set(
+                    x + (i / 12) * 6,
+                    y,
+                    z
+                );
+                scene.add(base);
+                sceneObjects.push(base);
+                mrnaStrand.push(base);
+            }
+        }
+
+        // ==================== 翻译场景 ====================
+        function createTranslationScene() {
+            // mRNA链
+            createMRNAForTranslation(-8, 2, 0);
+            
+            // 核糖体
+            createRibosome(0, 0, 0);
+            
+            // tRNA分子
+            createTRNAMolecules(2);
+            
+            // 正在合成的多肽链
+            createPeptideChain(0);
+            
+            // 标注
+            createLabel('mRNA', -10, 4, 0);
+            createLabel('核糖体', 0, -2, 0);
+            createLabel('tRNA', 4, 3, 0);
+            createLabel('多肽链', 0, -3, 0);
+        }
+
+        // 创建翻译中的mRNA
+        function createMRNAForTranslation(x, y, z) {
+            const baseGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+            const bases = ['A', 'U', 'G', 'C', 'A', 'U', 'G', 'C', 'A', 'U'];
+            
+            for (let i = 0; i < 10; i++) {
+                const base = bases[i % bases.length];
+                const material = new THREE.MeshPhongMaterial({
+                    color: baseColors[base],
+                    emissive: baseColors[base],
+                    emissiveIntensity: 0.4
+                });
+                const baseMesh = new THREE.Mesh(baseGeometry, material);
+                baseMesh.position.set(
+                    x + (i / 10) * 10 - 5,
+                    y,
+                    z
+                );
+                scene.add(baseMesh);
+                sceneObjects.push(baseMesh);
+                mrnaStrand.push(baseMesh);
+                
+                // 密码子框
+                if (i % 3 === 0) {
+                    const codonBox = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.7, 0.5, 0.3),
+                        new THREE.MeshBasicMaterial({
+                            color: 0x00bcd4,
+                            transparent: true,
+                            opacity: 0.2,
+                            wireframe: true
+                        })
+                    );
+                    codonBox.position.copy(baseMesh.position);
+                    codonBox.position.y -= 0.3;
+                    scene.add(codonBox);
+                    sceneObjects.push(codonBox);
+                }
+            }
+        }
+
+        // 创建核糖体
+        function createRibosome(x, y, z) {
+            const geometry = new THREE.SphereGeometry(1.5, 32, 32);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xf39c12,
+                emissive: 0xf39c12,
+                emissiveIntensity: 0.2,
+                transparent: true,
+                opacity: 0.6
+            });
+            ribosome = new THREE.Mesh(geometry, material);
+            ribosome.position.set(x, y, z);
+            ribosome.scale.set(1.2, 0.8, 0.8);
+            scene.add(ribosome);
+            sceneObjects.push(ribosome);
+            
+            // 核糖体亚基标注
+            const subunitGeometry = new THREE.SphereGeometry(0.8, 16, 16);
+            const subunit = new THREE.Mesh(subunitGeometry,
+                new THREE.MeshPhongMaterial({
+                    color: 0xf39c12,
+                    transparent: true,
+                    opacity: 0.4
+                }));
+            subunit.position.set(x - 0.8, y + 0.5, z);
+            scene.add(subunit);
+            sceneObjects.push(subunit);
+        }
+
+        // 创建tRNA分子
+        function createTRNAMolecules(count) {
+            const colors = [0x9b59b6, 0x8e44ad, 0x7d3c98];
+            const anticodons = ['UAC', 'AUG', 'GCU'];
+            
+            for (let i = 0; i < count; i++) {
+                const group = new THREE.Group();
+                
+                // tRNA主体
+                const bodyGeometry = new THREE.TorusGeometry(0.4, 0.1, 8, 16, Math.PI);
+                const bodyMaterial = new THREE.MeshPhongMaterial({
+                    color: colors[i % colors.length],
+                    emissive: colors[i % colors.length],
+                    emissiveIntensity: 0.3
+                });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.rotation.x = Math.PI / 2;
+                group.add(body);
+                
+                // 反密码子臂
+                const armGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 8);
+                const arm = new THREE.Mesh(armGeometry, bodyMaterial);
+                arm.rotation.z = Math.PI / 6;
+                arm.position.y = 0.3;
+                group.add(arm);
+                
+                // 氨基酸
+                const aminoGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+                const aminoMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x2ecc71,
+                    emissive: 0x2ecc71,
+                    emissiveIntensity: 0.3
+                });
+                const amino = new THREE.Mesh(aminoGeometry, aminoMaterial);
+                amino.position.y = -0.5;
+                group.add(amino);
+                
+                group.position.set(2 + i * 1.5, 2 - i * 0.5, 0);
+                scene.add(group);
+                sceneObjects.push(group);
+                trnaMolecules.push(group);
+            }
+        }
+
+        // 创建多肽链
+        function createPeptideChain(progress) {
+            const aminoGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+            const count = Math.floor(progress * 6);
+            
+            for (let i = 0; i < count; i++) {
+                const colors = [0x2ecc71, 0x27ae60, 0x1abc9c];
+                const material = new THREE.MeshPhongMaterial({
+                    color: colors[i % colors.length],
+                    emissive: colors[i % colors.length],
+                    emissiveIntensity: 0.3
+                });
+                const amino = new THREE.Mesh(aminoGeometry, material);
+                amino.position.set(
+                    -0.5 + i * 0.5,
+                    -1.5,
+                    0
+                );
+                scene.add(amino);
+                sceneObjects.push(amino);
+                aminoAcids.push(amino);
+            }
+            
+            // 连接线
+            for (let i = 0; i < count - 1; i++) {
+                const lineGeometry = new THREE.BufferGeometry();
+                const points = [
+                    new THREE.Vector3(-0.5 + i * 0.5, -1.5, 0),
+                    new THREE.Vector3(-0.5 + (i + 1) * 0.5, -1.5, 0)
+                ];
+                lineGeometry.setFromPoints(points);
+                const line = new THREE.Line(lineGeometry,
+                    new THREE.LineBasicMaterial({ color: 0x2ecc71, transparent: true, opacity: 0.6 }));
+                scene.add(line);
+                sceneObjects.push(line);
+            }
+        }
+
+        // ==================== 完整流程场景 ====================
+        function createCompleteScene() {
+            // 细胞核区域
+            createNucleus(-8, 0, 0, 4);
+            
+            // 细胞质区域
+            createCytoplasm(6, 0, 0, 6);
+            
+            // 流程箭头
+            createCompleteFlowArrows();
+            
+            // 标注
+            createLabel('细胞核', -8, 5, 0);
+            createLabel('细胞质', 6, 6, 0);
+        }
+
+        // 创建细胞核
+        function createNucleus(x, y, z, radius) {
+            // 核膜
+            const membraneGeometry = new THREE.SphereGeometry(radius, 32, 32);
+            const membraneMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffcc66,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.DoubleSide
+            });
+            const membrane = new THREE.Mesh(membraneGeometry, membraneMaterial);
+            membrane.position.set(x, y, z);
+            scene.add(membrane);
+            sceneObjects.push(membrane);
+            
+            // 核膜孔
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const poreGeometry = new THREE.TorusGeometry(0.3, 0.1, 8, 16);
+                const poreMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xffcc66,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const pore = new THREE.Mesh(poreGeometry, poreMaterial);
+                pore.position.set(
+                    x + Math.cos(angle) * radius,
+                    y,
+                    z + Math.sin(angle) * radius
+                );
+                pore.rotation.x = Math.PI / 2;
+                scene.add(pore);
+                sceneObjects.push(pore);
+            }
+            
+            // DNA
+            createDNAHelix(x, y, z - 1, 4, 0.6);
+            
+            // mRNA出核动画提示
+            createLabel('mRNA出核', x + radius + 2, y, z);
+        }
+
+        // 创建细胞质
+        function createCytoplasm(x, y, z, radius) {
+            // 简化表示
+            const ribosomeGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+            const ribosomeMaterial = new THREE.MeshPhongMaterial({
+                color: 0xf39c12,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const r = radius * 0.7;
+                const ribosome = new THREE.Mesh(ribosomeGeometry, ribosomeMaterial);
+                ribosome.position.set(
+                    x + Math.cos(angle) * r,
+                    y + (Math.random() - 0.5) * 2,
+                    z + Math.sin(angle) * r
+                );
+                scene.add(ribosome);
+                sceneObjects.push(ribosome);
+            }
+            
+            // 内质网（简化）
+            const erGeometry = new THREE.TorusGeometry(2, 0.3, 8, 32, Math.PI * 1.5);
+            const erMaterial = new THREE.MeshPhongMaterial({
+                color: 0x3498db,
+                transparent: true,
+                opacity: 0.3
+            });
+            const er = new THREE.Mesh(erGeometry, erMaterial);
+            er.position.set(x + 1, y - 2, z);
+            er.rotation.x = Math.PI / 2;
+            scene.add(er);
+            sceneObjects.push(er);
+        }
+
+        // 创建完整流程箭头
+        function createCompleteFlowArrows() {
+            // 转录箭头（核内）
+            const arrow1Geometry = new THREE.ConeGeometry(0.3, 1, 8);
+            const arrow1Material = new THREE.MeshPhongMaterial({ color: 0xe91e63 });
+            const arrow1 = new THREE.Mesh(arrow1Geometry, arrow1Material);
+            arrow1.position.set(-3, 0, 0);
+            arrow1.rotation.z = -Math.PI / 2;
+            scene.add(arrow1);
+            sceneObjects.push(arrow1);
+            
+            // 出核箭头
+            const arrow2Geometry = new THREE.ConeGeometry(0.3, 1, 8);
+            const arrow2Material = new THREE.MeshPhongMaterial({ color: 0x3498db });
+            const arrow2 = new THREE.Mesh(arrow2Geometry, arrow2Material);
+            arrow2.position.set(-1, 0, 0);
+            arrow2.rotation.z = -Math.PI / 2;
+            scene.add(arrow2);
+            sceneObjects.push(arrow2);
+            
+            // 翻译箭头
+            const arrow3Geometry = new THREE.ConeGeometry(0.3, 1, 8);
+            const arrow3Material = new THREE.MeshPhongMaterial({ color: 0x2ecc71 });
+            const arrow3 = new THREE.Mesh(arrow3Geometry, arrow3Material);
+            arrow3.position.set(3, 0, 0);
+            arrow3.rotation.z = -Math.PI / 2;
+            scene.add(arrow3);
+            sceneObjects.push(arrow3);
+        }
+
+        // 清除场景
+        function clearScene() {
+            sceneObjects.forEach(obj => {
+                if (obj.geometry) obj.geometry.dispose();
+                if (obj.material) {
+                    if (obj.material.map) obj.material.map.dispose();
+                    obj.material.dispose();
+                }
+                scene.remove(obj);
+            });
+            sceneObjects = [];
+            dnaStrand = [];
+            mrnaStrand = [];
+            trnaMolecules = [];
+            aminoAcids = [];
+            rnaPolymerase = null;
+            ribosome = null;
+        }
+
+        // 更新信息面板
+        function updateInfoPanel(stage) {
+            const data = stages[stage];
+            document.getElementById('infoTitle').innerHTML = data.icon + ' ' + data.name;
+            document.getElementById('infoText').textContent = data.info;
+            document.getElementById('keyPoint').textContent = data.keyPoint;
+            
+            // 更新流程图状态
+            updateFlowSteps(stage);
+        }
+
+        // 更新流程图状态
+        function updateFlowSteps(stage) {
+            const stages = ['overview', 'transcription', 'translation', 'complete'];
+            const currentIndex = stages.indexOf(stage);
+            
+            ['DNA', 'RNA', 'Protein'].forEach((item, i) => {
+                const element = document.getElementById('flow' + item);
+                element.className = 'flow-step';
+                if (i <= currentIndex) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        // 鼠标控制
+        function setupMouseControls() {
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+            let cameraAngle = { theta: 0, phi: Math.PI / 4 };
+            let cameraDistance = 18;
+            
+            const container = renderer.domElement;
+            
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+            
+            container.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                
+                cameraAngle.theta -= deltaX * 0.01;
+                cameraAngle.phi = Math.max(0.1, Math.min(Math.PI - 0.1, cameraAngle.phi + deltaY * 0.01));
+                
+                updateCameraPosition();
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+            
+            container.addEventListener('mouseup', () => isDragging = false);
+            container.addEventListener('mouseleave', () => isDragging = false);
+            
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cameraDistance = Math.max(8, Math.min(30, cameraDistance + e.deltaY * 0.02));
+                updateCameraPosition();
+            });
+            
+            function updateCameraPosition() {
+                camera.position.x = cameraDistance * Math.sin(cameraAngle.phi) * Math.sin(cameraAngle.theta);
+                camera.position.y = cameraDistance * Math.cos(cameraAngle.phi);
+                camera.position.z = cameraDistance * Math.sin(cameraAngle.phi) * Math.cos(cameraAngle.theta);
+                camera.lookAt(0, 0, 0);
+            }
+            
+            window.cameraControl = { theta: cameraAngle.theta, phi: cameraAngle.phi, distance: cameraDistance, update: updateCameraPosition };
+        }
+
+        // 设置阶段
+        function setStage(stage) {
+            currentStage = stage;
+            animationProgress = 0;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.stage-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.stage-btn').classList.add('active');
+            
+            // 更新按钮文字
+            const btn = event.target.closest('.stage-btn').querySelector('h4');
+            if (btn) btn.textContent = stages[stage].name;
+            
+            createScene(stage);
+        }
+
+        // 播放/暂停
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            document.getElementById('playBtn').textContent = isPlaying ? '⏸ 暂停' : '▶ 播放';
+        }
+
+        // 重置动画
+        function resetAnimation() {
+            animationProgress = 0;
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶ 播放';
+            createScene(currentStage);
+        }
+
+        // 设置速度
+        function setSpeed(value) {
+            animationSpeed = parseFloat(value);
+        }
+
+        // 窗口大小变化
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isPlaying) {
+                animationProgress += 0.003 * animationSpeed;
+                
+                if (animationProgress > 1) {
+                    animationProgress = 0;
+                }
+                
+                // 动画效果
+                updateAnimation();
+            }
+            
+            // 场景轻微旋转
+            scene.rotation.y += 0.001;
+            
+            renderer.render(scene, camera);
+        }
+
+        // 更新动画
+        function updateAnimation() {
+            if (currentStage === 'transcription') {
+                // 转录动画：RNA聚合酶移动，mRNA延伸
+                if (rnaPolymerase && mrnaStrand.length > 0) {
+                    const visibleCount = Math.floor(animationProgress * 12);
+                    rnaPolymerase.position.x = -4 + visibleCount * 0.5;
+                    
+                    // 清除旧mRNA并重新创建
+                    mrnaStrand.forEach(m => {
+                        scene.remove(m);
+                        sceneObjects = sceneObjects.filter(o => o !== m);
+                    });
+                    mrnaStrand = [];
+                    createMRNAForTranscription(4, 0, 0, animationProgress);
+                }
+            } else if (currentStage === 'translation') {
+                // 翻译动画：核糖体移动，tRNA配对，肽链延伸
+                if (ribosome) {
+                    ribosome.position.x = -4 + animationProgress * 8;
+                }
+                
+                // 更新tRNA位置
+                trnaMolecules.forEach((trna, i) => {
+                    trna.position.x = ribosome ? ribosome.position.x + 1 + i * 0.3 : 2 + i * 1.5;
+                    trna.position.y = Math.sin(animationProgress * Math.PI * 2 + i) * 0.3;
+                });
+                
+                // 更新肽链
+                aminoAcids.forEach(a => {
+                    scene.remove(a);
+                    sceneObjects = sceneObjects.filter(o => o !== a);
+                });
+                aminoAcids = [];
+                createPeptideChain(animationProgress);
+            } else if (currentStage === 'overview' || currentStage === 'complete') {
+                // DNA旋转动画
+                dnaStrand.forEach((dna, i) => {
+                    if (dna.base1 && dna.base2) {
+                        const angle = (i / 12) * Math.PI * 4 + animationProgress * Math.PI;
+                        const radius = currentStage === 'overview' ? 0.8 : 0.6;
+                        const y = (i / 12) * 6 - 3;
+                        
+                        dna.base1.position.x = (currentStage === 'overview' ? -8 : -8) + Math.cos(angle) * radius;
+                        dna.base1.position.z = Math.sin(angle) * radius;
+                        
+                        dna.base2.position.x = (currentStage === 'overview' ? -8 : -8) + Math.cos(angle + Math.PI) * radius;
+                        dna.base2.position.z = Math.sin(angle + Math.PI) * radius;
+                    }
+                });
+            }
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>

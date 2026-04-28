@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酵母菌发酵模拟器 - 版本选择</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Microsoft YaHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.2rem;
+            margin-bottom: 50px;
+        }
+        .versions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .version-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .version-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .version-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .v1 .version-badge { background: #e3f2fd; color: #1976d2; }
+        .v2 .version-badge { background: #e8f5e9; color: #388e3c; }
+        .v3 .version-badge { background: #fff3e0; color: #f57c00; }
+        .version-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+        .version-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .arrow {
+            margin-top: 20px;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍷 酵母菌发酵模拟器</h1>
+        <p class="subtitle">高中生物 · 细胞呼吸实验教学平台</p>
+        
+        <div class="versions">
+            <a href="index-v1.html" class="version-card v1">
+                <span class="version-badge">基础版</span>
+                <h2>酵母菌的细胞呼吸方式</h2>
+                <p>入门级互动课件，演示有氧呼吸和无氧呼吸的基本原理与产物对比。</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="index-v2.html" class="version-card v2">
+                <span class="version-badge">进阶版</span>
+                <h2>酿酒模拟器</h2>
+                <p>增加酿酒流程模拟，可视化展示有氧/无氧呼吸的动态变化与环境影响。</p>
+                <div class="arrow">→</div>
+            </a>
+            
+            <a href="index-v3.html" class="version-card v3">
+                <span class="version-badge">完整版</span>
+                <h2>探究学习平台</h2>
+                <p>包含学生探究模块、参考答案、酿酒模拟，有氧无氧对比分析教学。</p>
+                <div class="arrow">→</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

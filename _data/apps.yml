@@ -37,6 +37,70 @@ apps:
     views: 567
     status: published
 
+  - id: teacher-real-003
+    title: 酵母菌发酵模拟器
+    slug: yeast-fermentation
+    author: 云自白
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=yunbaibai3
+    school: 未知
+    school_icon: 🏫
+    category: teacher
+    description: 高中生物细胞呼吸互动课件，模拟酵母菌的有氧呼吸和无氧呼吸过程，包含三个版本进阶学习。
+    long_description: |
+      一款专为高中生物教学设计的酵母菌发酵模拟器，包含三个版本：
+      - 基础版：细胞呼吸方式入门
+      - 进阶版：酿酒模拟器
+      - 完整版：学生探究学习平台
+    url: /teacher-apps/teacher/yeast-fermentation/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/yeast-fermentation
+    tags: [细胞呼吸, 酵母菌, 发酵, 教学课件]
+    thumbnail: /assets/thumbnails/yeast-fermentation.svg
+    features:
+      - 有氧/无氧呼吸对比
+      - 酿酒流程模拟
+      - CO2产量曲线图
+      - 学生探究模块
+      - 三版本进阶学习
+    tech_stack: [HTML5, JavaScript, Chart.js]
+    date: 2024-04-28
+    featured: true
+    likes: 0
+    views: 0
+    status: published
+
+  - id: teacher-real-004
+    title: 蛋白质合成流程图
+    slug: protein-synthesis
+    author: 云自白
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=yunbaibai4
+    school: 未知
+    school_icon: 🏫
+    category: teacher
+    description: 动画展示转录和翻译全过程，详解中心法则DNA→RNA→蛋白质的完整流程。
+    long_description: |
+      一款展示蛋白质合成过程的3D可视化工具：
+      - 中心法则概览动画
+      - 转录过程详解
+      - 翻译过程模拟
+      - 核糖体与tRNA配对
+      - DNA、RNA、蛋白质完整流程
+    url: /teacher-apps/teacher/protein-synthesis/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/protein-synthesis
+    tags: [中心法则, 蛋白质合成, 转录, 翻译, 3D动画]
+    thumbnail: /assets/thumbnails/protein-synthesis.svg
+    features:
+      - 中心法则动画
+      - 转录过程展示
+      - 翻译过程模拟
+      - DNA双螺旋
+      - 核糖体可视化
+    tech_stack: [Three.js, JavaScript, CSS3]
+    date: 2024-04-27
+    featured: true
+    likes: 0
+    views: 0
+    status: published
+
   - id: teacher-real-001
     title: 智慧成绩管理系统
     slug: score-manager
@@ -55,7 +119,7 @@ apps:
     url: /teacher-apps/teacher/demo-project/index.html
     repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/demo-project
     tags: [成绩管理, Excel, 数据分析]
-    thumbnail: /assets/thumbnails/成绩录入工具.svg
+    thumbnail: /assets/thumbnails/成绩录入工具.png
     features:
       - 本地数据存储
       - Excel导入导出

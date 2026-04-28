@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c1445"/>
+      <stop offset="100%" style="stop-color:#1a237e"/>
+    </linearGradient>
+    <linearGradient id="dnaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e74c3c"/>
+      <stop offset="50%" style="stop-color:#3498db"/>
+      <stop offset="100%" style="stop-color:#2ecc71"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="400" height="300" fill="url(#bgGrad2)" rx="15"/>
+  
+  <!-- 标题 -->
+  <text x="200" y="35" text-anchor="middle" fill="white" font-size="18" font-weight="bold" font-family="Microsoft YaHei">中心法则 - 蛋白质合成</text>
+  
+  <!-- DNA双螺旋 -->
+  <g transform="translate(80, 150)">
+    <text x="0" y="-50" text-anchor="middle" fill="#00bcd4" font-size="14" font-family="Microsoft YaHei">DNA</text>
+    <!-- 简化DNA -->
+    <path d="M-30,0 Q0,-20 30,0 Q60,-20 90,0 Q120,-20 150,0" 
+          stroke="#e74c3c" stroke-width="4" fill="none"/>
+    <path d="M-30,20 Q0,40 30,20 Q60,40 90,20 Q120,40 150,20" 
+          stroke="#3498db" stroke-width="4" fill="none"/>
+    <!-- 连接线 -->
+    <line x1="0" y1="5" x2="0" y2="15" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <line x1="30" y1="-5" x2="30" y2="5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <line x1="60" y1="5" x2="60" y2="15" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <line x1="90" y1="-5" x2="90" y2="5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <line x1="120" y1="5" x2="120" y2="15" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  </g>
+  
+  <!-- 箭头1: 转录 -->
+  <g transform="translate(250, 150)">
+    <path d="M-20,-5 L20,-5 M10,-12 L20,-5 L10,2" stroke="#e91e63" stroke-width="3" fill="none"/>
+    <text x="0" y="20" text-anchor="middle" fill="#e91e63" font-size="11" font-family="Microsoft YaHei">转录</text>
+  </g>
+  
+  <!-- mRNA -->
+  <g transform="translate(320, 150)">
+    <text x="0" y="-40" text-anchor="middle" fill="#9b59b6" font-size="14" font-family="Microsoft YaHei">mRNA</text>
+    <!-- 单链mRNA -->
+    <path d="M-30,0 L30,0" stroke="#9b59b6" stroke-width="6" stroke-linecap="round"/>
+    <!-- 密码子标记 -->
+    <rect x="-25" y="-8" width="15" height="16" rx="2" fill="rgba(255,255,255,0.2)"/>
+    <rect x="-5" y="-8" width="15" height="16" rx="2" fill="rgba(255,255,255,0.2)"/>
+    <rect x="15" y="-8" width="15" height="16" rx="2" fill="rgba(255,255,255,0.2)"/>
+  </g>
+  
+  <!-- 箭头2: 翻译 -->
+  <g transform="translate(380, 150)">
+    <path d="M-15,-5 L15,-5 M5,-12 L15,-5 L5,2" stroke="#2ecc71" stroke-width="3" fill="none"/>
+    <text x="0" y="20" text-anchor="middle" fill="#2ecc71" font-size="11" font-family="Microsoft YaHei">翻译</text>
+  </g>
+  
+  <!-- 核糖体 -->
+  <g transform="translate(200, 220)">
+    <ellipse cx="0" cy="0" rx="40" ry="25" fill="rgba(243,156,18,0.4)" stroke="#f39c12" stroke-width="2"/>
+    <text x="0" y="5" text-anchor="middle" fill="white" font-size="12" font-family="Microsoft YaHei">核糖体</text>
+  </g>
+  
+  <!-- tRNA -->
+  <g transform="translate(160, 250)">
+    <path d="M0,0 Q-15,-20 -30,0" stroke="#9b59b6" stroke-width="3" fill="none"/>
+    <circle cx="-30" cy="0" r="6" fill="#2ecc71"/>
+    <text x="-30" y="3" text-anchor="middle" fill="white" font-size="8">氨</text>
+  </g>
+  <g transform="translate(240, 250)">
+    <path d="M0,0 Q15,-20 30,0" stroke="#9b59b6" stroke-width="3" fill="none"/>
+    <circle cx="30" cy="0" r="6" fill="#2ecc71"/>
+    <text x="30" y="3" text-anchor="middle" fill="white" font-size="8">酸</text>
+  </g>
+  
+  <!-- 多肽链 -->
+  <g transform="translate(200, 280)">
+    <circle cx="-20" cy="0" r="8" fill="#2ecc71"/>
+    <circle cx="-5" cy="0" r="8" fill="#27ae60"/>
+    <circle cx="10" cy="0" r="8" fill="#1abc9c"/>
+    <circle cx="25" cy="0" r="8" fill="#16a085"/>
+    <line x1="-12" y1="0" x2="-13" y2="0" stroke="white" stroke-width="2"/>
+    <line x1="3" y1="0" x2="2" y2="0" stroke="white" stroke-width="2"/>
+    <line x1="18" y1="0" x2="17" y2="0" stroke="white" stroke-width="2"/>
+    <text x="40" y="4" fill="#2ecc71" font-size="12" font-family="Microsoft YaHei">蛋白质</text>
+  </g>
+  
+  <!-- 中心法则流程图 -->
+  <g transform="translate(200, 60)">
+    <rect x="-100" y="-12" width="60" height="24" rx="12" fill="rgba(231,76,60,0.3)" stroke="#e74c3c" stroke-width="1"/>
+    <text x="-70" y="5" text-anchor="middle" fill="#e74c3c" font-size="12" font-weight="bold">DNA</text>
+    
+    <text x="-25" y="5" text-anchor="middle" fill="#00bcd4" font-size="16">→</text>
+    
+    <rect x="0" y="-12" width="60" height="24" rx="12" fill="rgba(52,152,219,0.3)" stroke="#3498db" stroke-width="1"/>
+    <text x="30" y="5" text-anchor="middle" fill="#3498db" font-size="12" font-weight="bold">RNA</text>
+    
+    <text x="85" y="5" text-anchor="middle" fill="#00bcd4" font-size="16">→</text>
+    
+    <rect x="110" y="-12" width="60" height="24" rx="12" fill="rgba(46,204,113,0.3)" stroke="#2ecc71" stroke-width="1"/>
+    <text x="140" y="5" text-anchor="middle" fill="#2ecc71" font-size="12" font-weight="bold">蛋白</text>
+  </g>
+</svg>

@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>高中生物·酵母菌细胞呼吸与酿酒模拟器 | 有氧/无氧对比教学</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- 辅助插件：标注使用自定义，不依赖额外库 -->
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            background: linear-gradient(145deg, #dcefea 0%, #c2e0da 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, '微软雅黑', sans-serif;
+            padding: 20px;
+        }
+        .master-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255,255,240,0.94);
+            border-radius: 48px;
+            box-shadow: 0 20px 35px rgba(0,40,30,0.25);
+            overflow: hidden;
+            padding: 20px 24px 28px;
+            backdrop-filter: blur(2px);
+        }
+        /* 控制栏 */
+        .control-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            background: #f9fbf6;
+            padding: 12px 24px;
+            border-radius: 60px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .timer-box {
+            background: #2c6e5c;
+            color: white;
+            font-family: monospace;
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 6px 20px;
+            border-radius: 40px;
+        }
+        .param-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: #e6f4f0;
+            padding: 6px 18px;
+            border-radius: 48px;
+        }
+        .param-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            color: #1f5e4f;
+        }
+        .param-item input {
+            width: 70px;
+            padding: 5px;
+            border-radius: 24px;
+            border: 1px solid #95c2b6;
+            text-align: center;
+            font-weight: bold;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            border: none;
+            background: #2f9e8c;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 10px 22px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-reset { background: #5f8b7e; }
+        .btn:hover { transform: scale(0.97); background: #1f7a68; }
+        /* 左右分屏 (原有对比) */
+        .split-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .card {
+            flex: 1;
+            background: white;
+            border-radius: 36px;
+            padding: 18px 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+        .card h3 {
+            color: #1b5e4a;
+            font-size: 1.6rem;
+            margin: 0 0 8px 0;
+            text-align: center;
+        }
+        .equation {
+            background: #e0f2ef;
+            padding: 10px;
+            border-radius: 28px;
+            font-family: monospace;
+            font-size: 1rem;
+            text-align: center;
+            margin: 12px 0;
+            font-weight: bold;
+        }
+        .mini-chart {
+            height: 220px;
+            margin: 8px 0;
+        }
+        /* 酿酒模拟器模块 */
+        .simulator-module {
+            background: #fef9e6;
+            border-radius: 42px;
+            padding: 20px 26px;
+            margin: 25px 0 20px;
+            border: 1px solid #cfdfcf;
+            box-shadow: 0 8px 18px rgba(0,20,0,0.1);
+        }
+        .sim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .sim-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #aa6f20;
+            display: flex;
+            gap: 8px;
+        }
+        .sim-params {
+            display: flex;
+            gap: 20px;
+            background: #fff2df;
+            padding: 10px 18px;
+            border-radius: 60px;
+            flex-wrap: wrap;
+        }
+        .sim-params label {
+            font-weight: bold;
+            color: #8b5a2b;
+        }
+        .sim-charts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 26px;
+            margin-top: 20px;
+        }
+        .sim-chart-box {
+            flex: 1;
+            min-width: 270px;
+            background: #ffffffc9;
+            border-radius: 32px;
+            padding: 12px;
+        }
+        .annotation-list {
+            background: #eef3ea;
+            border-radius: 28px;
+            padding: 12px 20px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+        .badge {
+            background: #d9b48b;
+            color: #2c2c2c;
+            border-radius: 60px;
+            padding: 4px 12px;
+            display: inline-block;
+            margin: 4px 6px 4px 0;
+            font-size: 0.8rem;
+        }
+        /* 实验记录表 自动生成 */
+        .exp-table {
+            background: #ffffffdd;
+            border-radius: 32px;
+            padding: 12px 18px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        th, td {
+            border-bottom: 2px solid #bcd9cf;
+            padding: 12px 5px;
+        }
+        th {
+            background: #c7e2da;
+            color: #184e41;
+        }
+        .footnote {
+            font-size: 0.8rem;
+            color: #2c6e5c;
+            margin-top: 12px;
+            text-align: center;
+        }
+        @media (max-width: 780px) {
+            .control-bar { flex-direction: column; align-items: stretch; }
+            .btn-group { justify-content: center; }
+            .sim-header { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="master-container">
+    <!-- 顶部控制栏 -->
+    <div class="control-bar">
+        <div class="timer-box">⏱️ <span id="timerSec">0</span> s</div>
+        <div class="param-group">
+            <div class="param-item">🍬 糖浓度(g/L): <input type="number" id="sugarConc" step="0.5" value="10" min="2" max="24" style="width:70px"></div>
+            <div class="param-item">🦠 初始酵母量: <input type="number" id="initYeast" step="0.5" value="4.0" min="1" max="15"></div>
+            <div class="param-item">🌡️ 温度(°C): <input type="number" id="tempVal" step="1" value="28" min="18" max="40"></div>
+        </div>
+        <div class="btn-group">
+            <button id="btnAerobic" class="btn">💨 通入氧气 (有氧)</button>
+            <button id="btnAnaerobic" class="btn">🔒 密闭无氧 (酒精发酵)</button>
+            <button id="btnReset" class="btn btn-reset">🔄 重置实验</button>
+        </div>
+    </div>
+
+    <!-- 左右分屏：教学对比 -->
+    <div class="split-row">
+        <div class="card">
+            <h3>🌬️ 有氧呼吸区 (通入氧气)</h3>
+            <div class="equation">C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + 大量能量</div>
+            <div class="mini-chart"><canvas id="aerobicChart" height="180"></canvas></div>
+            <div class="note" style="text-align:center">📈 CO₂浓度曲线 &nbsp; 💧 水为产物</div>
+        </div>
+        <div class="card">
+            <h3>🧪 酒精发酵区 (密闭无氧)</h3>
+            <div class="equation">C₆H₁₂O₆ → 2 C₂H₅OH + 2CO₂ + 少量能量</div>
+            <div class="mini-chart"><canvas id="anaerobicChart" height="180"></canvas></div>
+            <div class="note" style="text-align:center">🍾 酒精浓度(实线) &nbsp; 🫧 CO₂浓度(虚线)</div>
+        </div>
+    </div>
+
+    <!-- 🍇 酿酒模拟器模块 (核心新增) -->
+    <div class="simulator-module">
+        <div class="sim-header">
+            <h2>🍷 酿酒模拟器 · 智能发酵曲线</h2>
+            <div class="sim-params">
+                <span>🔬 酵母数量: <strong id="yeastDisplay">4.0</strong></span>
+                <span>🍬 糖浓度: <strong id="sugarDisplay">10.0</strong> g/L</span>
+                <span>🌡️ 温度系数: <strong id="tempEffect">1.00</strong></span>
+            </div>
+        </div>
+        <div class="sim-charts">
+            <div class="sim-chart-box">
+                <div style="font-weight:bold; text-align:center">🍾 酒精浓度 & CO₂产量 动态曲线</div>
+                <canvas id="fermChart" height="260" style="width:100%"></canvas>
+            </div>
+            <div class="sim-chart-box">
+                <div style="font-weight:bold; text-align:center">🦠 酵母菌数量变化 (有氧快速增加阶段)</div>
+                <canvas id="yeastChart" height="260" style="width:100%"></canvas>
+            </div>
+        </div>
+        <div class="annotation-list" id="annotationBox">
+            📍 关键节点将自动标注：<span class="badge">⚡氧气耗尽节点</span> <span class="badge">🍺酒精抑制临界点</span> <span class="badge">📈酵母菌数量快速增加阶段</span>
+            <div id="dynamicAnnotations" style="margin-top:8px; font-weight:500;"></div>
+        </div>
+    </div>
+
+    <!-- 实验记录表（自动生成对比数据）-->
+    <div class="exp-table">
+        <div style="font-size:1.3rem; font-weight:bold; margin-bottom:10px;">📊 实验记录表 (自动读取当前实验数据)</div>
+        <table id="recordTable">
+            <thead>
+                <tr><th>条件</th><th>CO₂产量 (相对浓度)</th><th>酒精浓度 (相对浓度)</th><th>呼吸类型</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>💨 通入氧气</td><td id="aerobicCO2Val">0.00</td><td id="aerobicEthanolVal">0.00</td><td>有氧呼吸</td></tr>
+                <tr><td>🔒 密闭无氧</td><td id="anaerobicCO2Val">0.00</td><td id="anaerobicEthanolVal">0.00</td><td>酒精发酵</td></tr>
+            </tbody>
+        </table>
+        <div class="footnote">✨ 学生自主发现：有氧条件下酒精始终为0；氧气耗尽后酒精才开始积累；糖浓度过高会抑制酵母活性。</div>
+    </div>
+</div>
+
+<script>
+    // ------------------- 全局变量 -------------------
+    let timer = null;
+    let currentTime = 0;        // 秒
+    let activeMode = "idle";    // "aerobic", "anaerobic"
+    let oxygenDepletedTime = null;   // 记录氧气耗尽时刻（切换到无氧的瞬间）
+    let alcoholInhibitedTime = null; // 酒精抑制临界时刻（浓度>=7.5）
+    
+    // 动态数组 (存储历史)
+    let aerobicCO2Arr = [0];
+    let anaerobicEthanolArr = [0];
+    let anaerobicCO2Arr = [0];
+    let yeastBiomassArr = [];      // 酵母生物量历史
+    let timeArr = [0];
+    
+    // 当前实时值
+    let currentYeastBio = 4.0;      // 相对生物量
+    let currentAerobicCO2 = 0;
+    let currentAnaerobicEthanol = 0;
+    let currentAnaerobicCO2 = 0;
+    
+    // 参数
+    let sugarGperL = 10.0;       // g/L
+    let initYeast = 4.0;
+    let temperature = 28;        // °C
+    
+    // 抑制标志 (用于提示)
+    let highAlcoholFlag = false;
+    let yeastFastGrowthRecorded = false;  // 是否已经在注释中记录过快增阶段
+    
+    // 图表实例
+    let aerobicChart, anaerobicChart, fermChart, yeastChart;
+    
+    // ---------- 辅助函数: 温度影响因子 (Q10风格 最适30°C) ----------
+    function getTempFactor() {
+        let T = temperature;
+        if (T <= 25) return 0.7 + (T-18)/7 * 0.35;
+        if (T <= 35) return 1.0 + (T-30)*0.025;
+        return 1.1 - (T-35)/5 * 0.2;
+    }
+    
+    // 糖浓度因子 (过低过高抑制)
+    function getSugarFactor(sugar) {
+        if (sugar <= 3) return 0.35;
+        if (sugar <= 8) return 0.6 + (sugar-3)/5 * 0.4;
+        if (sugar <= 14) return 1.0;
+        if (sugar <= 20) return 1.0 - (sugar-14)/6 * 0.45;
+        return 0.45;
+    }
+    
+    // 酒精抑制因子 (乙醇相对浓度 > 6开始抑制)
+    function getAlcoholInhibition(ethanolConc) {
+        if (ethanolConc <= 5) return 1.0;
+        if (ethanolConc <= 12) return 1.0 - (ethanolConc-5)/7 * 0.55;
+        return 0.45 - Math.min(0.3, (ethanolConc-12)/10 * 0.2);
+    }
+    
+    // 酵母生长模型（有氧条件下逻辑斯蒂增长） 和 无氧下微衰减
+    function updateYeastAndRates(dtSec, mode, currentEthanol) {
+        let sugarFact = getSugarFactor(sugarGperL);
+        let tempFact = getTempFactor();
+        let maxYeastCap = 25.0;   // 最大相对生物量
+        let growthRate = 0;
+        if (mode === "aerobic") {
+            // 有氧呼吸期间酵母快速增殖 (教学演示)
+            growthRate = 0.12 * currentYeastBio * sugarFact * tempFact * (1 - currentYeastBio / maxYeastCap);
+            growthRate = Math.min(growthRate, 2.2);
+            currentYeastBio += growthRate * dtSec;
+            if (currentYeastBio > maxYeastCap) currentYeastBio = maxYeastCap;
+        } else if (mode === "anaerobic") {
+            // 无氧环境: 酵母生长停滞或略微下降，且受酒精抑制
+            let deathRate = 0.012 * (1 + (currentEthanol / 12)) * (1 - tempFact*0.2);
+            deathRate = Math.min(0.08, deathRate);
+            currentYeastBio -= deathRate * dtSec;
+            if (currentYeastBio < 0.3) currentYeastBio = 0.3;
+        }
+        return currentYeastBio;
+    }
+    
+    // 计算每秒产物的增量 (基于酵母生物量、糖、温度)
+    function calcAerobicCO2Increment(yeastBio, sugarConc, temp) {
+        let baseRate = 0.32;  // 每单位酵母每秒产co2速率
+        let sugarFact = getSugarFactor(sugarConc);
+        let tempFact = getTempFactor();
+        let increment = yeastBio * baseRate * sugarFact * tempFact * 0.22;
+        return Math.min(0.85, Math.max(0, increment));
+    }
+    
+    function calcAnaerobicProductsIncrement(yeastBio, sugarConc, temp, ethanolNow) {
+        let sugarFact = getSugarFactor(sugarConc);
+        let tempFact = getTempFactor();
+        let alcoholInhib = getAlcoholInhibition(ethanolNow);
+        let baseEthRate = 0.28;   // 产酒精速率系数
+        let rate = yeastBio * baseEthRate * sugarFact * tempFact * alcoholInhib * 0.18;
+        rate = Math.min(0.68, Math.max(0, rate));
+        let ethanolAdd = rate;
+        let co2Add = rate;   // 等摩尔产生CO₂
+        return { ethanolAdd, co2Add };
+    }
+    
+    // 刷新所有图表及表格
+    function refreshAllVisuals() {
+        // 更新数组当前时刻长度
+        while (aerobicCO2Arr.length <= currentTime) aerobicCO2Arr.push(0);
+        while (anaerobicEthanolArr.length <= currentTime) anaerobicEthanolArr.push(0);
+        while (anaerobicCO2Arr.length <= currentTime) anaerobicCO2Arr.push(0);
+        while (yeastBiomassArr.length <= currentTime) yeastBiomassArr.push(0);
+        if (timeArr.length <= currentTime) timeArr.push(currentTime);
+        aerobicCO2Arr[currentTime] = currentAerobicCO2;
+        anaerobicEthanolArr[currentTime] = currentAnaerobicEthanol;
+        anaerobicCO2Arr[currentTime] = currentAnaerobicCO2;
+        yeastBiomassArr[currentTime] = currentYeastBio;
+        
+        // 更新记录表数值 (通入氧气区取值=有氧co2, 酒精=0; 无氧区取值=当前无氧酒精&co2)
+        document.getElementById("aerobicCO2Val").innerText = currentAerobicCO2.toFixed(2);
+        document.getElementById("aerobicEthanolVal").innerText = "0.00";
+        document.getElementById("anaerobicCO2Val").innerText = currentAnaerobicCO2.toFixed(2);
+        document.getElementById("anaerobicEthanolVal").innerText = currentAnaerobicEthanol.toFixed(2);
+        
+        // 显示实时酵母&糖等
+        document.getElementById("yeastDisplay").innerText = currentYeastBio.toFixed(2);
+        document.getElementById("sugarDisplay").innerText = sugarGperL.toFixed(1);
+        let tf = getTempFactor();
+        document.getElementById("tempEffect").innerText = tf.toFixed(2);
+        
+        // 更新有氧/无氧分屏曲线
+        let labels = timeArr.slice(0, currentTime+1);
+        aerobicChart.data.labels = labels;
+        aerobicChart.data.datasets[0].data = aerobicCO2Arr.slice(0, currentTime+1);
+        aerobicChart.update('none');
+        
+        anaerobicChart.data.labels = labels;
+        anaerobicChart.data.datasets[0].data = anaerobicEthanolArr.slice(0, currentTime+1);
+        anaerobicChart.data.datasets[1].data = anaerobicCO2Arr.slice(0, currentTime+1);
+        anaerobicChart.update('none');
+        
+        // 更新酿酒模拟器曲线： 酒精浓度 + CO₂产量 + 酵母数量(双图表)
+        fermChart.data.labels = labels;
+        fermChart.data.datasets[0].data = anaerobicEthanolArr.slice(0, currentTime+1);
+        fermChart.data.datasets[1].data = anaerobicCO2Arr.slice(0, currentTime+1);
+        fermChart.update('none');
+        
+        yeastChart.data.labels = labels;
+        yeastChart.data.datasets[0].data = yeastBiomassArr.slice(0, currentTime+1);
+        yeastChart.update('none');
+        
+        // ---------- 自动标注关键节点 (动态更新) ----------
+        let annotationsHtml = "";
+        // 1. 氧气耗尽节点：已记录oxygenDepletedTime
+        if (oxygenDepletedTime !== null && oxygenDepletedTime <= currentTime) {
+            annotationsHtml += `<span style="background:#cfebd7;padding:2px 12px;border-radius:30px;">⚠️ 氧气耗尽节点 @ ${oxygenDepletedTime}s</span> `;
+            // 在酿酒模拟器曲线图上添加标记: 通过插件无，但是用文字通知
+        }
+        // 2. 酒精抑制临界点 (酒精浓度≥7.5)
+        if (currentAnaerobicEthanol >= 7.5 && alcoholInhibitedTime === null) {
+            alcoholInhibitedTime = currentTime;
+        }
+        if (alcoholInhibitedTime !== null && alcoholInhibitedTime <= currentTime) {
+            annotationsHtml += `<span style="background:#ffe0b5;padding:2px 12px;border-radius:30px;">🍺 酒精抑制临界点 @ ${alcoholInhibitedTime}s (浓度≥7.5)</span> `;
+        }
+        // 3. 酵母菌数量快速增加阶段 (在有氧呼吸期间且增长率高，通常从开始到氧气耗尽)
+        if (activeMode === "aerobic" && currentYeastBio > initYeast*1.6 && currentTime > 5 && !yeastFastGrowthRecorded) {
+            annotationsHtml += `<span style="background:#b8dfd0;">📈 酵母菌数量快速增加阶段 (有氧呼吸) 自开始至氧气耗尽前</span> `;
+            yeastFastGrowthRecorded = true;
+        }
+        if (oxygenDepletedTime !== null && !yeastFastGrowthRecorded && currentTime > oxygenDepletedTime+2) {
+            annotationsHtml += `<span style="background:#b8dfd0;">📈 有氧期间酵母快速增长阶段 (0s~${oxygenDepletedTime}s)</span> `;
+            yeastFastGrowthRecorded = true;
+        }
+        if (annotationsHtml === "") annotationsHtml = "⏳ 实验进行中，关键节点将自动出现...";
+        document.getElementById("dynamicAnnotations").innerHTML = annotationsHtml;
+        
+        // 额外提醒教学目标发现（动态提示悬浮）
+        let tipArea = document.querySelector(".footnote");
+        if (currentAnaerobicEthanol > 0.1 && currentAerobicCO2 > 0.1 && activeMode !== "idle") {
+            if (currentAnaerobicEthanol > 0 && currentAerobicCO2 > 0 && activeMode==="aerobic") tipArea.innerHTML = "✨ 观察：有氧条件下酒精浓度为0！酵母菌不产生酒精。";
+            else if (oxygenDepletedTime && currentAnaerobicEthanol > 0.5) tipArea.innerHTML = "✨ 发现：氧气耗尽后酒精浓度开始上升！";
+            else if (sugarGperL > 16 && currentAnaerobicEthanol > 5) tipArea.innerHTML = "✨ 高糖浓度导致酒精快速积累并抑制酵母活性。";
+        }
+    }
+    
+    // 核心计时器 tick (每秒更新)
+    function tick() {
+        if (activeMode === "idle") return;
+        if (currentTime >= 120) { // 上限120s
+            if (timer) clearInterval(timer);
+            timer = null;
+            return;
+        }
+        currentTime++;
+        document.getElementById("timerSec").innerText = currentTime;
+        
+        // 根据模式更新产物及酵母
+        if (activeMode === "aerobic") {
+            let incCO2 = calcAerobicCO2Increment(currentYeastBio, sugarGperL, temperature);
+            currentAerobicCO2 += incCO2;
+            // 无氧数据保持不变 (维持原值)
+            if (currentAnaerobicEthanol === undefined) currentAnaerobicEthanol = 0;
+            // 酵母菌生长
+            currentYeastBio = updateYeastAndRates(1, "aerobic", currentAnaerobicEthanol);
+        } 
+        else if (activeMode === "anaerobic") {
+            let { ethanolAdd, co2Add } = calcAnaerobicProductsIncrement(currentYeastBio, sugarGperL, temperature, currentAnaerobicEthanol);
+            currentAnaerobicEthanol += ethanolAdd;
+            currentAnaerobicCO2 += co2Add;
+            // 有氧CO2不变
+            if (currentAerobicCO2 === undefined) currentAerobicCO2 = 0; 
+            // 酵母在无氧条件下衰亡
+            currentYeastBio = updateYeastAndRates(1, "anaerobic", currentAnaerobicEthanol);
+        }
+        
+        // 保证数据合法
+        currentAerobicCO2 = Number(currentAerobicCO2.toFixed(4));
+        currentAnaerobicEthanol = Number(currentAnaerobicEthanol.toFixed(4));
+        currentAnaerobicCO2 = Number(currentAnaerobicCO2.toFixed(4));
+        currentYeastBio = Math.min(28, Math.max(0.3, currentYeastBio));
+        
+        // 更新数组长度
+        while (aerobicCO2Arr.length <= currentTime) aerobicCO2Arr.push(0);
+        while (anaerobicEthanolArr.length <= currentTime) anaerobicEthanolArr.push(0);
+        while (anaerobicCO2Arr.length <= currentTime) anaerobicCO2Arr.push(0);
+        while (yeastBiomassArr.length <= currentTime) yeastBiomassArr.push(0);
+        
+        aerobicCO2Arr[currentTime] = currentAerobicCO2;
+        anaerobicEthanolArr[currentTime] = currentAnaerobicEthanol;
+        anaerobicCO2Arr[currentTime] = currentAnaerobicCO2;
+        yeastBiomassArr[currentTime] = currentYeastBio;
+        
+        // 氧气耗尽节点更新 (判断模式切换 -> 无氧开始瞬间记录)
+        // 触发时机在模式变更时进行，不在tick内重复
+        refreshAllVisuals();
+    }
+    
+    // 启动计时器统一管理
+    function startTimer() {
+        if (timer) clearInterval(timer);
+        timer = setInterval(() => tick(), 1000);
+    }
+    
+    // 切换到有氧模式
+    function switchToAerobic() {
+        if (timer) clearInterval(timer);
+        // 保留当前所有历史，但有氧之前的数据可延续，但教学强调独立对比: 为更好的教学展示,重置数据？但为了看到酵母快速增加阶段，最好保留连续性。
+        // 但为了让学生看到从零开始有氧，重置全部实验重新开始
+        fullReset(keepParameters=true);
+        activeMode = "aerobic";
+        oxygenDepletedTime = null;
+        alcoholInhibitedTime = null;
+        yeastFastGrowthRecorded = false;
+        startTimer();
+        let tipDiv = document.querySelector(".footnote");
+        tipDiv.innerHTML = "✨ 有氧呼吸模式：氧气充足，酵母菌大量增殖，只产生CO₂和水，酒精浓度为0。";
+    }
+    
+    function switchToAnaerobic() {
+        // 如果当前是有氧模式则记录氧气耗尽节点
+        let fromAerobic = (activeMode === "aerobic");
+        if (timer) clearInterval(timer);
+        // 不重置数据，保留时间序列，体现连续性
+        if (activeMode !== "anaerobic") {
+            if (fromAerobic && oxygenDepletedTime === null) {
+                oxygenDepletedTime = currentTime;
+                // 弹出教学提示框
+                alert("⚠️ 氧气已耗尽，酵母菌开始进行无氧发酵！酒精开始积累。");
+                let tipDiv = document.querySelector(".footnote");
+                tipDiv.innerHTML = "✨ 氧气耗尽后，酵母菌转向无氧呼吸，酒精浓度逐渐上升。";
+            }
+            activeMode = "anaerobic";
+            startTimer();
+        } else {
+            // 已经是无氧模式，重启计时但保持连续性
+            startTimer();
+        }
+        refreshAllVisuals();
+    }
+    
+    function fullReset(keepParams=true) {
+        if (timer) clearInterval(timer);
+        timer = null;
+        activeMode = "idle";
+        currentTime = 0;
+        document.getElementById("timerSec").innerText = "0";
+        // 重置数据数组
+        aerobicCO2Arr = [0];
+        anaerobicEthanolArr = [0];
+        anaerobicCO2Arr = [0];
+        yeastBiomassArr = [];
+        timeArr = [0];
+        if (!keepParams) {
+            sugarGperL = 10.0;
+            initYeast = 4.0;
+            temperature = 28;
+            document.getElementById("sugarConc").value = "10";
+            document.getElementById("initYeast").value = "4.0";
+            document.getElementById("tempVal").value = "28";
+        }
+        // 读取最新UI参数
+        sugarGperL = parseFloat(document.getElementById("sugarConc").value);
+        initYeast = parseFloat(document.getElementById("initYeast").value);
+        temperature = parseFloat(document.getElementById("tempVal").value);
+        currentYeastBio = initYeast;
+        currentAerobicCO2 = 0;
+        currentAnaerobicEthanol = 0;
+        currentAnaerobicCO2 = 0;
+        oxygenDepletedTime = null;
+        alcoholInhibitedTime = null;
+        yeastFastGrowthRecorded = false;
+        highAlcoholFlag = false;
+        // 重置数组初始
+        yeastBiomassArr = [currentYeastBio];
+        aerobicCO2Arr[0]=0; anaerobicEthanolArr[0]=0; anaerobicCO2Arr[0]=0;
+        refreshAllVisuals();
+    }
+    
+    // 读取参数绑定事件
+    function bindParamEvents() {
+        document.getElementById("sugarConc").addEventListener("change", (e) => {
+            sugarGperL = parseFloat(e.target.value);
+            if (sugarGperL < 2) sugarGperL=2;
+            refreshAllVisuals();
+            if (activeMode !== "idle") refreshAllVisuals();
+        });
+        document.getElementById("initYeast").addEventListener("change", (e) => {
+            initYeast = parseFloat(e.target.value);
+            if (activeMode === "idle" || timer===null) {
+                currentYeastBio = initYeast;
+                refreshAllVisuals();
+            }
+        });
+        document.getElementById("tempVal").addEventListener("change", (e) => {
+            temperature = parseFloat(e.target.value);
+            refreshAllVisuals();
+        });
+    }
+    
+    // 初始化所有图表
+    function initCharts() {
+        let ctxA = document.getElementById('aerobicChart').getContext('2d');
+        aerobicChart = new Chart(ctxA, {
+            type: 'line', data: { labels: [0], datasets: [{ label: 'CO₂浓度', data: [0], borderColor: '#00897b', borderWidth: 3, fill:true }] },
+            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: '浓度' } } } }
+        });
+        let ctxB = document.getElementById('anaerobicChart').getContext('2d');
+        anaerobicChart = new Chart(ctxB, {
+            type: 'line', data: { labels: [0], datasets: [
+                { label: '酒精浓度', data: [0], borderColor: '#e65100', borderWidth: 3 },
+                { label: 'CO₂浓度', data: [0], borderColor: '#4db6ac', borderWidth: 3, borderDash: [6,6] }
+            ] }, options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true } } }
+        });
+        let ctxC = document.getElementById('fermChart').getContext('2d');
+        fermChart = new Chart(ctxC, {
+            type: 'line', data: { labels: [0], datasets: [
+                { label: '酒精浓度', data: [0], borderColor: '#d95b0e', borderWidth: 2.5, tension: 0.2 },
+                { label: 'CO₂产量', data: [0], borderColor: '#2c7d66', borderWidth: 2.5, tension: 0.2 }
+            ] }, options: { responsive: true, maintainAspectRatio: true }
+        });
+        let ctxD = document.getElementById('yeastChart').getContext('2d');
+        yeastChart = new Chart(ctxD, {
+            type: 'line', data: { labels: [0], datasets: [{ label: '酵母菌生物量', data: [initYeast], borderColor: '#936e3e', borderWidth: 3, backgroundColor: '#f3e5c0', fill: true }] },
+            options: { responsive: true, maintainAspectRatio: true, scales: { y: { title: { display: true, text: '相对数量' } } } }
+        });
+    }
+    
+    // 按钮事件
+    document.getElementById("btnAerobic").addEventListener("click", () => switchToAerobic());
+    document.getElementById("btnAnaerobic").addEventListener("click", () => switchToAnaerobic());
+    document.getElementById("btnReset").addEventListener("click", () => { fullReset(false); activeMode="idle"; if(timer)clearInterval(timer); timer=null; refreshAllVisuals(); alert("实验已重置，所有曲线归零"); });
+    
+    // 启动
+    function startUp() {
+        bindParamEvents();
+        initCharts();
+        fullReset(false);
+        refreshAllVisuals();
+    }
+    startUp();
+</script>
+</body>
+</html>

@@ -166,23 +166,25 @@ apps:
 
   - id: teacher-002
     title: DNA双螺旋构建器
-    slug: dna-builder
+    slug: dna-helix-builder
     author: 李秀英老师
     author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=teacher2
     school: 上海中学
     school_icon: 🏫
     category: teacher
-    description: 拖拽式DNA双螺旋结构构建工具，学生可自由组合碱基对，理解DNA复制原理。
-    url: https://bioviz.cn/dna-builder
-    repo: https://github.com/li-bio/dna-builder
-    tags: [遗传学, DNA, 交互式学习]
-    thumbnail: /assets/thumbnails/dna-builder.svg
+    description: 交互式3D DNA双螺旋构建工具，模拟DNA半保留复制过程，学习碱基配对规则。
+    url: /teacher-apps/teacher/dna-helix-builder/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/dna-helix-builder
+    tags: [DNA, 遗传学, 半保留复制, 碱基配对, 3D可视化]
+    thumbnail: /assets/thumbnails/dna-helix-builder.svg
     features:
-      - 拖拽碱基配对
-      - DNA复制模拟
-      - 转录翻译过程
-      - 遗传密码表查询
-    tech_stack: [Vue.js, SVG动画, LocalStorage]
+      - 3D可视化DNA双螺旋结构
+      - 拖拽/点击碱基配对
+      - 氢键数量展示
+      - DNA半保留复制模拟
+      - 实时进度跟踪
+      - 自动旋转3D观察
+    tech_stack: [Three.js, JavaScript, CSS3]
     date: 2024-02-28
     featured: true
     likes: 289

@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA双螺旋构建器 - 碱基配对学习工具</title>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --panel-bg: #111827;
+            --card-bg: #1a1f2e;
+            --text: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent: #60a5fa;
+            --success: #34d399;
+            --error: #f87171;
+            --warning: #fbbf24;
+            --adenine: #ff6b6b;
+            --thymine: #4ecdc4;
+            --guanine: #60a5fa;
+            --cytosine: #f7dc6f;
+            --adenine-glow: #ff4444;
+            --thymine-glow: #3dbdb5;
+            --guanine-glow: #3b82f6;
+            --cytosine-glow: #ecc94b;
+            --bone-template: #c9a96e;
+            --bone-new: #8b9dc3;
+            --slot-empty: rgba(255, 255, 255, 0.25);
+            --hydrogen-bond: #ffffff;
+            --border: #2d3548;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+            flex-shrink: 0;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .header .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header .badge {
+            background: #1e293b;
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+        .header .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+            font-weight: 500;
+        }
+        .header .btn:hover {
+            background: #252d3f;
+            border-color: #4b5563;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .header .btn:active {
+            transform: scale(0.96);
+            transition: 0.1s;
+        }
+        .header .btn.accent {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+            font-weight: 600;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+        }
+        .header .btn.accent:hover {
+            background: #93c5fd;
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.5);
+        }
+        .header .progress-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .header .progress-bar-outer {
+            width: 80px;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .header .progress-bar-inner {
+            height: 100%;
+            background: var(--success);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        /* 主体布局 */
+        .main-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
+
+        /* 3D画布区域 */
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            cursor: grab;
+            min-width: 0;
+            background: radial-gradient(ellipse at center, #111b2e 0%, #0a0e17 70%);
+        }
+        .canvas-container:active {
+            cursor: grabbing;
+        }
+        .canvas-container.dragging-over {
+            cursor: grabbing;
+        }
+        .canvas-container canvas {
+            display: block;
+        }
+        .canvas-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+            letter-spacing: 0.04em;
+            transition: opacity 1s;
+        }
+
+        /* 侧边面板 */
+        .side-panel {
+            width: 380px;
+            max-width: 42vw;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 5;
+            box-shadow: -4px 0 30px rgba(0, 0, 0, 0.5);
+        }
+        .panel-section {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+        .panel-section h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .panel-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 4px;
+            letter-spacing: 0.04em;
+        }
+
+        /* 碱基库 */
+        .base-pool {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .base-card {
+            width: 60px;
+            height: 72px;
+            border-radius: var(--radius-sm);
+            cursor: grab;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            transition: var(--transition);
+            position: relative;
+            border: 2px solid transparent;
+            letter-spacing: 0.02em;
+            box-shadow: var(--shadow);
+            color: #fff;
+        }
+        .base-card:active {
+            cursor: grabbing;
+            transform: scale(0.93);
+            transition: 0.08s;
+        }
+        .base-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        }
+        .base-card.selected {
+            border-color: #fff !important;
+            box-shadow: 0 0 24px rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-6px);
+            animation: pulse-selected 0.8s ease-in-out infinite;
+        }
+        @keyframes pulse-selected {
+            0%, 100% { box-shadow: 0 0 24px rgba(255, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.8); }
+        }
+        .base-card.card-a { background: var(--adenine); border-color: #ff8787; }
+        .base-card.card-t { background: var(--thymine); border-color: #5ee0e6; }
+        .base-card.card-g { background: var(--guanine); border-color: #7ab8f5; }
+        .base-card.card-c { background: var(--cytosine); border-color: #f9e77a; }
+        .base-card .base-sub { font-size: 0.65rem; opacity: 0.85; font-weight: 500; letter-spacing: 0.05em; }
+        .base-card .base-hint { font-size: 0.6rem; opacity: 0.7; margin-top: 2px; font-weight: 400; }
+
+        /* 构建槽位行 */
+        .slots-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        .template-base {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.02em;
+        }
+        .template-base.base-a { background: var(--adenine); }
+        .template-base.base-t { background: var(--thymine); }
+        .template-base.base-g { background: var(--guanine); }
+        .template-base.base-c { background: var(--cytosine); }
+        .slot-arrow {
+            font-size: 0.7rem;
+            color: #64748b;
+            flex-shrink: 0;
+            width: 16px;
+            text-align: center;
+        }
+        .build-slot {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2.5px dashed #4b5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: var(--transition);
+            cursor: pointer;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.03);
+            color: transparent;
+            position: relative;
+        }
+        .build-slot:hover {
+            border-color: #94a3b8;
+            background: rgba(255, 255, 255, 0.06);
+            transform: scale(1.08);
+            box-shadow: 0 0 16px rgba(148, 163, 184, 0.3);
+        }
+        .build-slot.highlight {
+            border-color: #fff !important;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6) !important;
+            animation: glow-slot 0.6s ease-in-out infinite;
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+        @keyframes glow-slot {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); }
+            50% { box-shadow: 0 0 35px rgba(255, 255, 255, 0.95); }
+        }
+        .build-slot.filled {
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            cursor: default;
+            animation: pop-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: 700;
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .build-slot.filled.correct {
+            border-color: var(--success);
+            box-shadow: 0 0 18px rgba(52, 211, 153, 0.5);
+            background: rgba(52, 211, 153, 0.15);
+        }
+        .build-slot.filled.incorrect-flash {
+            animation: shake 0.5s ease, incorrect-glow 0.6s ease;
+            border-color: var(--error) !important;
+            box-shadow: 0 0 20px rgba(248, 113, 113, 0.7) !important;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(3px); }
+        }
+        @keyframes incorrect-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(248, 113, 113, 0.7); }
+            50% { box-shadow: 0 0 40px rgba(248, 113, 113, 1); }
+        }
+        .build-slot .slot-index {
+            position: absolute;
+            top: -16px;
+            font-size: 0.6rem;
+            color: #64748b;
+            pointer-events: none;
+            letter-spacing: 0.03em;
+        }
+
+        /* 反馈消息 */
+        .feedback-toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: #1e293b;
+            border: 1px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            letter-spacing: 0.02em;
+        }
+        .feedback-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .feedback-toast.success {
+            border-color: var(--success);
+            color: var(--success);
+            box-shadow: 0 0 30px rgba(52, 211, 153, 0.4);
+        }
+        .feedback-toast.error {
+            border-color: var(--error);
+            color: var(--error);
+            box-shadow: 0 0 30px rgba(248, 113, 113, 0.4);
+        }
+
+        /* 完成弹窗 */
+        .completion-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 90;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        .completion-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .completion-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--success);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            text-align: center;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 60px rgba(52, 211, 153, 0.3);
+            animation: slide-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slide-up {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .completion-card h2 { font-size: 1.6rem; margin-bottom: 8px; letter-spacing: 0.02em; }
+        .completion-card .emoji { font-size: 3rem; display: block; margin-bottom: 12px; }
+        .completion-card p { color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6; font-size: 0.9rem; }
+        .completion-card .highlight-text { color: var(--success); font-weight: 600; }
+        .completion-card .btn { margin: 6px; }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .canvas-container { height: 45vh; flex: none; }
+            .side-panel { width: 100%; max-width: 100%; flex: 1; border-left: none; border-top: 1px solid var(--border); overflow-y: auto; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4); }
+            .header h1 { font-size: 1rem; }
+            .base-card { width: 48px; height: 58px; font-size: 1.2rem; }
+            .template-base, .build-slot { width: 36px; height: 36px; font-size: 0.8rem; }
+            .slots-row { gap: 3px; }
+            .header { padding: 8px 12px; gap: 8px; }
+            .header .btn { padding: 6px 12px; font-size: 0.75rem; }
+        }
+        @media (max-width: 400px) {
+            .base-card { width: 40px; height: 50px; font-size: 1rem; }
+            .template-base, .build-slot { width: 30px; height: 30px; font-size: 0.7rem; }
+            .slots-row { gap: 2px; }
+            .side-panel { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo-icon">🧬</div>
+            <h1>DNA双螺旋构建器</h1>
+            <span class="badge">半保留复制模拟</span>
+        </div>
+        <div class="progress-wrap">
+            <span>进度</span>
+            <div class="progress-bar-outer">
+                <div class="progress-bar-inner" id="progressBar" style="width: 0%;"></div>
+            </div>
+            <span id="progressText">0/8</span>
+        </div>
+        <button class="btn" id="btnReset" title="重置当前序列">🔄 重置</button>
+        <button class="btn accent" id="btnNewSequence" title="生成新的随机DNA序列">🎲 新序列</button>
+    </div>
+
+    <!-- 主体 -->
+    <div class="main-container">
+        <!-- 3D视图 -->
+        <div class="canvas-container" id="canvasContainer">
+            <div class="canvas-hint" id="canvasHint">🖱️ 拖拽旋转 &nbsp;|&nbsp; 滚轮缩放 &nbsp;|&nbsp; 右键平移</div>
+        </div>
+
+        <!-- 侧边面板 -->
+        <div class="side-panel" id="sidePanel">
+            <!-- 说明 -->
+            <div class="panel-section">
+                <h3>📖 任务说明</h3>
+                <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">
+                    下方<strong style="color:#fff;">模板链</strong>已给出碱基序列。请根据<strong style="color:#ff6b6b;">A-T</strong>、<strong style="color:#60a5fa;">G-C</strong>配对规则，
+                    从碱基库中选择正确的互补碱基，放置到<strong style="color:#fff;">构建链</strong>的对应槽位中。
+                </p>
+                <p style="font-size:0.75rem;color:#64748b;margin-top:6px;line-height:1.4;">
+                    💡 这模拟了<strong>DNA半保留复制</strong>：每条原始链作为模板，指导新链的合成。
+                </p>
+            </div>
+
+            <!-- 碱基库 -->
+            <div class="panel-section">
+                <h3>🧪 碱基库（拖拽或点击选择）</h3>
+                <div class="base-pool" id="basePool">
+                    <div class="base-card card-a" data-base="A" draggable="true">
+                        <span>A</span><span class="base-sub">腺嘌呤</span><span class="base-hint">配T</span>
+                    </div>
+                    <div class="base-card card-t" data-base="T" draggable="true">
+                        <span>T</span><span class="base-sub">胸腺嘧啶</span><span class="base-hint">配A</span>
+                    </div>
+                    <div class="base-card card-g" data-base="G" draggable="true">
+                        <span>G</span><span class="base-sub">鸟嘌呤</span><span class="base-hint">配C</span>
+                    </div>
+                    <div class="base-card card-c" data-base="C" draggable="true">
+                        <span>C</span><span class="base-sub">胞嘧啶</span><span class="base-hint">配G</span>
+                    </div>
+                </div>
+                <p style="font-size:0.7rem;color:#64748b;margin-top:8px;" id="selectedHint">点击碱基卡片选中，再点击槽位放置</p>
+            </div>
+
+            <!-- 构建区域 -->
+            <div class="panel-section">
+                <h3>🔗 模板链（上）& 构建链（下）</h3>
+                <div class="panel-label">📌 模板链（原始链，不可修改）</div>
+                <div class="slots-row" id="templateRow"></div>
+                <div style="height:8px;"></div>
+                <div class="panel-label">🔧 构建链（新合成链，请放置互补碱基）</div>
+                <div class="slots-row" id="buildRow"></div>
+            </div>
+
+            <!-- 配对规则参考 -->
+            <div class="panel-section">
+                <h3>📐 配对规则</h3>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.8rem;">
+                    <div style="display:flex;align-items:center;gap:6px;background:#1a1f2e;padding:8px 14px;border-radius:20px;">
+                        <span style="color:var(--adenine);font-weight:700;">A</span>
+                        <span style="color:#64748b;">↔</span>
+                        <span style="color:var(--thymine);font-weight:700;">T</span>
+                        <span style="color:#64748b;font-size:0.7rem;">(2个氢键)</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;background:#1a1f2e;padding:8px 14px;border-radius:20px;">
+                        <span style="color:var(--guanine);font-weight:700;">G</span>
+                        <span style="color:#64748b;">↔</span>
+                        <span style="color:var(--cytosine);font-weight:700;">C</span>
+                        <span style="color:#64748b;font-size:0.7rem;">(3个氢键)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 反馈提示 -->
+    <div class="feedback-toast" id="feedbackToast"></div>
+
+    <!-- 完成弹窗 -->
+    <div class="completion-overlay" id="completionOverlay">
+        <div class="completion-card">
+            <span class="emoji">🎉</span>
+            <h2>DNA双螺旋构建完成！</h2>
+            <p>你成功完成了所有碱基配对！<br>
+                这演示了<strong class="highlight-text">DNA半保留复制</strong>的核心原理：<br>
+                原始DNA双链解开后，每条链作为<strong class="highlight-text">模板</strong>，<br>
+                指导合成新的互补链，最终形成两个<br>
+                各含一条旧链和一条新链的DNA分子。</p>
+            <button class="btn accent" id="btnNewSequence2">🎲 挑战新序列</button>
+            <button class="btn" id="btnCloseOverlay">✕ 关闭</button>
+        </div>
+    </div>
+
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // ==================== 常量与配置 ====================
+        const TOTAL_SLOTS = 8;
+        const DNA_RADIUS = 1.6;
+        const DNA_TURNS = 1.5;
+        const DNA_HEIGHT = TOTAL_SLOTS * 0.75;
+        const BASE_COLORS = {
+            'A': { hex: '#ff6b6b', glow: '#ff4444', name: '腺嘌呤', complement: 'T', hBonds: 2 },
+            'T': { hex: '#4ecdc4', glow: '#3dbdb5', name: '胸腺嘧啶', complement: 'A', hBonds: 2 },
+            'G': { hex: '#60a5fa', glow: '#3b82f6', name: '鸟嘌呤', complement: 'C', hBonds: 3 },
+            'C': { hex: '#f7dc6f', glow: '#ecc94b', name: '胞嘧啶', complement: 'G', hBonds: 3 },
+        };
+
+        // ==================== 全局状态 ====================
+        let templateSequence = [];
+        let buildSlots = [];
+        let selectedBase = null;
+        let completedCount = 0;
+
+        // ==================== Three.js 初始化 ====================
+        const canvasContainer = document.getElementById('canvasContainer');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0e17);
+        scene.fog = new THREE.Fog(0x0a0e17, 8, 30);
+
+        const camera = new THREE.PerspectiveCamera(50, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.5, 40);
+        camera.position.set(6, 1.5, 9);
+        camera.lookAt(0, DNA_HEIGHT / 2 - DNA_HEIGHT / 2, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        canvasContainer.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, DNA_HEIGHT / 2 - DNA_HEIGHT / 2 + 0.3, 0);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.minDistance = 3;
+        controls.maxDistance = 18;
+        controls.maxPolarAngle = Math.PI * 0.8;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.25;
+        controls.update();
+
+        // ==================== 光照 ====================
+        const ambientLight = new THREE.AmbientLight(0x334466, 1.8);
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
+        keyLight.position.set(8, 8, 6);
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 1024;
+        keyLight.shadow.mapSize.height = 1024;
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0x8899cc, 1.5);
+        fillLight.position.set(-3, 2, -4);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.DirectionalLight(0xaaccff, 2.0);
+        rimLight.position.set(0, -0.5, 8);
+        scene.add(rimLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 2, 12);
+        pointLight.position.set(0, DNA_HEIGHT / 2, 3);
+        scene.add(pointLight);
+
+        // ==================== 粒子背景 ====================
+        const particlesGeo = new THREE.BufferGeometry();
+        const particlesCount = 300;
+        const particlesPositions = new Float32Array(particlesCount * 3);
+        for (let i = 0; i < particlesCount; i++) {
+            particlesPositions[i * 3] = (Math.random() - 0.5) * 14;
+            particlesPositions[i * 3 + 1] = (Math.random() - 0.5) * 14;
+            particlesPositions[i * 3 + 2] = (Math.random() - 0.5) * 14;
+        }
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(particlesPositions, 3));
+        const particlesMat = new THREE.PointsMaterial({
+            size: 0.03, color: 0x8899cc, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending,
+        });
+        const particles = new THREE.Points(particlesGeo, particlesMat);
+        scene.add(particles);
+
+        // ==================== DNA结构组 ====================
+        const dnaGroup = new THREE.Group();
+        scene.add(dnaGroup);
+
+        const backboneGroup1 = new THREE.Group();
+        const backboneGroup2 = new THREE.Group();
+        const basePairGroup = new THREE.Group();
+        const templateBaseNodes = new THREE.Group();
+        const buildBaseNodes = new THREE.Group();
+        const hydrogenBondsGroup = new THREE.Group();
+
+        dnaGroup.add(backboneGroup1);
+        dnaGroup.add(backboneGroup2);
+        dnaGroup.add(basePairGroup);
+        dnaGroup.add(templateBaseNodes);
+        dnaGroup.add(buildBaseNodes);
+        dnaGroup.add(hydrogenBondsGroup);
+
+        let slotIndicatorMeshes = [];
+        let placedBaseMeshes = [];
+        let hBondMeshes = [];
+
+        // ==================== 辅助函数 ====================
+        function getBasePosition(index, strand) {
+            const totalAngle = DNA_TURNS * Math.PI * 2;
+            const angleStep = totalAngle / TOTAL_SLOTS;
+            const theta = index * angleStep;
+            const y = index * (DNA_HEIGHT / TOTAL_SLOTS) - DNA_HEIGHT / 2 + (DNA_HEIGHT / TOTAL_SLOTS) / 2;
+            if (strand === 1) {
+                return { x: DNA_RADIUS * Math.cos(theta), y: y, z: DNA_RADIUS * Math.sin(theta), theta: theta };
+            } else {
+                return { x: -DNA_RADIUS * Math.cos(theta), y: y, z: -DNA_RADIUS * Math.sin(theta), theta: theta + Math.PI };
+            }
+        }
+
+        function getBaseColor3D(baseChar) {
+            const hex = BASE_COLORS[baseChar]?.hex || '#ffffff';
+            return new THREE.Color(hex);
+        }
+
+        // ==================== 构建3D DNA结构 ====================
+        function buildBackbone(group, colorHex, opacity = 1.0, strandIndex) {
+            while (group.children.length > 0) {
+                const child = group.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                group.remove(child);
+            }
+
+            const totalAngle = DNA_TURNS * Math.PI * 2;
+            const segments = 200;
+            const curvePoints = [];
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const theta = t * totalAngle;
+                const y = t * DNA_HEIGHT - DNA_HEIGHT / 2;
+                let x, z;
+                if (strandIndex === 1) { x = DNA_RADIUS * Math.cos(theta); z = DNA_RADIUS * Math.sin(theta); }
+                else { x = -DNA_RADIUS * Math.cos(theta); z = -DNA_RADIUS * Math.sin(theta); }
+                curvePoints.push(new THREE.Vector3(x, y, z));
+            }
+            const curve = new THREE.CatmullRomCurve3(curvePoints);
+            const tubeGeo = new THREE.TubeGeometry(curve, 160, 0.13, 12, false);
+            const tubeMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(colorHex), roughness: 0.35, metalness: 0.15, transparent: opacity < 1, opacity: opacity, depthWrite: opacity > 0.8,
+            });
+            const tube = new THREE.Mesh(tubeGeo, tubeMat);
+            tube.castShadow = true;
+            tube.receiveShadow = true;
+            group.add(tube);
+
+            const decorationCount = TOTAL_SLOTS * 2;
+            for (let i = 0; i < decorationCount; i++) {
+                const t = i / decorationCount;
+                const theta = t * totalAngle;
+                const y = t * DNA_HEIGHT - DNA_HEIGHT / 2;
+                let x, z;
+                if (strandIndex === 1) { x = DNA_RADIUS * Math.cos(theta); z = DNA_RADIUS * Math.sin(theta); }
+                else { x = -DNA_RADIUS * Math.cos(theta); z = -DNA_RADIUS * Math.sin(theta); }
+                const sphereGeo = new THREE.SphereGeometry(0.18, 8, 8);
+                const sphereMat = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color(colorHex).multiplyScalar(0.7), roughness: 0.3, metalness: 0.4, transparent: opacity < 1, opacity: opacity, depthWrite: opacity > 0.8,
+                });
+                const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+                sphere.position.set(x, y, z);
+                sphere.castShadow = true;
+                group.add(sphere);
+            }
+        }
+
+        function buildBasePairConnectors() {
+            while (basePairGroup.children.length > 0) {
+                const child = basePairGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                basePairGroup.remove(child);
+            }
+            for (let i = 0; i < TOTAL_SLOTS; i++) {
+                const pos1 = getBasePosition(i, 1);
+                const pos2 = getBasePosition(i, 2);
+                const mid = new THREE.Vector3((pos1.x + pos2.x) / 2, pos1.y, (pos1.z + pos2.z) / 2);
+                const dir = new THREE.Vector3(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize();
+                const length = Math.sqrt((pos2.x - pos1.x) ** 2 + (pos2.z - pos1.z) ** 2);
+                const cylGeo = new THREE.CylinderGeometry(0.08, 0.08, length, 8);
+                const cylMat = new THREE.MeshStandardMaterial({ color: 0x8899aa, roughness: 0.4, metalness: 0.2, transparent: true, opacity: 0.55 });
+                const cyl = new THREE.Mesh(cylGeo, cylMat);
+                cyl.position.copy(mid);
+                cyl.position.y = pos1.y;
+                const angle = Math.atan2(dir.z, dir.x);
+                cyl.rotation.z = Math.PI / 2;
+                cyl.rotation.y = -angle;
+                cyl.castShadow = true;
+                basePairGroup.add(cyl);
+            }
+        }
+
+        function buildTemplateBaseNodes() {
+            while (templateBaseNodes.children.length > 0) {
+                const child = templateBaseNodes.children[0];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+                templateBaseNodes.remove(child);
+            }
+            for (let i = 0; i < TOTAL_SLOTS; i++) {
+                const base = templateSequence[i];
+                if (!base) continue;
+                const pos = getBasePosition(i, 1);
+                const sphereGeo = new THREE.SphereGeometry(0.25, 20, 20);
+                const color = getBaseColor3D(base);
+                const sphereMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.25, metalness: 0.1, emissive: color, emissiveIntensity: 0.35 });
+                const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+                sphere.position.set(pos.x, pos.y, pos.z);
+                sphere.castShadow = true;
+                sphere.receiveShadow = true;
+                sphere.name = `template-base-${i}-${base}`;
+                templateBaseNodes.add(sphere);
+
+                const ringGeo = new THREE.TorusGeometry(0.32, 0.05, 8, 16);
+                const ringMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3, metalness: 0.2, emissive: color, emissiveIntensity: 0.5, transparent: true, opacity: 0.7 });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.position.copy(sphere.position);
+                ring.lookAt(new THREE.Vector3(0, pos.y, 0));
+                ring.name = `template-ring-${i}`;
+                templateBaseNodes.add(ring);
+            }
+        }
+
+        function buildSlotIndicators() {
+            slotIndicatorMeshes.forEach(m => {
+                if (m.geometry) m.geometry.dispose();
+                if (m.material) m.material.dispose();
+                buildBaseNodes.remove(m);
+            });
+            placedBaseMeshes.forEach(m => {
+                if (m.geometry) m.geometry.dispose();
+                if (m.material) m.material.dispose();
+                buildBaseNodes.remove(m);
+            });
+            slotIndicatorMeshes = [];
+            placedBaseMeshes = [];
+            hBondMeshes.forEach(m => {
+                if (m.geometry) m.geometry.dispose();
+                if (m.material) m.material.dispose();
+                hydrogenBondsGroup.remove(m);
+            });
+            hBondMeshes = [];
+
+            for (let i = 0; i < TOTAL_SLOTS; i++) {
+                const pos = getBasePosition(i, 2);
+                if (buildSlots[i] === null || buildSlots[i] === undefined) {
+                    const ringGeo = new THREE.TorusGeometry(0.28, 0.06, 8, 20);
+                    const ringMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 0.1, emissive: 0xffffff, emissiveIntensity: 0.6, transparent: true, opacity: 0.5, depthWrite: false });
+                    const ring = new THREE.Mesh(ringGeo, ringMat);
+                    ring.position.set(pos.x, pos.y, pos.z);
+                    ring.lookAt(new THREE.Vector3(0, pos.y, 0));
+                    ring.name = `slot-indicator-${i}`;
+                    ring.userData = { slotIndex: i, isSlot: true };
+                    buildBaseNodes.add(ring);
+                    slotIndicatorMeshes.push(ring);
+
+                    const dotGeo = new THREE.SphereGeometry(0.1, 8, 8);
+                    const dotMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.9, transparent: true, opacity: 0.6, depthWrite: false });
+                    const dot = new THREE.Mesh(dotGeo, dotMat);
+                    dot.position.copy(ring.position);
+                    dot.name = `slot-dot-${i}`;
+                    dot.userData = { slotIndex: i, isSlotDot: true, baseY: pos.y };
+                    buildBaseNodes.add(dot);
+                    slotIndicatorMeshes.push(dot);
+                } else {
+                    const base = buildSlots[i];
+                    const sphereGeo = new THREE.SphereGeometry(0.25, 20, 20);
+                    const color = getBaseColor3D(base);
+                    const sphereMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.25, metalness: 0.1, emissive: color, emissiveIntensity: 0.4 });
+                    const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+                    sphere.position.set(pos.x, pos.y, pos.z);
+                    sphere.castShadow = true;
+                    sphere.receiveShadow = true;
+                    sphere.name = `placed-base-${i}-${base}`;
+                    buildBaseNodes.add(sphere);
+                    placedBaseMeshes.push(sphere);
+
+                    const ringGeo = new THREE.TorusGeometry(0.32, 0.05, 8, 16);
+                    const ringMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3, metalness: 0.2, emissive: color, emissiveIntensity: 0.5, transparent: true, opacity: 0.7 });
+                    const ring = new THREE.Mesh(ringGeo, ringMat);
+                    ring.position.copy(sphere.position);
+                    ring.lookAt(new THREE.Vector3(0, pos.y, 0));
+                    buildBaseNodes.add(ring);
+                    placedBaseMeshes.push(ring);
+
+                    buildHydrogenBonds(i, templateSequence[i], base);
+                }
+            }
+        }
+
+        function buildHydrogenBonds(slotIndex, templateBase, buildBase) {
+            const pos1 = getBasePosition(slotIndex, 1);
+            const pos2 = getBasePosition(slotIndex, 2);
+            const numBonds = BASE_COLORS[templateBase]?.hBonds || 2;
+            const midX = (pos1.x + pos2.x) / 2;
+            const midZ = (pos1.z + pos2.z) / 2;
+            const dir = new THREE.Vector3(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize();
+            const perpDir = new THREE.Vector3(-dir.z, 0, dir.x).normalize();
+            const spacing = 0.12;
+            const startOffset = -((numBonds - 1) / 2) * spacing;
+
+            for (let b = 0; b < numBonds; b++) {
+                const offset = startOffset + b * spacing;
+                const bondCenter = new THREE.Vector3(midX + perpDir.x * offset, pos1.y, midZ + perpDir.z * offset);
+                const halfLen = 0.25;
+                const p1 = bondCenter.clone().addScaledVector(dir, -halfLen);
+                const p2 = bondCenter.clone().addScaledVector(dir, halfLen);
+                const points = [p1, p2];
+                const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+                const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, depthWrite: false, linewidth: 1 });
+                const line = new THREE.Line(lineGeo, lineMat);
+                line.name = `hbond-${slotIndex}-${b}`;
+                hydrogenBondsGroup.add(line);
+                hBondMeshes.push(line);
+            }
+        }
+
+        function buildFullDNAStructure() {
+            buildBackbone(backboneGroup1, '#c9a96e', 1.0, 1);
+            buildBackbone(backboneGroup2, '#8b9dc3', 0.65, 2);
+            buildBasePairConnectors();
+            buildTemplateBaseNodes();
+            buildSlotIndicators();
+        }
+
+        function highlight3DSlot(slotIndex) {
+            slotIndicatorMeshes.forEach(m => {
+                if (m.material && m.userData.isSlot) { m.material.emissiveIntensity = 0.6; m.material.opacity = 0.5; m.material.color.set(0xffffff); m.material.emissive.set(0xffffff); m.scale.set(1, 1, 1); }
+                if (m.material && m.userData.isSlotDot) { m.material.opacity = 0.6; m.material.emissiveIntensity = 0.9; m.material.color.set(0xffffff); m.material.emissive.set(0xffffff); }
+            });
+            if (slotIndex === null || slotIndex === undefined) return;
+            slotIndicatorMeshes.forEach(m => {
+                if (m.userData.slotIndex === slotIndex && m.userData.isSlot) { m.material.emissiveIntensity = 1.5; m.material.opacity = 0.9; m.material.color.set(0xffdd88); m.material.emissive.set(0xffdd88); m.scale.set(1.25, 1.25, 1.25); }
+                if (m.userData.slotIndex === slotIndex && m.userData.isSlotDot) { m.material.opacity = 1; m.material.emissiveIntensity = 2; m.material.color.set(0xffdd88); m.material.emissive.set(0xffdd88); }
+            });
+        }
+
+        function generateRandomSequence() {
+            const bases = ['A', 'T', 'G', 'C'];
+            const seq = [];
+            for (let i = 0; i < TOTAL_SLOTS; i++) { seq.push(bases[Math.floor(Math.random() * 4)]); }
+            return seq;
+        }
+
+        function resetState(newSequence = true) {
+            if (newSequence) { templateSequence = generateRandomSequence(); }
+            buildSlots = new Array(TOTAL_SLOTS).fill(null);
+            completedCount = 0;
+            selectedBase = null;
+            updateProgressUI();
+            updateBuildSlotsUI();
+            updateTemplateUI();
+            deselectBaseCard();
+            buildFullDNAStructure();
+            highlight3DSlot(null);
+            document.getElementById('completionOverlay').classList.remove('show');
+            document.getElementById('feedbackToast').classList.remove('show', 'success', 'error');
+            document.getElementById('selectedHint').textContent = '点击碱基卡片选中，再点击槽位放置';
+        }
+
+        // ==================== UI更新 ====================
+        function updateTemplateUI() {
+            const templateRow = document.getElementById('templateRow');
+            templateRow.innerHTML = '';
+            templateSequence.forEach((base, i) => {
+                const el = document.createElement('div');
+                el.className = `template-base base-${base.toLowerCase()}`;
+                el.textContent = base;
+                el.title = `模板碱基 ${base}（位置${i + 1}）`;
+                templateRow.appendChild(el);
+            });
+        }
+
+        function updateBuildSlotsUI() {
+            const buildRow = document.getElementById('buildRow');
+            buildRow.innerHTML = '';
+            buildSlots.forEach((base, i) => {
+                const slotEl = document.createElement('div');
+                slotEl.className = 'build-slot';
+                slotEl.dataset.slotIndex = i;
+                if (base !== null && base !== undefined) {
+                    slotEl.textContent = base;
+                    slotEl.classList.add('filled', 'correct');
+                    slotEl.style.background = BASE_COLORS[base]?.hex || '#555';
+                    slotEl.style.boxShadow = `0 0 18px ${BASE_COLORS[base]?.glow || '#fff'}`;
+                    slotEl.title = `已放置：${BASE_COLORS[base]?.name || base}（位置${i + 1}）`;
+                } else {
+                    slotEl.textContent = '';
+                    slotEl.style.background = '';
+                    slotEl.style.boxShadow = '';
+                    slotEl.classList.remove('filled', 'correct', 'incorrect-flash');
+                    slotEl.title = `空槽位 ${i + 1} - 点击放置碱基`;
+                    const idxLabel = document.createElement('span');
+                    idxLabel.className = 'slot-index';
+                    idxLabel.textContent = i + 1;
+                    slotEl.appendChild(idxLabel);
+                }
+                slotEl.addEventListener('click', () => onSlotClick(i, slotEl));
+                slotEl.addEventListener('dragover', (e) => { e.preventDefault(); slotEl.classList.add('highlight'); highlight3DSlot(i); });
+                slotEl.addEventListener('dragleave', () => { slotEl.classList.remove('highlight'); if (selectedBase === null) highlight3DSlot(null); });
+                slotEl.addEventListener('drop', (e) => { e.preventDefault(); slotEl.classList.remove('highlight'); const base = e.dataTransfer.getData('text/plain'); if (base && ['A', 'T', 'G', 'C'].includes(base)) { placeBase(i, base); } highlight3DSlot(null); });
+                buildRow.appendChild(slotEl);
+            });
+        }
+
+        function updateProgressUI() {
+            document.getElementById('progressBar').style.width = `${(completedCount / TOTAL_SLOTS) * 100}%`;
+            document.getElementById('progressText').textContent = `${completedCount}/${TOTAL_SLOTS}`;
+        }
+
+        function deselectBaseCard() {
+            document.querySelectorAll('.base-card').forEach(c => c.classList.remove('selected'));
+            selectedBase = null;
+            highlight3DSlot(null);
+            document.querySelectorAll('.build-slot').forEach(s => s.classList.remove('highlight'));
+            document.getElementById('selectedHint').textContent = '点击碱基卡片选中，再点击槽位放置';
+        }
+
+        function placeBase(slotIndex, base) {
+            if (buildSlots[slotIndex] !== null && buildSlots[slotIndex] !== undefined) {
+                showFeedback('该槽位已放置碱基！', 'error');
+                return;
+            }
+            const templateBase = templateSequence[slotIndex];
+            const expectedComplement = BASE_COLORS[templateBase]?.complement;
+
+            if (base === expectedComplement) {
+                buildSlots[slotIndex] = base;
+                completedCount++;
+                updateProgressUI();
+                updateBuildSlotsUI();
+                buildFullDNAStructure();
+                highlight3DSlot(null);
+                deselectBaseCard();
+                showFeedback(`✅ 正确！${templateBase} 与 ${base} 配对（${BASE_COLORS[templateBase].hBonds}个氢键）`, 'success');
+
+                setTimeout(() => {
+                    const slotEl = document.querySelector(`.build-slot[data-slot-index="${slotIndex}"]`);
+                    if (slotEl) { slotEl.classList.add('correct'); slotEl.style.transform = 'scale(1.15)'; setTimeout(() => { slotEl.style.transform = 'scale(1)'; }, 200); }
+                }, 50);
+
+                if (completedCount === TOTAL_SLOTS) {
+                    setTimeout(() => {
+                        document.getElementById('completionOverlay').classList.add('show');
+                        controls.autoRotate = true;
+                        controls.autoRotateSpeed = 1.2;
+                    }, 600);
+                }
+            } else {
+                showFeedback(`❌ 不对哦！${templateBase} 应该与 ${expectedComplement} 配对，而不是 ${base}。请再试一次。`, 'error');
+                const slotEl = document.querySelector(`.build-slot[data-slot-index="${slotIndex}"]`);
+                if (slotEl) { slotEl.classList.add('incorrect-flash'); setTimeout(() => slotEl.classList.remove('incorrect-flash'), 600); }
+                deselectBaseCard();
+            }
+        }
+
+        function onSlotClick(slotIndex, slotEl) {
+            if (buildSlots[slotIndex] !== null && buildSlots[slotIndex] !== undefined) {
+                buildSlots[slotIndex] = null;
+                completedCount = Math.max(0, completedCount - 1);
+                updateProgressUI();
+                updateBuildSlotsUI();
+                buildFullDNAStructure();
+                highlight3DSlot(null);
+                showFeedback('碱基已移除，请重新放置', 'error');
+                return;
+            }
+            if (selectedBase) {
+                placeBase(slotIndex, selectedBase);
+                deselectBaseCard();
+            } else {
+                slotEl.classList.add('highlight');
+                highlight3DSlot(slotIndex);
+                setTimeout(() => { if (!selectedBase) { slotEl.classList.remove('highlight'); highlight3DSlot(null); } }, 1500);
+                showFeedback('请先在碱基库中选择一个碱基', 'error');
+            }
+        }
+
+        function showFeedback(message, type) {
+            const toast = document.getElementById('feedbackToast');
+            toast.textContent = message;
+            toast.className = 'feedback-toast ' + type + ' show';
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => { toast.classList.remove('show', 'success', 'error'); }, 2200);
+        }
+
+        // ==================== 事件监听 ====================
+        document.getElementById('basePool').addEventListener('click', (e) => {
+            const card = e.target.closest('.base-card');
+            if (!card) return;
+            const base = card.dataset.base;
+            if (selectedBase === base) { deselectBaseCard(); }
+            else {
+                document.querySelectorAll('.base-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedBase = base;
+                document.getElementById('selectedHint').textContent = `已选中：${BASE_COLORS[base]?.name}（${base}）— 点击槽位放置`;
+                highlight3DSlot(null);
+                document.querySelectorAll('.build-slot').forEach(s => s.classList.remove('highlight'));
+            }
+        });
+
+        document.querySelectorAll('.base-card').forEach(card => {
+            card.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', card.dataset.base); card.style.opacity = '0.6'; document.querySelectorAll('.base-card').forEach(c => c.classList.remove('selected')); selectedBase = null; });
+            card.addEventListener('dragend', (e) => { card.style.opacity = '1'; highlight3DSlot(null); document.querySelectorAll('.build-slot').forEach(s => s.classList.remove('highlight')); });
+        });
+
+        document.getElementById('btnReset').addEventListener('click', () => { resetState(false); showFeedback('已重置，请重新放置碱基', 'error'); controls.autoRotateSpeed = 0.25; });
+        document.getElementById('btnNewSequence').addEventListener('click', () => { resetState(true); showFeedback('新DNA序列已生成！开始配对吧 🧬', 'success'); controls.autoRotateSpeed = 0.25; });
+        document.getElementById('btnNewSequence2').addEventListener('click', () => { resetState(true); showFeedback('新DNA序列已生成！开始配对吧 🧬', 'success'); controls.autoRotateSpeed = 0.25; });
+        document.getElementById('btnCloseOverlay').addEventListener('click', () => { document.getElementById('completionOverlay').classList.remove('show'); controls.autoRotateSpeed = 0.25; });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { deselectBaseCard(); document.getElementById('completionOverlay').classList.remove('show'); controls.autoRotateSpeed = 0.25; }
+            if (e.key === 'r' && e.ctrlKey) { e.preventDefault(); resetState(false); }
+            if (e.key === 'n' && e.ctrlKey) { e.preventDefault(); resetState(true); }
+        });
+
+        document.getElementById('sidePanel').addEventListener('dragover', (e) => { e.preventDefault(); });
+        document.getElementById('sidePanel').addEventListener('drop', (e) => { e.preventDefault(); });
+
+        // ==================== 动画循环 ====================
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsed = clock.getElapsedTime();
+            controls.update();
+            particles.rotation.y += 0.0003;
+            particles.rotation.x += 0.00015;
+            slotIndicatorMeshes.forEach(m => {
+                if (m.userData.isSlotDot && m.material && m.material.emissiveIntensity < 1.5) {
+                    const pulse = 0.6 + Math.sin(elapsed * 3 + m.userData.slotIndex * 0.8) * 0.3;
+                    m.material.opacity = pulse;
+                    m.material.emissiveIntensity = 0.7 + Math.sin(elapsed * 3 + m.userData.slotIndex * 0.8) * 0.4;
+                }
+            });
+            pointLight.intensity = 2 + Math.sin(elapsed * 0.7) * 0.4;
+            renderer.render(scene, camera);
+
+            const hint = document.getElementById('canvasHint');
+            if (hint && elapsed > 8 && hint.style.opacity !== '0') { hint.style.transition = 'opacity 2s'; hint.style.opacity = '0'; }
+        }
+
+        // ==================== 启动应用 ====================
+        function init() {
+            templateSequence = generateRandomSequence();
+            buildSlots = new Array(TOTAL_SLOTS).fill(null);
+            completedCount = 0;
+            updateTemplateUI();
+            updateBuildSlotsUI();
+            updateProgressUI();
+            buildFullDNAStructure();
+            highlight3DSlot(null);
+            document.getElementById('completionOverlay').classList.remove('show');
+            document.getElementById('feedbackToast').classList.remove('show', 'success', 'error');
+            document.getElementById('selectedHint').textContent = '点击碱基卡片选中，再点击槽位放置';
+            setTimeout(() => { showFeedback('👋 欢迎！从碱基库选择碱基，放置到构建链的槽位中', 'success'); }, 500);
+        }
+
+        init();
+        animate();
+
+        console.log('🧬 DNA双螺旋构建器已就绪');
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "🧬 细胞分裂3D可视化" [level=1] [ref=e4]
+    - generic [ref=e5]:
+      - generic [ref=e6]: Three.js 3D渲染
+      - generic [ref=e7]: WebGL 加速
+  - main [ref=e8]:
+    - complementary [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: 分裂类型
+        - generic [ref=e12]:
+          - button "有丝分裂" [ref=e13] [cursor=pointer]
+          - button "减数分裂" [ref=e14] [cursor=pointer]
+      - generic [ref=e15]:
+        - generic [ref=e16]: 有丝分裂阶段
+        - generic [ref=e17]:
+          - generic [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]: "1"
+            - generic [ref=e20]:
+              - generic [ref=e21]: 间期
+              - generic [ref=e22]: DNA复制准备
+          - generic [ref=e23] [cursor=pointer]:
+            - generic [ref=e24]: "2"
+            - generic [ref=e25]:
+              - generic [ref=e26]: 前期
+              - generic [ref=e27]: 染色体凝缩
+          - generic [ref=e28] [cursor=pointer]:
+            - generic [ref=e29]: "3"
+            - generic [ref=e30]:
+              - generic [ref=e31]: 中期
+              - generic [ref=e32]: 染色体排列
+          - generic [ref=e33] [cursor=pointer]:
+            - generic [ref=e34]: "4"
+            - generic [ref=e35]:
+              - generic [ref=e36]: 后期
+              - generic [ref=e37]: 姐妹分离
+          - generic [ref=e38] [cursor=pointer]:
+            - generic [ref=e39]: "5"
+            - generic [ref=e40]:
+              - generic [ref=e41]: 末期
+              - generic [ref=e42]: 新核形成
+          - generic [ref=e43] [cursor=pointer]:
+            - generic [ref=e44]: "6"
+            - generic [ref=e45]:
+              - generic [ref=e46]: 胞质分裂
+              - generic [ref=e47]: 细胞分裂
+      - generic [ref=e48]:
+        - generic [ref=e49]: 播放控制
+        - generic [ref=e50]:
+          - button "▶ 播放" [ref=e51] [cursor=pointer]
+          - button "⏮ 重置" [ref=e52] [cursor=pointer]
+        - generic [ref=e55]:
+          - generic [ref=e56]: 间期
+          - generic [ref=e57]: 0%
+      - generic [ref=e58]:
+        - generic [ref=e59]: 动画速度
+        - generic [ref=e60]:
+          - generic [ref=e61]: 慢速
+          - slider [ref=e62]: "1"
+          - generic [ref=e63]: 快速
+      - generic [ref=e64]:
+        - generic [ref=e65]: 视角预设
+        - generic [ref=e66]:
+          - button "正视图" [ref=e67] [cursor=pointer]
+          - button "俯视图" [ref=e68] [cursor=pointer]
+          - button "侧视图" [ref=e69] [cursor=pointer]
+          - button "等距视图" [ref=e70] [cursor=pointer]
+      - generic [ref=e71]:
+        - generic [ref=e72]: 图例
+        - generic [ref=e73]:
+          - generic [ref=e76]: 染色体
+          - generic [ref=e79]: 纺锤丝
+          - generic [ref=e82]: 核膜
+          - generic [ref=e85]: 细胞膜
+    - generic [ref=e86]:
+      - generic [ref=e88]: 🖱️ 拖拽旋转 | 滚轮缩放 | 右键平移
+      - generic [ref=e89]:
+        - button "×" [ref=e90] [cursor=pointer]
+        - heading "间期" [level=3] [ref=e91]
+        - paragraph [ref=e92]: 细胞处于分裂前的准备阶段，DNA进行复制，细胞适度生长。

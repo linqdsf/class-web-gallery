@@ -1,0 +1,52 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - heading "📚 学生成绩管理系统 🔒 本地运行 · 数据不上传" [level=1] [ref=e4]:
+      - text: 📚 学生成绩管理系统
+      - generic [ref=e5]: 🔒 本地运行 · 数据不上传
+    - generic [ref=e6]:
+      - generic [ref=e7]: ✅ 支持Excel导入/导出
+      - generic [ref=e8]: 🎤 智能语音播报
+      - generic [ref=e9]: ⚡ 座号+成绩 快速录入
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - paragraph [ref=e12]: 📌 使用流程（轻松三步）
+      - list [ref=e13]:
+        - listitem [ref=e14]:
+          - text: 1️⃣ 点击
+          - strong [ref=e15]: 📎 下载模板
+          - text: ，将学生座号、姓名填入模板（成绩列可留空），保存为Excel文件。
+        - listitem [ref=e16]:
+          - text: 2️⃣ 点击
+          - strong [ref=e17]: 📂 选择文件
+          - text: ，上传填好的模板 → 自动加载名单表格。
+        - listitem [ref=e18]: 3️⃣ 在下方输入框按格式录入成绩，例：0195.5 表示01号同学成绩95.5分，按回车即录入+语音播报。
+        - listitem [ref=e19]:
+          - text: 💡 全部录入后点击
+          - strong [ref=e20]: 💾 导出成绩表
+          - text: ，生成最终成绩单（成绩保持数字格式）。
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - button "📎 下载模板 (Excel)" [ref=e23] [cursor=pointer]
+        - generic [ref=e24] [cursor=pointer]: 📂 选择文件
+        - button "💾 导出成绩表" [ref=e25] [cursor=pointer]
+      - generic [ref=e26]: 📌 支持 .xlsx / .xls，表头必须包含【座号】【姓名】【成绩】
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - text: 🎯 快速成绩录入
+        - generic [ref=e29]: 按回车即保存+播报
+      - generic [ref=e30]:
+        - 'textbox "例: 0195.5 (座号取前两位+成绩)" [active] [ref=e31]':
+          - /placeholder: "例: 0195.5   (座号取前两位+成绩)"
+        - generic [ref=e32]: "✏️ 格式: 前两位为座号，剩余为成绩（支持小数）"
+    - table [ref=e35]:
+      - rowgroup [ref=e36]:
+        - row "座号 姓名 成绩 (分)" [ref=e37]:
+          - columnheader "座号" [ref=e38]
+          - columnheader "姓名" [ref=e39]
+          - columnheader "成绩 (分)" [ref=e40]
+      - rowgroup [ref=e41]:
+        - row "📭 暂无学生数据，请导入Excel名单" [ref=e42]:
+          - cell "📭 暂无学生数据，请导入Excel名单" [ref=e43]
+    - generic [ref=e44]:
+      - text: 🎤 语音播报依赖浏览器 Web Speech API，每次录入自动播放「XX号 姓名 → 成绩」
+      - text: 🔐 所有数据仅在您电脑中处理，不会上传任何文件或内容。

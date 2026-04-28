@@ -1,0 +1,426 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "🎨 创意网页工坊" [ref=e4] [cursor=pointer]:
+        - /url: /class-web-gallery/
+        - generic [ref=e5]: 🎨
+        - generic [ref=e6]: 创意网页工坊
+      - list [ref=e7]:
+        - listitem [ref=e8]:
+          - link "首页" [ref=e9] [cursor=pointer]:
+            - /url: /class-web-gallery/
+        - listitem [ref=e10]:
+          - link "浏览" [ref=e11] [cursor=pointer]:
+            - /url: /class-web-gallery/browse/
+        - listitem [ref=e12]:
+          - link "我要投稿" [ref=e13] [cursor=pointer]:
+            - /url: /class-web-gallery/submit/
+        - listitem [ref=e14]:
+          - link "关于" [ref=e15] [cursor=pointer]:
+            - /url: /class-web-gallery/about/
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - heading "🎨 创意网页工坊" [level=1] [ref=e19]:
+          - generic [ref=e20]: 🎨
+          - text: 创意网页工坊
+        - paragraph [ref=e21]: 收录和展示优秀的网页应用作品，支持教师和学生作品展示，欢迎各校投稿！
+        - generic [ref=e22]:
+          - link "🚀 浏览作品" [ref=e23] [cursor=pointer]:
+            - /url: /class-web-gallery/browse/
+          - link "📝 我要投稿" [ref=e24] [cursor=pointer]:
+            - /url: /class-web-gallery/submit/
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - generic [ref=e27]: "24"
+          - text: 精选作品
+        - generic [ref=e28]:
+          - generic [ref=e29]: "2"
+          - text: 作品分类
+        - generic [ref=e30]:
+          - generic [ref=e31]: 10+
+          - text: 参与学校
+    - generic [ref=e34]:
+      - button "🏆 精选推荐" [ref=e35] [cursor=pointer]:
+        - generic [ref=e36]: 🏆
+        - generic [ref=e37]: 精选推荐
+      - button "👨‍🏫 教师作品" [ref=e38] [cursor=pointer]:
+        - generic [ref=e39]: 👨‍🏫
+        - generic [ref=e40]: 教师作品
+      - button "🎓 学生作品" [ref=e41] [cursor=pointer]:
+        - generic [ref=e42]: 🎓
+        - generic [ref=e43]: 学生作品
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - heading "⭐ 精选作品" [level=2] [ref=e46]:
+          - generic [ref=e47]: ⭐
+          - text: 精选作品
+        - link "查看更多 →" [ref=e48] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/
+      - generic [ref=e49]:
+        - article [ref=e50]:
+          - generic [ref=e51]:
+            - generic [ref=e52]: ⭐ 精选
+            - generic [ref=e53]: 👨‍🏫
+          - generic [ref=e54]:
+            - heading "细胞分裂3D可视化" [level=3] [ref=e55]
+            - paragraph [ref=e56]: 交互式3D细胞分裂动画，清晰展示有丝分裂和减数分裂的各个阶段，支持360度旋转观察。
+            - generic [ref=e58]:
+              - img "云自白" [ref=e59]
+              - text: 云自白
+            - generic [ref=e60]:
+              - generic [ref=e61]: 细胞分裂
+              - generic [ref=e62]: 3D动画
+              - generic [ref=e63]: 生物学
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - generic [ref=e66]: 👁️ 567
+                - generic [ref=e67]: ❤️ 89
+              - generic [ref=e68]:
+                - link "🚀 访问" [ref=e69] [cursor=pointer]:
+                  - /url: /class-web-gallery/teacher-apps/teacher/cell-division-3d/index.html
+                - link "📥 下载" [ref=e70] [cursor=pointer]:
+                  - /url: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/cell-division-3d
+        - article [ref=e71]:
+          - generic [ref=e72]:
+            - generic [ref=e73]: ⭐ 精选
+            - generic [ref=e74]: 👨‍🏫
+          - generic [ref=e75]:
+            - heading "酵母菌发酵模拟器" [level=3] [ref=e76]
+            - paragraph [ref=e77]: 高中生物细胞呼吸互动课件，模拟酵母菌的有氧呼吸和无氧呼吸过程，包含三个版本进阶学习。
+            - generic [ref=e79]:
+              - img "云自白" [ref=e80]
+              - text: 云自白
+            - generic [ref=e81]:
+              - generic [ref=e82]: 细胞呼吸
+              - generic [ref=e83]: 酵母菌
+              - generic [ref=e84]: 发酵
+            - generic [ref=e85]:
+              - generic [ref=e86]:
+                - generic [ref=e87]: 👁️ 0
+                - generic [ref=e88]: ❤️ 0
+              - generic [ref=e89]:
+                - link "🚀 访问" [ref=e90] [cursor=pointer]:
+                  - /url: /class-web-gallery/teacher-apps/teacher/yeast-fermentation/index.html
+                - link "📥 下载" [ref=e91] [cursor=pointer]:
+                  - /url: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/yeast-fermentation
+        - article [ref=e92]:
+          - generic [ref=e93]:
+            - generic [ref=e94]: ⭐ 精选
+            - generic [ref=e95]: 👨‍🏫
+          - generic [ref=e96]:
+            - heading "蛋白质合成流程图" [level=3] [ref=e97]
+            - paragraph [ref=e98]: 动画展示转录和翻译全过程，详解中心法则DNA→RNA→蛋白质的完整流程。
+            - generic [ref=e100]:
+              - img "云自白" [ref=e101]
+              - text: 云自白
+            - generic [ref=e102]:
+              - generic [ref=e103]: 中心法则
+              - generic [ref=e104]: 蛋白质合成
+              - generic [ref=e105]: 转录
+            - generic [ref=e106]:
+              - generic [ref=e107]:
+                - generic [ref=e108]: 👁️ 0
+                - generic [ref=e109]: ❤️ 0
+              - generic [ref=e110]:
+                - link "🚀 访问" [ref=e111] [cursor=pointer]:
+                  - /url: /class-web-gallery/teacher-apps/teacher/protein-synthesis/index.html
+                - link "📥 下载" [ref=e112] [cursor=pointer]:
+                  - /url: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/protein-synthesis
+        - article [ref=e113]:
+          - generic [ref=e114]:
+            - generic [ref=e115]: ⭐ 精选
+            - generic [ref=e116]: 👨‍🏫
+          - generic [ref=e117]:
+            - heading "智慧成绩管理系统" [level=3] [ref=e118]
+            - paragraph [ref=e119]: 本地安全录入成绩，支持导入导出Excel，自动统计分析和可视化图表。
+            - generic [ref=e121]:
+              - img "云自白" [ref=e122]
+              - text: 云自白
+            - generic [ref=e123]:
+              - generic [ref=e124]: 成绩管理
+              - generic [ref=e125]: Excel
+              - generic [ref=e126]: 数据分析
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - generic [ref=e129]: 👁️ 234
+                - generic [ref=e130]: ❤️ 45
+              - generic [ref=e131]:
+                - link "🚀 访问" [ref=e132] [cursor=pointer]:
+                  - /url: /class-web-gallery/teacher-apps/teacher/demo-project/index.html
+                - link "📥 下载" [ref=e133] [cursor=pointer]:
+                  - /url: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/demo-project
+        - article [ref=e134]:
+          - generic [ref=e135]:
+            - generic [ref=e136]: ⭐ 精选
+            - generic [ref=e137]: 👨‍🏫
+          - generic [ref=e138]:
+            - heading "细胞分裂3D可视化" [level=3] [ref=e139]
+            - paragraph [ref=e140]: 交互式3D细胞分裂动画，清晰展示有丝分裂和减数分裂的各个阶段，支持360度旋转观察。
+            - generic [ref=e142]:
+              - img "张伟民老师" [ref=e143]
+              - text: 张伟民老师
+            - generic [ref=e144]:
+              - generic [ref=e145]: 细胞生物学
+              - generic [ref=e146]: 3D动画
+              - generic [ref=e147]: 可视化
+            - generic [ref=e148]:
+              - generic [ref=e149]:
+                - generic [ref=e150]: 👁️ 4521
+                - generic [ref=e151]: ❤️ 326
+              - generic [ref=e152]:
+                - link "🚀 访问" [ref=e153] [cursor=pointer]:
+                  - /url: /class-web-galleryhttps://bioviz.cn/cell-division
+                - link "📥 下载" [ref=e154] [cursor=pointer]:
+                  - /url: https://github.com/zhang-bio/cell-division
+        - article [ref=e155]:
+          - generic [ref=e156]:
+            - generic [ref=e157]: ⭐ 精选
+            - generic [ref=e158]: 👨‍🏫
+          - generic [ref=e159]:
+            - heading "DNA双螺旋构建器" [level=3] [ref=e160]
+            - paragraph [ref=e161]: 交互式3D DNA双螺旋构建工具，模拟DNA半保留复制过程，学习碱基配对规则。
+            - generic [ref=e163]:
+              - img "李秀英老师" [ref=e164]
+              - text: 李秀英老师
+            - generic [ref=e165]:
+              - generic [ref=e166]: DNA
+              - generic [ref=e167]: 遗传学
+              - generic [ref=e168]: 半保留复制
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - generic [ref=e171]: 👁️ 3890
+                - generic [ref=e172]: ❤️ 289
+              - generic [ref=e173]:
+                - link "🚀 访问" [ref=e174] [cursor=pointer]:
+                  - /url: /class-web-gallery/teacher-apps/teacher/dna-helix-builder/index.html
+                - link "📥 下载" [ref=e175] [cursor=pointer]:
+                  - /url: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/dna-helix-builder
+        - article [ref=e176]:
+          - generic [ref=e177]:
+            - generic [ref=e178]: ⭐ 精选
+            - generic [ref=e179]: 👨‍🏫
+          - generic [ref=e180]:
+            - heading "光合作用实验模拟" [level=3] [ref=e181]
+            - paragraph [ref=e182]: 虚拟光合作用实验平台，模拟不同光照强度CO2浓度对光合作用速率的影响。
+            - generic [ref=e184]:
+              - img "王建国老师" [ref=e185]
+              - text: 王建国老师
+            - generic [ref=e186]:
+              - generic [ref=e187]: 光合作用
+              - generic [ref=e188]: 实验模拟
+              - generic [ref=e189]: 植物学
+            - generic [ref=e190]:
+              - generic [ref=e191]:
+                - generic [ref=e192]: 👁️ 2654
+                - generic [ref=e193]: ❤️ 198
+              - generic [ref=e194]:
+                - link "🚀 访问" [ref=e195] [cursor=pointer]:
+                  - /url: /class-web-galleryhttps://bioviz.cn/photosynthesis
+                - link "📥 下载" [ref=e196] [cursor=pointer]:
+                  - /url: https://github.com/wang-bio/photosynthesis
+        - article [ref=e197]:
+          - generic [ref=e198]:
+            - generic [ref=e199]: ⭐ 精选
+            - generic [ref=e200]: 👨‍🏫
+          - generic [ref=e201]:
+            - heading "人体器官系统探险" [level=3] [ref=e202]
+            - paragraph [ref=e203]: 互动式人体系统学习，点击各器官了解功能与相互协作关系。
+            - generic [ref=e205]:
+              - img "吴晓燕老师" [ref=e206]
+              - text: 吴晓燕老师
+            - generic [ref=e207]:
+              - generic [ref=e208]: 人体解剖
+              - generic [ref=e209]: 器官系统
+              - generic [ref=e210]: 交互学习
+            - generic [ref=e211]:
+              - generic [ref=e212]:
+                - generic [ref=e213]: 👁️ 5234
+                - generic [ref=e214]: ❤️ 356
+              - generic [ref=e215]:
+                - link "🚀 访问" [ref=e216] [cursor=pointer]:
+                  - /url: /class-web-galleryhttps://bioviz.cn/human-body
+                - link "📥 下载" [ref=e217] [cursor=pointer]:
+                  - /url: https://github.com/wu-bio/human-body
+        - article [ref=e218]:
+          - generic [ref=e219]:
+            - generic [ref=e220]: ⭐ 精选
+            - generic [ref=e221]: 🎓
+          - generic [ref=e222]:
+            - heading "细菌生长曲线绘制器" [level=3] [ref=e223]
+            - paragraph [ref=e224]: 输入细菌初始数量和培养条件，自动生成生长曲线并计算代时。
+            - generic [ref=e226]:
+              - img "李浩然" [ref=e227]
+              - text: 李浩然
+            - generic [ref=e228]:
+              - generic [ref=e229]: 微生物
+              - generic [ref=e230]: 曲线绘制
+              - generic [ref=e231]: 数据分析
+            - generic [ref=e232]:
+              - generic [ref=e233]:
+                - generic [ref=e234]: 👁️ 2345
+                - generic [ref=e235]: ❤️ 178
+              - generic [ref=e236]:
+                - link "🚀 访问" [ref=e237] [cursor=pointer]:
+                  - /url: /class-web-galleryhttps://biolearn.cn/bacteria-growth
+                - link "📥 下载" [ref=e238] [cursor=pointer]:
+                  - /url: https://github.com/lihaoran/bacteria-growth
+        - article [ref=e239]:
+          - generic [ref=e240]:
+            - generic [ref=e241]: ⭐ 精选
+            - generic [ref=e242]: 🎓
+          - generic [ref=e243]:
+            - heading "血型遗传计算器" [level=3] [ref=e244]
+            - paragraph [ref=e245]: 根据父母血型预测子女可能的血型分布概率。
+            - generic [ref=e247]:
+              - img "王思琪" [ref=e248]
+              - text: 王思琪
+            - generic [ref=e249]:
+              - generic [ref=e250]: 血型
+              - generic [ref=e251]: 遗传计算
+              - generic [ref=e252]: 概率
+            - generic [ref=e253]:
+              - generic [ref=e254]:
+                - generic [ref=e255]: 👁️ 3456
+                - generic [ref=e256]: ❤️ 234
+              - generic [ref=e257]:
+                - link "🚀 访问" [ref=e258] [cursor=pointer]:
+                  - /url: /class-web-galleryhttps://biolearn.cn/blood-type
+                - link "📥 下载" [ref=e259] [cursor=pointer]:
+                  - /url: https://github.com/wangsiqi/blood-type
+        - article [ref=e260]:
+          - generic [ref=e261]:
+            - generic [ref=e262]: ⭐ 精选
+            - generic [ref=e263]: 🎓
+          - generic [ref=e264]:
+            - heading "植物蒸腾作用实验" [level=3] [ref=e265]
+            - paragraph [ref=e266]: 模拟探究影响蒸腾作用因素的实验，记录数据并分析结论。
+            - generic [ref=e268]:
+              - img "张雨萱" [ref=e269]
+              - text: 张雨萱
+            - generic [ref=e270]:
+              - generic [ref=e271]: 植物学
+              - generic [ref=e272]: 实验
+              - generic [ref=e273]: 探究学习
+            - generic [ref=e274]:
+              - generic [ref=e275]:
+                - generic [ref=e276]: 👁️ 1987
+                - generic [ref=e277]: ❤️ 156
+              - generic [ref=e278]:
+                - link "🚀 访问" [ref=e279] [cursor=pointer]:
+                  - /url: /class-web-galleryhttps://biolearn.cn/transpiration
+                - link "📥 下载" [ref=e280] [cursor=pointer]:
+                  - /url: https://github.com/zhangyuxuan/transpiration
+        - article [ref=e281]:
+          - generic [ref=e282]:
+            - generic [ref=e283]: ⭐ 精选
+            - generic [ref=e284]: 🎓
+          - generic [ref=e285]:
+            - heading "基因频率进化模拟器" [level=3] [ref=e286]
+            - paragraph [ref=e287]: 模拟基因频率在不同选择压力下的变化，直观理解进化机制。
+            - generic [ref=e289]:
+              - img "孙佳怡" [ref=e290]
+              - text: 孙佳怡
+            - generic [ref=e291]:
+              - generic [ref=e292]: 进化论
+              - generic [ref=e293]: 基因频率
+              - generic [ref=e294]: 模拟实验
+            - generic [ref=e295]:
+              - generic [ref=e296]:
+                - generic [ref=e297]: 👁️ 2876
+                - generic [ref=e298]: ❤️ 223
+              - generic [ref=e299]:
+                - link "🚀 访问" [ref=e300] [cursor=pointer]:
+                  - /url: /class-web-galleryhttps://biolearn.cn/gene-evolution
+                - link "📥 下载" [ref=e301] [cursor=pointer]:
+                  - /url: https://github.com/sunjiayi/gene-evolution
+    - generic [ref=e302]:
+      - heading "📂 作品分类" [level=2] [ref=e304]:
+        - generic [ref=e305]: 📂
+        - text: 作品分类
+      - generic [ref=e306]:
+        - link "👨‍🏫 教师作品 教师们精心制作的生物课堂教学工具 14 个作品" [ref=e307] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?category=teacher
+          - generic [ref=e308]: 👨‍🏫
+          - heading "教师作品" [level=3] [ref=e309]
+          - paragraph [ref=e310]: 教师们精心制作的生物课堂教学工具
+          - text: 14 个作品
+        - link "🎓 学生作品 学生们的生物学科创意网页作品 10 个作品" [ref=e311] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?category=student
+          - generic [ref=e312]: 🎓
+          - heading "学生作品" [level=3] [ref=e313]
+          - paragraph [ref=e314]: 学生们的生物学科创意网页作品
+          - text: 10 个作品
+    - generic [ref=e315]:
+      - heading "🏷️ 热门标签" [level=2] [ref=e317]:
+        - generic [ref=e318]: 🏷️
+        - text: 热门标签
+      - generic [ref=e319]:
+        - link "可视化 8" [ref=e320] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?tag=可视化
+          - text: 可视化
+          - generic [ref=e321]: "8"
+        - link "实验模拟 6" [ref=e322] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?tag=实验模拟
+          - text: 实验模拟
+          - generic [ref=e323]: "6"
+        - link "遗传学 5" [ref=e324] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?tag=遗传学
+          - text: 遗传学
+          - generic [ref=e325]: "5"
+        - link "细胞生物学 5" [ref=e326] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?tag=细胞生物学
+          - text: 细胞生物学
+          - generic [ref=e327]: "5"
+        - link "动画演示 7" [ref=e328] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?tag=动画演示
+          - text: 动画演示
+          - generic [ref=e329]: "7"
+        - link "交互学习 8" [ref=e330] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?tag=交互学习
+          - text: 交互学习
+          - generic [ref=e331]: "8"
+        - link "生态学 3" [ref=e332] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?tag=生态学
+          - text: 生态学
+          - generic [ref=e333]: "3"
+        - link "游戏化学习 2" [ref=e334] [cursor=pointer]:
+          - /url: /class-web-gallery/browse/?tag=游戏化学习
+          - text: 游戏化学习
+          - generic [ref=e335]: "2"
+    - generic [ref=e337]:
+      - heading "📢 欢迎投稿" [level=2] [ref=e338]
+      - paragraph [ref=e339]: 无论你是老师还是学生，只要你有创意的网页作品，都可以提交到这里展示！
+      - generic [ref=e340]:
+        - link "查看投稿指南" [ref=e341] [cursor=pointer]:
+          - /url: /class-web-gallery/submit/
+        - link "访问 GitHub" [ref=e342] [cursor=pointer]:
+          - /url: https://github.com/linqdsf/class-web-gallery
+  - contentinfo [ref=e343]:
+    - generic [ref=e344]:
+      - generic [ref=e345]:
+        - generic [ref=e346]:
+          - generic [ref=e347]: 🎨 创意网页工坊
+          - paragraph [ref=e348]: 收录和展示优秀的网页应用作品，支持教师和学生作品展示，欢迎各校投稿
+        - generic [ref=e349]:
+          - heading "快速链接" [level=4] [ref=e350]
+          - list [ref=e351]:
+            - listitem [ref=e352]:
+              - link "首页" [ref=e353] [cursor=pointer]:
+                - /url: /class-web-gallery/
+            - listitem [ref=e354]:
+              - link "浏览作品" [ref=e355] [cursor=pointer]:
+                - /url: /class-web-gallery/browse/
+            - listitem [ref=e356]:
+              - link "投稿指南" [ref=e357] [cursor=pointer]:
+                - /url: /class-web-gallery/submit/
+        - generic [ref=e358]:
+          - heading "参与贡献" [level=4] [ref=e359]
+          - list [ref=e360]:
+            - listitem [ref=e361]:
+              - link "GitHub" [ref=e362] [cursor=pointer]:
+                - /url: https://github.com/linqdsf/class-web-gallery
+            - listitem [ref=e363]:
+              - link "提交Issue" [ref=e364] [cursor=pointer]:
+                - /url: https://github.com/linqdsf/class-web-gallery/issues
+      - paragraph [ref=e366]: Made with ❤️ by 教育者们 | Powered by GitHub Pages

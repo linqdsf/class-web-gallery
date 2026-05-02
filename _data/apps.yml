@@ -559,16 +559,18 @@ apps:
     school_icon: 🎓
     category: student
     grade: 高三
-    description: 模拟基因频率在不同选择压力下的变化，直观理解进化机制。
-    url: https://biolearn.cn/gene-evolution
-    repo: https://github.com/sunjiayi/gene-evolution
+    description: 模拟基因频率在不同选择压力下的变化，直观理解进化机制。支持自然选择模拟和基因漂变两种模式。
+    url: /teacher-apps/student/gene-frequency-evolution/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/gene-frequency-evolution
     tags: [进化论, 基因频率, 模拟实验]
-    thumbnail: /assets/thumbnails/gene-evolution.svg
+    thumbnail: /assets/thumbnails/gene-evolution.png
     features:
       - 哈迪-温伯格平衡
       - 自然选择模拟
       - 基因漂变演示
       - 世代演变动画
+      - 实时曲线绘制
+      - 数据导出功能
     tech_stack: [Canvas, JavaScript, 遗传算法]
     date: 2024-03-10
     featured: true

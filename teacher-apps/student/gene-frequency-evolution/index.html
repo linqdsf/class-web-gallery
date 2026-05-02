@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基因频率进化模拟器 - 高中生物</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.05);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-info {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+            padding: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .control-panel {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #a855f7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .control-value {
+            color: #ec4899;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            cursor: pointer;
+        }
+
+        .btn-group {
+            display: grid;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .mode-btn.active {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+
+        .mode-btn span {
+            display: block;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .experiment-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .canvas-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .canvas-title {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        canvas {
+            width: 100%;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .generation-stat .stat-value {
+            color: #a855f7;
+        }
+
+        .freq-a-stat .stat-value {
+            color: #3b82f6;
+        }
+
+        .freq-a-stat .stat-value::after {
+            content: ' A';
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .freq-a-stat .stat-value::before {
+            content: 'p = ';
+            font-size: 0.7rem;
+        }
+
+        .freq-a-stat .stat-value {
+            font-size: 1.2rem;
+        }
+
+        .heterozygote-stat .stat-value {
+            color: #ec4899;
+        }
+
+        .heterozygote-stat .stat-value::after {
+            content: ' Aa';
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .heterozygote-stat .stat-value {
+            font-size: 1.2rem;
+        }
+
+        .fitness-stat .stat-value {
+            color: #10b981;
+        }
+
+        .info-panel {
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .formula-display {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .formula {
+            font-size: 1.3rem;
+            color: #a855f7;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .formula-sub {
+            font-size: 0.8rem;
+            vertical-align: sub;
+        }
+
+        .formula sup {
+            font-size: 0.7rem;
+            vertical-align: super;
+        }
+
+        .allele-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .allele-item {
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .allele-item.aa {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .allele-item.Aa {
+            background: rgba(236, 72, 153, 0.2);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .allele-item.AA {
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .allele-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .allele-freq {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .theory-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 10px;
+            border-left: 3px solid #10b981;
+        }
+
+        .theory-box h4 {
+            color: #10b981;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .theory-box p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .population-grid {
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            gap: 3px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .individual {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 3px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .individual.AA {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+        }
+
+        .individual.Aa {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        .individual.aa {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .individual:hover {
+            transform: scale(1.3);
+            z-index: 10;
+        }
+
+        .individual.selected {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-color.AA {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+        }
+
+        .legend-color.Aa {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        .legend-color.aa {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 基因频率进化模拟器</h1>
+        <div class="header-info">
+            <span>高中生物 · 遗传与进化</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="control-panel">
+            <div class="section-title">
+                <span>⚙️</span>
+                实验参数设置
+            </div>
+
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="selection">
+                    <span>🎯</span>
+                    自然选择
+                </button>
+                <button class="mode-btn" data-mode="drift">
+                    <span>🎲</span>
+                    基因漂变
+                </button>
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">
+                    <span>初始A频率 (p₀)</span>
+                    <span class="control-value" id="initFreqA">0.50</span>
+                </div>
+                <input type="range" id="initFreqSlider" min="0" max="100" value="50">
+            </div>
+
+            <div class="control-group" id="selectionControls">
+                <div class="control-label">
+                    <span>AA 适合度 (W<sub>AA</sub>)</span>
+                    <span class="control-value" id="wAA">1.00</span>
+                </div>
+                <input type="range" id="wAASlider" min="0" max="100" value="100">
+
+                <div class="control-label" style="margin-top: 15px;">
+                    <span>Aa 适合度 (W<sub>Aa</sub>)</span>
+                    <span class="control-value" id="wAa">1.00</span>
+                </div>
+                <input type="range" id="wAaSlider" min="0" max="100" value="100">
+
+                <div class="control-label" style="margin-top: 15px;">
+                    <span>aa 适合度 (W<sub>aa</sub>)</span>
+                    <span class="control-value" id="waa">1.00</span>
+                </div>
+                <input type="range" id="waaSlider" min="0" max="100" value="100">
+            </div>
+
+            <div class="control-group" id="driftControls" style="display: none;">
+                <div class="control-label">
+                    <span>种群大小 (N)</span>
+                    <span class="control-value" id="popSize">100</span>
+                </div>
+                <input type="range" id="popSizeSlider" min="10" max="500" value="100">
+
+                <div class="control-label" style="margin-top: 15px;">
+                    <span>模拟代数</span>
+                    <span class="control-value" id="simGens">50</span>
+                </div>
+                <input type="range" id="simGensSlider" min="10" max="200" value="50">
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">
+                    <span>模拟速度</span>
+                    <span class="control-value" id="speed">1x</span>
+                </div>
+                <input type="range" id="speedSlider" min="1" max="10" value="1">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-success" id="startBtn">
+                    ▶️ 开始模拟
+                </button>
+                <button class="btn btn-danger" id="resetBtn">
+                    🔄 重置
+                </button>
+                <button class="btn btn-secondary" id="exportBtn">
+                    📥 导出数据
+                </button>
+            </div>
+
+            <div class="theory-box">
+                <h4>📚 哈迪-温伯格定律</h4>
+                <p>在理想种群中，基因频率代代不变：<br>
+                p² + 2pq + q² = 1<br>
+                p + q = 1</p>
+            </div>
+        </div>
+
+        <div class="experiment-area">
+            <div class="canvas-container">
+                <div class="canvas-title">基因频率变化曲线</div>
+                <canvas id="curveCanvas" height="250"></canvas>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card generation-stat">
+                    <div class="stat-value" id="generationValue">0</div>
+                    <div class="stat-label">当前世代</div>
+                </div>
+                <div class="stat-card freq-a-stat">
+                    <div class="stat-value" id="freqAValue">0.50</div>
+                    <div class="stat-label">A频率 (p)</div>
+                </div>
+                <div class="stat-card heterozygote-stat">
+                    <div class="stat-value" id="heteroValue">0.00</div>
+                    <div class="stat-label">杂合子频率 (2pq)</div>
+                </div>
+                <div class="stat-card fitness-stat">
+                    <div class="stat-value" id="avgFitness">1.00</div>
+                    <div class="stat-label">平均适合度</div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="section-title">
+                    <span>📊</span>
+                    基因型分布
+                </div>
+
+                <div class="formula-display">
+                    <div class="formula">
+                        p<sup>2</sup> <span id="p2Value">(25.00%)</span> + 
+                        2pq <span id="2pqValue">(50.00%)</span> + 
+                        q<sup>2</sup> <span id="q2Value">(25.00%)</span> = 1
+                    </div>
+                </div>
+
+                <div class="allele-info">
+                    <div class="allele-item AA">
+                        <div class="allele-name">AA</div>
+                        <div class="allele-freq" id="AAFreq">25.00%</div>
+                    </div>
+                    <div class="allele-item Aa">
+                        <div class="allele-name">Aa</div>
+                        <div class="allele-freq" id="AaFreq">50.00%</div>
+                    </div>
+                    <div class="allele-item aa">
+                        <div class="allele-name">aa</div>
+                        <div class="allele-freq" id="aaFreq">25.00%</div>
+                    </div>
+                </div>
+
+                <div class="population-grid" id="populationGrid"></div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color AA"></div>
+                        <span>AA (纯合显性)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color Aa"></div>
+                        <span>Aa (杂合)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color aa"></div>
+                        <span>aa (纯合隐性)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">数据已导出！</div>
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // 全局变量
+        let mode = 'selection';
+        let isRunning = false;
+        let generation = 0;
+        let p = 0.5; // A等位基因频率
+        let populationSize = 100;
+        let simGens = 50;
+        let simulationSpeed = 1;
+        let animationId = null;
+        let dataHistory = [];
+        let population = [];
+
+        // 适合度参数
+        let W_AA = 1.0;
+        let W_Aa = 1.0;
+        let W_aa = 1.0;
+
+        // DOM元素
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const curveCanvas = document.getElementById('curveCanvas');
+        const ctx = curveCanvas.getContext('2d');
+        const toast = document.getElementById('toast');
+        const tooltip = document.getElementById('tooltip');
+
+        // 初始化种群
+        function initPopulation() {
+            population = [];
+            for (let i = 0; i < populationSize; i++) {
+                // 根据初始频率随机分配基因型
+                const r = Math.random();
+                if (r < p * p) {
+                    population.push('AA');
+                } else if (r < p * p + 2 * p * (1 - p)) {
+                    population.push('Aa');
+                } else {
+                    population.push('aa');
+                }
+            }
+            updatePopulationDisplay();
+        }
+
+        // 计算基因频率
+        function calculateFrequencies() {
+            const counts = { AA: 0, Aa: 0, aa: 0 };
+            population.forEach(g => counts[g]++);
+
+            // 计算等位基因频率
+            const A_alleles = counts.AA * 2 + counts.Aa;
+            const a_alleles = counts.Aa + counts.aa * 2;
+            const total = A_alleles + a_alleles;
+
+            p = A_alleles / total;
+            const q = a_alleles / total;
+
+            return {
+                AA: counts.AA,
+                Aa: counts.Aa,
+                aa: counts.aa,
+                p: p,
+                q: q,
+                p2: p * p,
+                2pq: 2 * p * q,
+                q2: q * q
+            };
+        }
+
+        // 自然选择
+        function selectionStep() {
+            const freqs = calculateFrequencies();
+            
+            // 计算平均适合度
+            const avgFitness = freqs.p2 * W_AA + freqs.2pq * W_Aa + freqs.q2 * W_aa;
+            
+            // 计算选择后的基因频率
+            const p_new = (freqs.p2 * W_AA + freqs.2pq * 0.5 * W_Aa) / avgFitness;
+            
+            return {
+                p: p_new,
+                avgFitness: avgFitness,
+                ...freqs
+            };
+        }
+
+        // 基因漂变
+        function driftStep() {
+            // 随机抽样下一代
+            const newPop = [];
+            const A_pool = population.filter(g => g.includes('A')).length;
+            const a_pool = populationSize * 2 - A_pool;
+
+            for (let i = 0; i < populationSize; i++) {
+                const allele1 = Math.random() < A_pool / (A_pool + a_pool) ? 'A' : 'a';
+                const allele2 = Math.random() < A_pool / (A_pool + a_pool) ? 'A' : 'a';
+                
+                if (allele1 === 'A' && allele2 === 'A') {
+                    newPop.push('AA');
+                } else if (allele1 === 'a' && allele2 === 'a') {
+                    newPop.push('aa');
+                } else {
+                    newPop.push('Aa');
+                }
+            }
+
+            population = newPop;
+            return calculateFrequencies();
+        }
+
+        // 模拟一步
+        function simulateStep() {
+            generation++;
+            let result;
+
+            if (mode === 'selection') {
+                result = selectionStep();
+                p = result.p;
+            } else {
+                result = driftStep();
+                p = result.p;
+            }
+
+            // 记录历史
+            dataHistory.push({
+                generation: generation,
+                p: p,
+                p2: result.p2,
+                2pq: result.2pq,
+                q2: result.q2,
+                avgFitness: result.avgFitness || 1
+            });
+
+            updateDisplay(result);
+            drawCurve();
+        }
+
+        // 更新显示
+        function updateDisplay(result) {
+            document.getElementById('generationValue').textContent = generation;
+            document.getElementById('freqAValue').textContent = p.toFixed(4);
+            document.getElementById('heteroValue').textContent = result.2pq.toFixed(4);
+            document.getElementById('avgFitness').textContent = (result.avgFitness || 1).toFixed(4);
+
+            // 基因型频率
+            document.getElementById('p2Value').textContent = `(${(result.p2 * 100).toFixed(2)}%)`;
+            document.getElementById('2pqValue').textContent = `(${result.2pq.toFixed(4)})`;
+            document.getElementById('q2Value').textContent = `(${result.q2.toFixed(4)})`;
+
+            document.getElementById('AAFreq').textContent = `${(result.p2 * 100).toFixed(2)}%`;
+            document.getElementById('AaFreq').textContent = `${(result.2pq * 100).toFixed(2)}%`;
+            document.getElementById('aaFreq').textContent = `${(result.q2 * 100).toFixed(2)}%`;
+
+            updatePopulationDisplay();
+        }
+
+        // 更新种群显示
+        function updatePopulationDisplay() {
+            const grid = document.getElementById('populationGrid');
+            grid.innerHTML = '';
+            
+            population.forEach((genotype, index) => {
+                const div = document.createElement('div');
+                div.className = `individual ${genotype}`;
+                div.dataset.genotype = genotype;
+                div.dataset.index = index;
+                
+                div.addEventListener('mouseenter', showTooltip);
+                div.addEventListener('mouseleave', hideTooltip);
+                
+                grid.appendChild(div);
+            });
+        }
+
+        // 显示提示
+        function showTooltip(e) {
+            const genotype = e.target.dataset.genotype;
+            const genotypes = {
+                'AA': '纯合显性 (AA)',
+                'Aa': '杂合子 (Aa)',
+                'aa': '纯合隐性 (aa)'
+            };
+            tooltip.textContent = genotypes[genotype];
+            tooltip.style.display = 'block';
+            tooltip.style.left = (e.pageX + 10) + 'px';
+            tooltip.style.top = (e.pageY - 30) + 'px';
+        }
+
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+
+        // 绘制曲线
+        function drawCurve() {
+            const width = curveCanvas.width;
+            const height = curveCanvas.height;
+            const padding = 50;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // 绘制坐标轴
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+
+            // Y轴标签
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '12px Microsoft YaHei';
+            ctx.textAlign = 'right';
+            ctx.fillText('1.0', padding - 10, padding + 5);
+            ctx.fillText('0.5', padding - 10, (padding + height - padding) / 2 + 5);
+            ctx.fillText('0.0', padding - 10, height - padding + 5);
+
+            // X轴标签
+            ctx.textAlign = 'center';
+            ctx.fillText('0', padding, height - padding + 20);
+            ctx.fillText(Math.floor(simGens / 2).toString(), (padding + width - padding) / 2, height - padding + 20);
+            ctx.fillText(simGens.toString(), width - padding, height - padding + 20);
+
+            // 轴标题
+            ctx.fillText('世代', (padding + width - padding) / 2, height - 10);
+            ctx.save();
+            ctx.translate(15, (padding + height - padding) / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('基因频率 (p)', 0, 0);
+            ctx.restore();
+
+            if (dataHistory.length < 2) return;
+
+            // 绘制A频率曲线
+            ctx.beginPath();
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 2;
+            
+            dataHistory.forEach((d, i) => {
+                const x = padding + (i / simGens) * (width - padding * 2);
+                const y = height - padding - d.p * (height - padding * 2);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            // 绘制50%参考线
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(padding, height - padding - 0.5 * (height - padding * 2));
+            ctx.lineTo(width - padding, height - padding - 0.5 * (height - padding * 2));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 绘制杂合子频率曲线
+            ctx.beginPath();
+            ctx.strokeStyle = '#ec4899';
+            ctx.lineWidth = 2;
+            
+            dataHistory.forEach((d, i) => {
+                const x = padding + (i / simGens) * (width - padding * 2);
+                const y = height - padding - d.2pq * (height - padding * 2);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            // 图例
+            const legendX = width - padding - 150;
+            const legendY = padding + 10;
+            
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(legendX, legendY, 20, 3);
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '11px Microsoft YaHei';
+            ctx.textAlign = 'left';
+            ctx.fillText('A频率 (p)', legendX + 25, legendY + 4);
+
+            ctx.fillStyle = '#ec4899';
+            ctx.fillRect(legendX, legendY + 15, 20, 3);
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillText('杂合子频率 (2pq)', legendX + 25, legendY + 19);
+        }
+
+        // 模拟循环
+        function simulationLoop() {
+            if (!isRunning) return;
+
+            simulateStep();
+
+            if (generation < simGens) {
+                animationId = setTimeout(simulationLoop, 500 / simulationSpeed);
+            } else {
+                isRunning = false;
+                startBtn.innerHTML = '▶️ 开始模拟';
+                startBtn.classList.remove('btn-danger');
+                startBtn.classList.add('btn-success');
+                showToast('模拟完成！');
+            }
+        }
+
+        // 开始/暂停模拟
+        function toggleSimulation() {
+            if (isRunning) {
+                isRunning = false;
+                clearTimeout(animationId);
+                startBtn.innerHTML = '▶️ 开始模拟';
+                startBtn.classList.remove('btn-danger');
+                startBtn.classList.add('btn-success');
+                return;
+            }
+
+            if (generation >= simGens) {
+                resetSimulation();
+            }
+
+            isRunning = true;
+            startBtn.innerHTML = '⏸️ 暂停';
+            startBtn.classList.remove('btn-success');
+            startBtn.classList.add('btn-danger');
+            simulationLoop();
+        }
+
+        // 重置模拟
+        function resetSimulation() {
+            isRunning = false;
+            clearTimeout(animationId);
+            generation = 0;
+            p = parseFloat(document.getElementById('initFreqSlider').value) / 100;
+            dataHistory = [];
+            initPopulation();
+
+            const result = calculateFrequencies();
+            result.avgFitness = 1;
+            updateDisplay(result);
+            drawCurve();
+
+            startBtn.innerHTML = '▶️ 开始模拟';
+            startBtn.classList.remove('btn-danger');
+            startBtn.classList.add('btn-success');
+        }
+
+        // 导出数据
+        function exportData() {
+            let content = '基因频率进化模拟数据\n';
+            content += `模式: ${mode === 'selection' ? '自然选择' : '基因漂变'}\n`;
+            content += `初始A频率: ${p.toFixed(4)}\n`;
+            if (mode === 'selection') {
+                content += `适合度 - AA: ${W_AA}, Aa: ${W_Aa}, aa: ${W_aa}\n`;
+            }
+            content += `种群大小: ${populationSize}\n\n`;
+            content += '世代\tA频率(p)\tAA频率\tAa频率\taa频率\t杂合频率(2pq)\n';
+
+            if (dataHistory.length === 0) {
+                const result = calculateFrequencies();
+                content += `0\t${p.toFixed(4)}\t${result.p2.toFixed(4)}\t${result.2pq.toFixed(4)}\t${result.q2.toFixed(4)}\t${result.2pq.toFixed(4)}\n`;
+            } else {
+                dataHistory.forEach(d => {
+                    content += `${d.generation}\t${d.p.toFixed(4)}\t${d.p2.toFixed(4)}\t${d.2pq.toFixed(4)}\t${d.q2.toFixed(4)}\t${d.2pq.toFixed(4)}\n`;
+                });
+            }
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '基因频率进化数据.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('数据已导出！');
+        }
+
+        // 显示提示
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // 切换模式
+        function switchMode(newMode) {
+            mode = newMode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+
+            document.getElementById('selectionControls').style.display = mode === 'selection' ? 'block' : 'none';
+            document.getElementById('driftControls').style.display = mode === 'drift' ? 'block' : 'none';
+
+            resetSimulation();
+        }
+
+        // 初始化Canvas尺寸
+        function initCanvas() {
+            const container = curveCanvas.parentElement;
+            curveCanvas.width = container.clientWidth - 40;
+        }
+
+        // 事件监听
+        startBtn.addEventListener('click', toggleSimulation);
+        resetBtn.addEventListener('click', resetSimulation);
+        exportBtn.addEventListener('click', exportData);
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+        });
+
+        document.getElementById('initFreqSlider').addEventListener('input', (e) => {
+            p = e.target.value / 100;
+            document.getElementById('initFreqA').textContent = p.toFixed(2);
+            resetSimulation();
+        });
+
+        document.getElementById('wAASlider').addEventListener('input', (e) => {
+            W_AA = e.target.value / 100;
+            document.getElementById('wAA').textContent = W_AA.toFixed(2);
+        });
+
+        document.getElementById('wAaSlider').addEventListener('input', (e) => {
+            W_Aa = e.target.value / 100;
+            document.getElementById('wAa').textContent = W_Aa.toFixed(2);
+        });
+
+        document.getElementById('waaSlider').addEventListener('input', (e) => {
+            W_aa = e.target.value / 100;
+            document.getElementById('waa').textContent = W_aa.toFixed(2);
+        });
+
+        document.getElementById('popSizeSlider').addEventListener('input', (e) => {
+            populationSize = parseInt(e.target.value);
+            document.getElementById('popSize').textContent = populationSize;
+            resetSimulation();
+        });
+
+        document.getElementById('simGensSlider').addEventListener('input', (e) => {
+            simGens = parseInt(e.target.value);
+            document.getElementById('simGens').textContent = simGens;
+        });
+
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            simulationSpeed = parseInt(e.target.value);
+            document.getElementById('speed').textContent = simulationSpeed + 'x';
+        });
+
+        window.addEventListener('resize', initCanvas);
+
+        // 初始化
+        initCanvas();
+        initPopulation();
+        const result = calculateFrequencies();
+        result.avgFitness = 1;
+        updateDisplay(result);
+        drawCurve();
+    </script>
+</body>
+</html>

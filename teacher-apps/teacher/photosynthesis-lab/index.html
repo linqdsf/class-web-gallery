@@ -792,6 +792,12 @@
           <span id="chartRateValue">0.00</span>
           <span>μmol/m²/s</span>
         </div>
+        <button class="btn" id="startBtn" style="margin-left: 16px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5,3 19,12 5,21"/>
+          </svg>
+          <span id="startBtnText">开始实验</span>
+        </button>
       </div>
       <div class="chart-container">
         <canvas id="chart"></canvas>
@@ -843,7 +849,8 @@
       o2Rate: 0,
       dataLog: [],
       chartData: [],
-      maxDataPoints: 120
+      maxDataPoints: 120,
+      isRunning: false
     };
 
     // DOM 元素
@@ -861,6 +868,8 @@
       chart: document.getElementById('chart'),
       dataLog: document.getElementById('dataLog'),
       resetBtn: document.getElementById('resetBtn'),
+      startBtn: document.getElementById('startBtn'),
+      startBtnText: document.getElementById('startBtnText'),
       exportBtn: document.getElementById('exportBtn'),
       tabBtns: document.querySelectorAll('.tab-btn'),
       infoContents: document.querySelectorAll('.info-content')
@@ -910,17 +919,26 @@
         bubble.style.animationDuration = `${bubbleSpeed}s`;
       });
 
-      // 记录数据
-      if (state.dataLog.length === 0 || 
-          state.dataLog[state.dataLog.length - 1].light !== state.light ||
-          state.dataLog[state.dataLog.length - 1].co2 !== state.co2) {
-        state.dataLog.push({
-          time: new Date().toLocaleTimeString(),
-          light: state.light,
-          co2: state.co2,
-          rate: state.rate
-        });
-        updateDataLog();
+      // 实验运行时记录数据
+      if (state.isRunning) {
+        // 添加到图表数据
+        state.chartData.push(state.rate);
+        if (state.chartData.length > state.maxDataPoints) {
+          state.chartData.shift();
+        }
+        
+        // 记录到日志（参数变化时）
+        if (state.dataLog.length === 0 || 
+            state.dataLog[state.dataLog.length - 1].light !== state.light ||
+            state.dataLog[state.dataLog.length - 1].co2 !== state.co2) {
+          state.dataLog.push({
+            time: new Date().toLocaleTimeString(),
+            light: state.light,
+            co2: state.co2,
+            rate: state.rate
+          });
+          updateDataLog();
+        }
       }
     }
 
@@ -962,11 +980,6 @@
       elements.chart.style.height = height + 'px';
       
       ctx.scale(dpr, dpr);
-      
-      // 预填充初始数据
-      for (let i = 0; i < 10; i++) {
-        state.chartData.push(0);
-      }
       
       chartInitialized = true;
       drawChart();
@@ -1036,13 +1049,13 @@
         ctx.fillText(`${seconds}s`, x, height - 10);
       }
 
-      // 添加数据点到图表
-      state.chartData.push(state.rate);
-      if (state.chartData.length > state.maxDataPoints) {
-        state.chartData.shift();
-      }
-
+      // 如果没有数据，绘制空图表
       if (state.chartData.length < 2) {
+        // 绘制等待提示
+        ctx.fillStyle = 'rgba(74, 222, 128, 0.5)';
+        ctx.font = '14px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('点击"开始实验"生成曲线', width / 2, height / 2);
         animationId = requestAnimationFrame(drawChart);
         return;
       }
@@ -1138,6 +1151,14 @@
       state.co2 = 400;
       state.dataLog = [];
       state.chartData = [];
+      state.isRunning = false;
+      
+      // 重置按钮状态
+      elements.startBtnText.textContent = '开始实验';
+      elements.startBtn.querySelector('svg').innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+      elements.startBtn.style.background = 'transparent';
+      elements.startBtn.style.color = 'var(--accent)';
+      cancelAnimationFrame(animationId);
       
       elements.lightSlider.value = state.light;
       elements.co2Slider.value = state.co2;
@@ -1163,6 +1184,32 @@
 
     elements.resetBtn.addEventListener('click', reset);
     elements.exportBtn.addEventListener('click', exportCSV);
+
+    // 开始/暂停实验按钮
+    elements.startBtn.addEventListener('click', () => {
+      state.isRunning = !state.isRunning;
+      
+      if (state.isRunning) {
+        // 开始实验
+        elements.startBtnText.textContent = '暂停实验';
+        elements.startBtn.querySelector('svg').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+        elements.startBtn.style.background = 'var(--accent)';
+        elements.startBtn.style.color = 'var(--bg)';
+        
+        // 启动图表绘制循环
+        if (!chartInitialized) {
+          initChart();
+        }
+        drawChart();
+      } else {
+        // 暂停实验
+        elements.startBtnText.textContent = '继续实验';
+        elements.startBtn.querySelector('svg').innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+        elements.startBtn.style.background = 'transparent';
+        elements.startBtn.style.color = 'var(--accent)';
+        cancelAnimationFrame(animationId);
+      }
+    });
 
     // Tab切换
     elements.tabBtns.forEach(btn => {

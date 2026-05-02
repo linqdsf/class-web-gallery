@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酶活性探究实验 - 高中生物</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.05);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-info {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .experiment-area {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #00d9ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .control-value {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,217,255,0.5);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d9ff, #0099ff);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,217,255,0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #1a1a2e;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,107,107,0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .simulation-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            height: 280px;
+        }
+
+        .beaker {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 180px;
+            background: linear-gradient(180deg, rgba(100,200,255,0.3) 0%, rgba(100,200,255,0.5) 100%);
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 0 0 20px 20px;
+            border-top: none;
+            overflow: hidden;
+        }
+
+        .beaker::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -15px;
+            right: -15px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+        }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(255,200,100,0.6) 0%, rgba(255,150,50,0.8) 100%);
+            transition: height 0.5s ease;
+        }
+
+        .enzyme {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #ff6b9d 0%, #c44569 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px rgba(255,107,157,0.5);
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .substrate {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #ffd93d, #ff9500);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: rise 1s ease-out forwards;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes rise {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-200px) scale(0.5); }
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+
+        .chart-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            height: 300px;
+        }
+
+        .data-table-container {
+            margin-top: 25px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .data-table th {
+            background: rgba(0,217,255,0.2);
+            color: #00d9ff;
+        }
+
+        .data-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .knowledge-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .knowledge-card h3 {
+            font-size: 1rem;
+            color: #00ff88;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .knowledge-content {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .knowledge-content ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .knowledge-content li {
+            margin-bottom: 8px;
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 8px 15px;
+            background: rgba(0,217,255,0.2);
+            border: 1px solid rgba(0,217,255,0.3);
+            border-radius: 20px;
+            color: #00d9ff;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: rgba(0,217,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .preset-btn.active {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+
+        .condition-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .indicator-dot.optimal {
+            background: #00ff88;
+            box-shadow: 0 0 10px rgba(0,255,136,0.5);
+        }
+
+        .indicator-dot.warning {
+            background: #ffd93d;
+            box-shadow: 0 0 10px rgba(255,217,61,0.5);
+        }
+
+        .indicator-dot.danger {
+            background: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255,107,107,0.5);
+        }
+
+        .experiment-type-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .type-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .type-btn.active {
+            border-color: #00d9ff;
+            background: rgba(0,217,255,0.1);
+            color: #00d9ff;
+        }
+
+        .type-btn span {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0,255,136,0.9);
+            color: #1a1a2e;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 酶活性探究实验</h1>
+        <div class="header-info">
+            <span>高中生物 · 细胞代谢</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="experiment-area">
+            <div class="experiment-type-selector">
+                <button class="type-btn active" data-type="temperature">
+                    <span>🌡️</span>
+                    温度影响
+                </button>
+                <button class="type-btn" data-type="ph">
+                    <span>⚗️</span>
+                    pH影响
+                </button>
+                <button class="type-btn" data-type="substrate">
+                    <span>🧪</span>
+                    底物浓度
+                </button>
+            </div>
+
+            <div class="controls-panel">
+                <div class="section-title">
+                    <span>🔬</span>
+                    实验参数设置
+                </div>
+                
+                <div class="control-group" id="temp-control">
+                    <div class="control-label">
+                        <span>温度</span>
+                        <span class="control-value" id="temp-value">37°C</span>
+                    </div>
+                    <input type="range" id="temp-slider" min="0" max="100" value="37">
+                    <div class="condition-indicator">
+                        <div class="indicator-dot" id="temp-indicator"></div>
+                        <span id="temp-status">过氧化氢酶活性状态</span>
+                    </div>
+                </div>
+
+                <div class="control-group" id="ph-control" style="display:none">
+                    <div class="control-label">
+                        <span>pH值</span>
+                        <span class="control-value" id="ph-value">7.0</span>
+                    </div>
+                    <input type="range" id="ph-slider" min="1" max="14" value="7" step="0.1">
+                    <div class="condition-indicator">
+                        <div class="indicator-dot" id="ph-indicator"></div>
+                        <span id="ph-status">过氧化氢酶活性状态</span>
+                    </div>
+                </div>
+
+                <div class="control-group" id="substrate-control" style="display:none">
+                    <div class="control-label">
+                        <span>底物浓度</span>
+                        <span class="control-value" id="substrate-value">50%</span>
+                    </div>
+                    <input type="range" id="substrate-slider" min="10" max="100" value="50">
+                    <div class="condition-indicator">
+                        <div class="indicator-dot" id="substrate-indicator"></div>
+                        <span id="substrate-status">反应进行中...</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="startBtn">
+                        ▶️ 开始实验
+                    </button>
+                    <button class="btn btn-danger" id="resetBtn">
+                        🔄 重置
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-value" id="rateValue">0</div>
+                    <div class="stat-label">反应速率 (mL/s)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="o2Value">0</div>
+                    <div class="stat-label">O₂ 产量 (mL)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="efficiencyValue">0%</div>
+                    <div class="stat-label">酶活性效率</div>
+                </div>
+            </div>
+
+            <div class="simulation-container" id="simulation">
+                <div class="beaker">
+                    <div class="liquid" id="liquid"></div>
+                    <div class="enzyme" id="enzyme">酶</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chart"></canvas>
+            </div>
+
+            <div class="data-table-container">
+                <div class="section-title">
+                    <span>📊</span>
+                    实验数据记录
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>实验序号</th>
+                            <th id="col1-header">温度 (°C)</th>
+                            <th>反应速率</th>
+                            <th>O₂产量</th>
+                            <th>效率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="knowledge-card">
+                <h3>📚 知识点回顾</h3>
+                <div class="knowledge-content">
+                    <p><strong>酶的概念：</strong>酶是活细胞产生的具有催化作用的有机物，其中大部分是蛋白质。</p>
+                    <ul>
+                        <li><strong>高效性：</strong>酶的催化效率是无机催化剂的10⁷~10¹³倍</li>
+                        <li><strong>专一性：</strong>每种酶只能催化一种或一类化学反应</li>
+                        <li><strong>作用条件温和：</strong>温度、pH影响酶活性</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="knowledge-card">
+                <h3>⚡ 实验原理</h3>
+                <div class="knowledge-content">
+                    <p>本实验以<strong>过氧化氢酶</strong>催化过氧化氢分解为研究对象：</p>
+                    <p style="text-align:center; font-size:1.2rem; margin:15px 0; color:#00ff88;">
+                        2H₂O₂ → 2H₂O + O₂↑
+                    </p>
+                    <p>通过观察单位时间内产生的氧气气泡数量来衡量反应速率。</p>
+                </div>
+            </div>
+
+            <div class="knowledge-card">
+                <h3>🎯 探究目标</h3>
+                <div class="knowledge-content">
+                    <p>探究影响酶活性的因素：</p>
+                    <ul>
+                        <li>温度对酶活性的影响</li>
+                        <li>pH值对酶活性的影响</li>
+                        <li>底物浓度对反应速率的影响</li>
+                    </ul>
+                    <p style="margin-top:10px; color:#ffd93d;">
+                        💡 尝试找到每种条件下的最适值！
+                    </p>
+                </div>
+            </div>
+
+            <div class="knowledge-card">
+                <h3>🔧 快速设置</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-preset="cold">低温 (10°C)</button>
+                    <button class="preset-btn" data-preset="room">室温 (25°C)</button>
+                    <button class="preset-btn" data-preset="optimal">最适温度 (37°C)</button>
+                    <button class="preset-btn" data-preset="hot">高温 (60°C)</button>
+                    <button class="preset-btn" data-preset="acid">酸性 (pH=3)</button>
+                    <button class="preset-btn" data-preset="alkaline">碱性 (pH=11)</button>
+                </div>
+            </div>
+
+            <div class="btn-group" style="grid-template-columns: 1fr;">
+                <button class="btn btn-success" id="exportBtn">
+                    📥 导出实验报告
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">数据已保存！</div>
+
+    <script>
+        // 全局变量
+        let experimentType = 'temperature';
+        let isRunning = false;
+        let experimentCount = 0;
+        let chart = null;
+        let animationId = null;
+        let currentRate = 0;
+        let currentO2 = 0;
+        let enzymeEfficiency = 0;
+
+        // DOM元素
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const tempSlider = document.getElementById('temp-slider');
+        const phSlider = document.getElementById('ph-slider');
+        const substrateSlider = document.getElementById('substrate-slider');
+        const simulation = document.getElementById('simulation');
+        const enzyme = document.getElementById('enzyme');
+        const toast = document.getElementById('toast');
+
+        // 酶活性计算函数
+        function calculateEnzymeActivity(temp, ph, substrate) {
+            // 温度影响 (最适温度37°C)
+            let tempEffect;
+            if (temp <= 37) {
+                tempEffect = temp / 37;
+            } else {
+                tempEffect = Math.max(0, 1 - (temp - 37) / 50);
+            }
+
+            // pH影响 (最适pH 7)
+            let phEffect;
+            const phDiff = Math.abs(ph - 7);
+            if (phDiff <= 1) {
+                phEffect = 1;
+            } else {
+                phEffect = Math.max(0, 1 - (phDiff - 1) / 6);
+            }
+
+            // 底物浓度影响 (米氏方程模型)
+            const km = 50; // 米氏常数
+            const substrateEffect = (substrate * km) / (km + substrate);
+
+            // 综合活性
+            return Math.min(1, tempEffect * phEffect * 0.7 + substrateEffect * 0.3);
+        }
+
+        // 获取当前实验条件下的参数
+        function getCurrentParams() {
+            const temp = parseInt(tempSlider.value);
+            const ph = parseFloat(phSlider.value);
+            const substrate = parseInt(substrateSlider.value);
+            return { temp, ph, substrate };
+        }
+
+        // 更新酶活性显示
+        function updateActivityDisplay() {
+            const params = getCurrentParams();
+            const activity = calculateEnzymeActivity(params.temp, params.ph, params.substrate);
+            enzymeEfficiency = Math.round(activity * 100);
+            
+            document.getElementById('efficiencyValue').textContent = enzymeEfficiency + '%';
+            
+            // 更新酶颜色表示活性
+            const hue = activity * 120;
+            enzyme.style.background = `radial-gradient(circle, hsl(${hue}, 80%, 60%) 0%, hsl(${hue}, 70%, 45%) 100%)`;
+        }
+
+        // 更新温度指示器
+        function updateTempIndicator() {
+            const temp = parseInt(tempSlider.value);
+            const indicator = document.getElementById('temp-indicator');
+            const status = document.getElementById('temp-status');
+            document.getElementById('temp-value').textContent = temp + '°C';
+
+            if (temp >= 35 && temp <= 40) {
+                indicator.className = 'indicator-dot optimal';
+                status.textContent = '✓ 接近最适温度';
+            } else if (temp < 20 || temp > 50) {
+                indicator.className = 'indicator-dot danger';
+                status.textContent = '⚠ 酶活性很低';
+            } else {
+                indicator.className = 'indicator-dot warning';
+                status.textContent = '○ 活性一般';
+            }
+        }
+
+        // 更新pH指示器
+        function updatePhIndicator() {
+            const ph = parseFloat(phSlider.value);
+            const indicator = document.getElementById('ph-indicator');
+            const status = document.getElementById('ph-status');
+            document.getElementById('ph-value').textContent = ph.toFixed(1);
+
+            if (ph >= 6.5 && ph <= 7.5) {
+                indicator.className = 'indicator-dot optimal';
+                status.textContent = '✓ 最适pH范围';
+            } else if (ph < 4 || ph > 10) {
+                indicator.className = 'indicator-dot danger';
+                status.textContent = '⚠ 酶可能变性';
+            } else {
+                indicator.className = 'indicator-dot warning';
+                status.textContent = '○ 活性降低';
+            }
+        }
+
+        // 更新底物浓度指示器
+        function updateSubstrateIndicator() {
+            const substrate = parseInt(substrateSlider.value);
+            const indicator = document.getElementById('substrate-indicator');
+            const status = document.getElementById('substrate-status');
+            document.getElementById('substrate-value').textContent = substrate + '%';
+
+            if (substrate >= 80) {
+                indicator.className = 'indicator-dot optimal';
+                status.textContent = '✓ 底物饱和';
+            } else if (substrate >= 40) {
+                indicator.className = 'indicator-dot warning';
+                status.textContent = '○ 正常反应';
+            } else {
+                indicator.className = 'indicator-dot danger';
+                status.textContent = '○ 底物不足';
+            }
+        }
+
+        // 创建气泡
+        function createBubble() {
+            if (!isRunning) return;
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const size = Math.random() * 15 + 5;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = (Math.random() * 80 + 10) + '%';
+            bubble.style.bottom = '30px';
+            simulation.appendChild(bubble);
+
+            setTimeout(() => bubble.remove(), 1000);
+
+            // 根据酶活性决定气泡生成速度
+            const params = getCurrentParams();
+            const activity = calculateEnzymeActivity(params.temp, params.ph, params.substrate);
+            const delay = 200 + (1 - activity) * 800;
+            
+            if (Math.random() < activity) {
+                setTimeout(createBubble, delay);
+            } else {
+                setTimeout(createBubble, delay + 200);
+            }
+        }
+
+        // 初始化图表
+        function initChart() {
+            const ctx = document.getElementById('chart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '反应速率',
+                        data: [],
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#fff'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '反应速率曲线',
+                            color: '#fff',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#fff' },
+                            title: {
+                                display: true,
+                                text: '时间 (s)',
+                                color: '#fff'
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#fff' },
+                            title: {
+                                display: true,
+                                text: '速率 (mL/s)',
+                                color: '#fff'
+                            },
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+        }
+
+        // 添加数据点到图表
+        function addDataPoint() {
+            if (!isRunning || !chart) return;
+
+            const time = chart.data.labels.length;
+            chart.data.labels.push(time);
+            chart.data.datasets[0].data.push(currentRate);
+            chart.update('none');
+        }
+
+        // 更新统计显示
+        function updateStats() {
+            document.getElementById('rateValue').textContent = currentRate.toFixed(2);
+            document.getElementById('o2Value').textContent = currentO2.toFixed(1);
+            document.getElementById('efficiencyValue').textContent = enzymeEfficiency + '%';
+        }
+
+        // 实验主循环
+        function experimentLoop() {
+            if (!isRunning) return;
+
+            const params = getCurrentParams();
+            const activity = calculateEnzymeActivity(params.temp, params.ph, params.substrate);
+            
+            // 计算当前速率
+            currentRate = activity * 8 * (0.8 + Math.random() * 0.4);
+            currentO2 += currentRate * 0.1;
+
+            updateStats();
+            addDataPoint();
+
+            // 酶动画
+            enzyme.style.animationDuration = (0.5 / (activity + 0.1)) + 's';
+
+            animationId = requestAnimationFrame(experimentLoop);
+        }
+
+        // 开始实验
+        function startExperiment() {
+            if (isRunning) {
+                isRunning = false;
+                startBtn.innerHTML = '▶️ 开始实验';
+                startBtn.classList.remove('btn-danger');
+                startBtn.classList.add('btn-primary');
+                return;
+            }
+
+            isRunning = true;
+            experimentCount++;
+            startBtn.innerHTML = '⏸️ 暂停实验';
+            startBtn.classList.remove('btn-primary');
+            startBtn.classList.add('btn-danger');
+
+            // 重置数据但保留之前的数据点
+            currentRate = 0;
+            currentO2 = 0;
+            updateStats();
+            initChart();
+
+            // 开始生成气泡
+            createBubble();
+            experimentLoop();
+
+            // 记录初始数据
+            const params = getCurrentParams();
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>实验${experimentCount}</td>
+                <td id="col1-value-${experimentCount}">${params.temp}</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            `;
+            document.getElementById('dataTable').appendChild(row);
+        }
+
+        // 重置实验
+        function resetExperiment() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            currentRate = 0;
+            currentO2 = 0;
+            updateStats();
+            initChart();
+
+            startBtn.innerHTML = '▶️ 开始实验';
+            startBtn.classList.remove('btn-danger');
+            startBtn.classList.add('btn-primary');
+
+            // 清除气泡
+            simulation.querySelectorAll('.bubble').forEach(b => b.remove());
+        }
+
+        // 切换实验类型
+        function switchExperimentType(type) {
+            experimentType = type;
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
+
+            // 显示/隐藏相应的控制
+            document.getElementById('temp-control').style.display = type === 'temperature' ? 'block' : 'none';
+            document.getElementById('ph-control').style.display = type === 'ph' ? 'block' : 'none';
+            document.getElementById('substrate-control').style.display = type === 'substrate' ? 'block' : 'none';
+
+            // 更新表头
+            const col1Header = document.getElementById('col1-header');
+            const col1Value = document.getElementById(`col1-value-${experimentCount}`);
+            
+            if (type === 'temperature') {
+                col1Header.textContent = '温度 (°C)';
+            } else if (type === 'ph') {
+                col1Header.textContent = 'pH值';
+            } else {
+                col1Header.textContent = '底物浓度 (%)';
+            }
+
+            resetExperiment();
+        }
+
+        // 导出实验报告
+        function exportReport() {
+            const data = [];
+            document.querySelectorAll('#dataTable tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                data.push({
+                    experiment: cells[0].textContent,
+                    condition: cells[1].textContent,
+                    rate: cells[2].textContent,
+                    o2: cells[3].textContent,
+                    efficiency: cells[4].textContent
+                });
+            });
+
+            const report = `酶活性探究实验报告
+========================
+生成时间: ${new Date().toLocaleString()}
+实验次数: ${experimentCount}
+实验类型: ${experimentType === 'temperature' ? '温度影响' : experimentType === 'ph' ? 'pH影响' : '底物浓度影响'}
+
+实验数据:
+${data.map(d => `${d.experiment}: ${d.condition} -> 速率:${d.rate}, O₂:${d.o2}, 效率:${d.efficiency}`).join('\n')}
+
+知识点总结:
+- 酶具有高效性和专一性
+- 温度、pH影响酶活性
+- 存在最适温度(约37°C)和最适pH(约7)
+- 底物浓度遵循米氏方程规律
+`;
+
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '酶活性实验报告.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showToast('报告已导出！');
+        }
+
+        // 显示提示
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // 事件监听
+        startBtn.addEventListener('click', startExperiment);
+        resetBtn.addEventListener('click', resetExperiment);
+        exportBtn.addEventListener('click', exportReport);
+
+        tempSlider.addEventListener('input', () => {
+            updateTempIndicator();
+            updateActivityDisplay();
+        });
+
+        phSlider.addEventListener('input', () => {
+            updatePhIndicator();
+            updateActivityDisplay();
+        });
+
+        substrateSlider.addEventListener('input', () => {
+            updateSubstrateIndicator();
+            updateActivityDisplay();
+        });
+
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchExperimentType(btn.dataset.type));
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = btn.dataset.preset;
+                switch (preset) {
+                    case 'cold':
+                        tempSlider.value = 10;
+                        switchExperimentType('temperature');
+                        break;
+                    case 'room':
+                        tempSlider.value = 25;
+                        switchExperimentType('temperature');
+                        break;
+                    case 'optimal':
+                        tempSlider.value = 37;
+                        switchExperimentType('temperature');
+                        break;
+                    case 'hot':
+                        tempSlider.value = 60;
+                        switchExperimentType('temperature');
+                        break;
+                    case 'acid':
+                        phSlider.value = 3;
+                        switchExperimentType('ph');
+                        break;
+                    case 'alkaline':
+                        phSlider.value = 11;
+                        switchExperimentType('ph');
+                        break;
+                }
+                updateTempIndicator();
+                updatePhIndicator();
+                updateActivityDisplay();
+            });
+        });
+
+        // 初始化
+        initChart();
+        updateTempIndicator();
+        updateActivityDisplay();
+    </script>
+</body>
+</html>

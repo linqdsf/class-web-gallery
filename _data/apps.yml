@@ -654,6 +654,34 @@ apps:
     views: 1654
     status: published
 
+  - id: student-011
+    title: 酶活性探究实验
+    slug: enzyme-activity
+    author: 陈明轩
+    author_avatar: https://api.dicebear.com/7.x/avataaars/svg?seed=chenmingxuan
+    school: 杭州学军中学
+    school_icon: 🎓
+    category: student
+    grade: 高二
+    description: 交互式探究过氧化氢酶活性影响因素，可调节温度、pH值和底物浓度，实时观察反应速率变化并生成图表。
+    url: /teacher-apps/student/enzyme-activity/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/enzyme-activity
+    tags: [酶, 细胞代谢, 实验探究, 交互学习]
+    thumbnail: /assets/thumbnails/enzyme-activity.png
+    features:
+      - 温度影响实验
+      - pH值影响实验
+      - 底物浓度实验
+      - 实时反应曲线
+      - 数据记录导出
+      - 动画模拟反应过程
+    tech_stack: [HTML5, JavaScript, Chart.js]
+    date: 2024-05-02
+    featured: true
+    likes: 0
+    views: 0
+    status: published
+
 # 分类配置
 categories:
   teacher:

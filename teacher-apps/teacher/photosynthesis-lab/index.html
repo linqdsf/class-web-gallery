@@ -937,23 +937,48 @@
     }
 
     // 图表绘制
-    const ctx = elements.chart.getContext('2d');
+    let ctx;
     let animationId;
+    let chartInitialized = false;
+    const CHART_CONFIG = {
+      padding: { top: 20, right: 20, bottom: 30, left: 50 },
+      maxRate: 100
+    };
 
     function initChart() {
+      if (chartInitialized) return;
+      
+      ctx = elements.chart.getContext('2d');
       const dpr = window.devicePixelRatio || 1;
       const rect = elements.chart.getBoundingClientRect();
-      elements.chart.width = rect.width * dpr;
-      elements.chart.height = rect.height * dpr;
+      
+      // 确保有有效尺寸
+      const width = rect.width || 600;
+      const height = rect.height || 250;
+      
+      elements.chart.width = width * dpr;
+      elements.chart.height = height * dpr;
+      elements.chart.style.width = width + 'px';
+      elements.chart.style.height = height + 'px';
+      
       ctx.scale(dpr, dpr);
-      elements.chart.style.width = rect.width + 'px';
-      elements.chart.style.height = rect.height + 'px';
+      
+      // 预填充初始数据
+      for (let i = 0; i < 10; i++) {
+        state.chartData.push(0);
+      }
+      
+      chartInitialized = true;
+      drawChart();
     }
 
     function drawChart() {
-      const width = elements.chart.getBoundingClientRect().width;
-      const height = elements.chart.getBoundingClientRect().height;
-      const padding = { top: 20, right: 20, bottom: 30, left: 50 };
+      if (!ctx) return;
+      
+      const rect = elements.chart.getBoundingClientRect();
+      const width = rect.width || 600;
+      const height = rect.height || 250;
+      const { padding, maxRate } = CHART_CONFIG;
       const chartWidth = width - padding.left - padding.right;
       const chartHeight = height - padding.top - padding.bottom;
 
@@ -998,7 +1023,7 @@
       
       // Y轴标签
       for (let i = 0; i <= 5; i++) {
-        const value = 100 - (100 / 5) * i;
+        const value = maxRate - (maxRate / 5) * i;
         const y = padding.top + (chartHeight / 5) * i;
         ctx.fillText(value.toFixed(0), padding.left - 8, y + 4);
       }
@@ -1017,25 +1042,31 @@
         state.chartData.shift();
       }
 
-      if (state.chartData.length < 2) return;
+      if (state.chartData.length < 2) {
+        animationId = requestAnimationFrame(drawChart);
+        return;
+      }
 
       // 绘制曲线
       const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
-      gradient.addColorStop(0, 'rgba(74, 222, 128, 0.3)');
+      gradient.addColorStop(0, 'rgba(74, 222, 128, 0.4)');
       gradient.addColorStop(1, 'rgba(74, 222, 128, 0)');
+
+      const dataLength = state.chartData.length;
+      const pointSpacing = chartWidth / (state.maxDataPoints - 1);
 
       // 填充区域
       ctx.beginPath();
       state.chartData.forEach((value, index) => {
-        const x = padding.left + (index / (state.maxDataPoints - 1)) * chartWidth;
-        const y = padding.top + chartHeight - (value / 100) * chartHeight;
+        const x = padding.left + index * pointSpacing;
+        const y = padding.top + chartHeight - (Math.min(value, maxRate) / maxRate) * chartHeight;
         if (index === 0) {
           ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
       });
-      ctx.lineTo(padding.left + ((state.chartData.length - 1) / (state.maxDataPoints - 1)) * chartWidth, height - padding.bottom);
+      ctx.lineTo(padding.left + (dataLength - 1) * pointSpacing, height - padding.bottom);
       ctx.lineTo(padding.left, height - padding.bottom);
       ctx.closePath();
       ctx.fillStyle = gradient;
@@ -1044,10 +1075,12 @@
       // 绘制线条
       ctx.beginPath();
       ctx.strokeStyle = '#4ade80';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
       state.chartData.forEach((value, index) => {
-        const x = padding.left + (index / (state.maxDataPoints - 1)) * chartWidth;
-        const y = padding.top + chartHeight - (value / 100) * chartHeight;
+        const x = padding.left + index * pointSpacing;
+        const y = padding.top + chartHeight - (Math.min(value, maxRate) / maxRate) * chartHeight;
         if (index === 0) {
           ctx.moveTo(x, y);
         } else {
@@ -1055,6 +1088,21 @@
         }
       });
       ctx.stroke();
+
+      // 绘制当前值点
+      if (state.chartData.length > 0) {
+        const lastIndex = state.chartData.length - 1;
+        const lastX = padding.left + lastIndex * pointSpacing;
+        const lastY = padding.top + chartHeight - (Math.min(state.chartData[lastIndex], maxRate) / maxRate) * chartHeight;
+        
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#4ade80';
+        ctx.fill();
+        ctx.strokeStyle = '#0f1a0f';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
 
       animationId = requestAnimationFrame(drawChart);
     }
@@ -1128,20 +1176,30 @@
 
     // 窗口调整
     window.addEventListener('resize', () => {
-      initChart();
+      if (chartInitialized) {
+        cancelAnimationFrame(animationId);
+        chartInitialized = false;
+        initChart();
+      }
     });
 
     // 初始化
     function init() {
-      initChart();
-      updateDisplay();
-      drawChart();
-      
-      // 定期更新速率（模拟实时测量）
-      setInterval(updateDisplay, 100);
+      // 延迟初始化，确保 DOM 已渲染
+      requestAnimationFrame(() => {
+        initChart();
+        updateDisplay();
+        // 定期更新速率（模拟实时测量）
+        setInterval(updateDisplay, 100);
+      });
     }
 
-    init();
+    // DOM 加载完成后初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>

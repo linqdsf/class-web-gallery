@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>虚拟光合作用实验平台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a2f1a;
+      --secondary: #2d4a2d;
+      --accent: #4ade80;
+      --accent-glow: rgba(74, 222, 128, 0.4);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.4);
+      --bg: #0f1a0f;
+      --card: #1e3a1e;
+      --card-hover: #264d26;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: rgba(74, 222, 128, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      font-size: 32px;
+    }
+
+    h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--amber));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .btn {
+      font-family: 'Inter', sans-serif;
+      padding: 10px 20px;
+      border: 2px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group {
+      margin-bottom: 28px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .control-label span {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--accent);
+      background: rgba(74, 222, 128, 0.1);
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+
+    .slider-container {
+      position: relative;
+      height: 48px;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      background: var(--secondary);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--accent-glow);
+      transition: transform 0.15s ease;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .slider.light-slider::-webkit-slider-thumb {
+      background: var(--amber);
+      box-shadow: 0 0 15px var(--amber-glow);
+    }
+
+    .slider.light-slider::-moz-range-thumb {
+      background: var(--amber);
+      box-shadow: 0 0 15px var(--amber-glow);
+    }
+
+    .slider-track {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 8px;
+      background: linear-gradient(90deg, var(--accent), var(--amber));
+      border-radius: 4px;
+      pointer-events: none;
+      transition: width 0.1s ease;
+    }
+
+    .slider-marks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .data-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .data-card {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .data-card-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .data-card-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent);
+      transition: color 0.3s ease;
+    }
+
+    .data-card-value.highlight {
+      color: var(--amber);
+    }
+
+    .data-card-unit {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .visualization {
+      background: linear-gradient(180deg, #0a150a 0%, var(--card) 100%);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .light-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.15) 0%, transparent 100%);
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .plant-container {
+      position: relative;
+      width: 300px;
+      height: 350px;
+    }
+
+    .plant-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .leaf {
+      transition: fill 0.5s ease, filter 0.5s ease;
+    }
+
+    .bubble {
+      animation: bubble-rise 3s ease-in infinite;
+      opacity: 0;
+    }
+
+    .bubble:nth-child(1) { animation-delay: 0s; }
+    .bubble:nth-child(2) { animation-delay: 0.8s; }
+    .bubble:nth-child(3) { animation-delay: 1.6s; }
+    .bubble:nth-child(4) { animation-delay: 2.4s; }
+
+    @keyframes bubble-rise {
+      0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-200px) scale(1);
+        opacity: 0;
+      }
+    }
+
+    .co2-molecule {
+      position: absolute;
+      font-size: 16px;
+      opacity: 0.6;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .co2-molecule:nth-child(1) { left: 10%; top: 30%; animation-delay: 0s; }
+    .co2-molecule:nth-child(2) { left: 25%; top: 50%; animation-delay: 1s; }
+    .co2-molecule:nth-child(3) { left: 70%; top: 35%; animation-delay: 2s; }
+    .co2-molecule:nth-child(4) { left: 80%; top: 55%; animation-delay: 3s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(-10px) translateX(5px); }
+    }
+
+    .reaction-info {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 12px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    .reaction-item {
+      text-align: center;
+    }
+
+    .reaction-arrow {
+      font-size: 1.5rem;
+      color: var(--amber);
+    }
+
+    .reaction-formula {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .chart-section {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chart-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .current-rate {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: var(--accent);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .current-rate span {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 250px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    #chart {
+      width: 100%;
+      height: 100%;
+    }
+
+    .chart-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    .info-tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .tab-btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+      background: var(--secondary);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .info-content {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      display: none;
+    }
+
+    .info-content.active {
+      display: block;
+    }
+
+    .info-content h4 {
+      color: var(--amber);
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .info-content p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .info-content ul {
+      list-style: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .info-content li {
+      padding: 6px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .info-content li::before {
+      content: '>';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .data-log {
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    .data-log::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .data-log::-webkit-scrollbar-track {
+      background: var(--secondary);
+      border-radius: 3px;
+    }
+
+    .data-log::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 3px;
+    }
+
+    .log-entry {
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 16px;
+    }
+
+    .log-entry:nth-child(odd) {
+      background: rgba(74, 222, 128, 0.05);
+    }
+
+    .log-time {
+      color: var(--text-muted);
+    }
+
+    .log-values {
+      color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 1.1rem;
+      }
+
+      .plant-container {
+        width: 250px;
+        height: 300px;
+      }
+
+      .chart-container {
+        height: 200px;
+      }
+
+      .reaction-info {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .info-tabs {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 12px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .data-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <span class="logo-icon">🌿</span>
+        <h1>虚拟光合作用实验平台</h1>
+      </div>
+      <button class="btn" id="resetBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        重置实验
+      </button>
+    </header>
+
+    <div class="main-grid">
+      <aside class="panel">
+        <div class="panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+          实验参数控制
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/>
+              </svg>
+              光照强度
+            </span>
+            <span class="control-value" id="lightValue">800</span>
+          </div>
+          <div class="slider-container">
+            <div class="slider-track" id="lightTrack" style="width: 80%"></div>
+            <input type="range" class="slider light-slider" id="lightSlider" min="0" max="1000" value="800">
+          </div>
+          <div class="slider-marks">
+            <span>0</span>
+            <span>200 (阴天)</span>
+            <span>500</span>
+            <span>800 (晴天)</span>
+            <span>1000</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 12h8M12 8v8"/>
+              </svg>
+              CO₂浓度
+            </span>
+            <span class="control-value" id="co2Value">400</span>
+          </div>
+          <div class="slider-container">
+            <div class="slider-track" id="co2Track" style="width: 11%"></div>
+            <input type="range" class="slider" id="co2Slider" min="200" max="2000" value="400">
+          </div>
+          <div class="slider-marks">
+            <span>200</span>
+            <span>400 (大气)</span>
+            <span>1000</span>
+            <span>1500</span>
+            <span>2000</span>
+          </div>
+        </div>
+
+        <div class="data-cards">
+          <div class="data-card">
+            <div class="data-card-label">光合作用速率</div>
+            <div class="data-card-value" id="rateValue">0.00</div>
+            <div class="data-card-unit">μmol CO₂/m²/s</div>
+          </div>
+          <div class="data-card">
+            <div class="data-card-label">O₂释放量</div>
+            <div class="data-card-value highlight" id="o2Value">0.00</div>
+            <div class="data-card-unit">μmol O₂/m²/s</div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="visualization" id="visualization">
+        <div class="light-overlay" id="lightOverlay"></div>
+        
+        <div class="co2-molecule">CO₂</div>
+        <div class="co2-molecule">CO₂</div>
+        <div class="co2-molecule">CO₂</div>
+        <div class="co2-molecule">CO₂</div>
+
+        <div class="plant-container">
+          <svg class="plant-svg" viewBox="0 0 300 350">
+            <defs>
+              <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#2d5a27"/>
+                <stop offset="50%" style="stop-color:#4a7c43"/>
+                <stop offset="100%" style="stop-color:#2d5a27"/>
+              </linearGradient>
+              <linearGradient id="leafGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#4ade80" id="leafColor1"/>
+                <stop offset="100%" style="stop-color:#22c55e"/>
+              </linearGradient>
+              <linearGradient id="leafGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#22c55e" id="leafColor2"/>
+                <stop offset="100%" style="stop-color:#16a34a"/>
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- 花盆 -->
+            <path d="M100 320 L110 350 L190 350 L200 320 Z" fill="#8b5a2b"/>
+            <ellipse cx="150" cy="320" rx="55" ry="12" fill="#a0522d"/>
+            
+            <!-- 茎干 -->
+            <path d="M150 310 Q145 250 150 180 Q155 120 150 80" 
+                  stroke="url(#stemGrad)" stroke-width="12" fill="none" stroke-linecap="round"/>
+            <path d="M150 310 Q145 250 150 180 Q155 120 150 80" 
+                  stroke="rgba(74,222,128,0.3)" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+            <!-- 左侧叶子组 -->
+            <g class="leaf" id="leaf1">
+              <path d="M140 260 Q80 250 60 200 Q90 210 140 240" 
+                    fill="url(#leafGrad1)" stroke="#16a34a" stroke-width="1"/>
+            </g>
+            <g class="leaf" id="leaf2">
+              <path d="M145 200 Q90 190 70 140 Q100 155 145 180" 
+                    fill="url(#leafGrad2)" stroke="#16a34a" stroke-width="1"/>
+            </g>
+            <g class="leaf" id="leaf3">
+              <path d="M148 140 Q100 130 85 80 Q115 100 148 125" 
+                    fill="url(#leafGrad1)" stroke="#16a34a" stroke-width="1"/>
+            </g>
+
+            <!-- 右侧叶子组 -->
+            <g class="leaf" id="leaf4">
+              <path d="M160 250 Q210 235 230 185 Q200 200 160 230" 
+                    fill="url(#leafGrad2)" stroke="#16a34a" stroke-width="1"/>
+            </g>
+            <g class="leaf" id="leaf5">
+              <path d="M155 195 Q205 180 225 130 Q195 150 155 175" 
+                    fill="url(#leafGrad1)" stroke="#16a34a" stroke-width="1"/>
+            </g>
+            <g class="leaf" id="leaf6">
+              <path d="M152 135 Q195 120 215 70 Q185 90 152 120" 
+                    fill="url(#leafGrad2)" stroke="#16a34a" stroke-width="1"/>
+            </g>
+
+            <!-- 顶部叶子 -->
+            <g class="leaf" id="topLeaf">
+              <path d="M150 80 Q130 40 150 20 Q170 40 150 80" 
+                    fill="url(#leafGrad1)" stroke="#16a34a" stroke-width="1" filter="url(#glow)"/>
+            </g>
+
+            <!-- 氧气气泡 -->
+            <g id="bubbles">
+              <circle class="bubble" cx="130" cy="200" r="6" fill="rgba(255,255,255,0.6)"/>
+              <circle class="bubble" cx="170" cy="180" r="5" fill="rgba(255,255,255,0.5)"/>
+              <circle class="bubble" cx="145" cy="150" r="7" fill="rgba(255,255,255,0.6)"/>
+              <circle class="bubble" cx="155" cy="120" r="5" fill="rgba(255,255,255,0.5)"/>
+            </g>
+
+            <!-- 根部 -->
+            <g opacity="0.6">
+              <path d="M140 330 Q120 340 100 350" stroke="#5d4037" stroke-width="3" fill="none"/>
+              <path d="M150 330 Q150 345 145 355" stroke="#5d4037" stroke-width="3" fill="none"/>
+              <path d="M160 330 Q180 340 200 350" stroke="#5d4037" stroke-width="3" fill="none"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="reaction-info">
+          <div class="reaction-item">
+            <div class="reaction-formula">6CO₂</div>
+          </div>
+          <div class="reaction-arrow">+</div>
+          <div class="reaction-item">
+            <div class="reaction-formula">6H₂O</div>
+          </div>
+          <div class="reaction-arrow">→</div>
+          <div class="reaction-item">
+            <div class="reaction-formula" style="color: var(--accent)">C₆H₁₂O₆</div>
+          </div>
+          <div class="reaction-arrow">+</div>
+          <div class="reaction-item">
+            <div class="reaction-formula" style="color: var(--amber)">6O₂</div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <section class="chart-section">
+      <div class="chart-header">
+        <div class="chart-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3v18h18"/>
+            <path d="M18 9l-5 5-4-4-3 3"/>
+          </svg>
+          光合作用速率曲线
+        </div>
+        <div class="current-rate">
+          <span id="chartRateValue">0.00</span>
+          <span>μmol/m²/s</span>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="chart"></canvas>
+      </div>
+      <div class="info-tabs">
+        <button class="tab-btn active" data-tab="info">实验说明</button>
+        <button class="tab-btn" data-tab="log">数据记录</button>
+        <button class="tab-btn" data-tab="export">导出数据</button>
+      </div>
+      <div class="info-content active" id="info">
+        <h4>光合作用原理</h4>
+        <p>光合作用是植物、藻类和某些细菌利用光能将二氧化碳和水转化为有机物（葡萄糖）并释放氧气的过程。</p>
+        <h4>影响因素</h4>
+        <ul>
+          <li><strong>光照强度</strong>：光合作用的能量来源，在一定范围内，光强增加，速率加快</li>
+          <li><strong>CO₂浓度</strong>：光合作用的原料，浓度越高，碳固定速率越快</li>
+          <li><strong>温度</strong>：影响酶活性，最适温度约25-30°C</li>
+          <li><strong>水分</strong>：光合作用的原料之一</li>
+        </ul>
+      </div>
+      <div class="info-content" id="log">
+        <div class="data-log" id="dataLog">
+          <div class="log-entry">
+            <span class="log-time">等待数据...</span>
+          </div>
+        </div>
+      </div>
+      <div class="info-content" id="export">
+        <h4>导出实验数据</h4>
+        <p>点击下方按钮，将实验数据导出为CSV格式文件，方便进一步分析。</p>
+        <button class="btn" id="exportBtn" style="margin-top: 12px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7,10 12,15 17,10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          导出CSV
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // 状态管理
+    const state = {
+      light: 800,
+      co2: 400,
+      rate: 0,
+      o2Rate: 0,
+      dataLog: [],
+      chartData: [],
+      maxDataPoints: 120
+    };
+
+    // DOM 元素
+    const elements = {
+      lightSlider: document.getElementById('lightSlider'),
+      co2Slider: document.getElementById('co2Slider'),
+      lightValue: document.getElementById('lightValue'),
+      co2Value: document.getElementById('co2Value'),
+      lightTrack: document.getElementById('lightTrack'),
+      co2Track: document.getElementById('co2Track'),
+      rateValue: document.getElementById('rateValue'),
+      o2Value: document.getElementById('o2Value'),
+      chartRateValue: document.getElementById('chartRateValue'),
+      lightOverlay: document.getElementById('lightOverlay'),
+      chart: document.getElementById('chart'),
+      dataLog: document.getElementById('dataLog'),
+      resetBtn: document.getElementById('resetBtn'),
+      exportBtn: document.getElementById('exportBtn'),
+      tabBtns: document.querySelectorAll('.tab-btn'),
+      infoContents: document.querySelectorAll('.info-content')
+    };
+
+    // 光合作用速率计算 (米氏方程模型)
+    function calculateRate(light, co2) {
+      const Vmax = 100;
+      const Km_CO2 = 300;
+      const Km_I = 400;
+      
+      const numerator = Vmax * co2 * light;
+      const denominator = Km_CO2 * Km_I + Km_CO2 * light + Km_I * co2 + co2 * light;
+      
+      return numerator / denominator;
+    }
+
+    // 更新显示
+    function updateDisplay() {
+      // 计算速率
+      state.rate = calculateRate(state.light, state.co2);
+      state.o2Rate = state.rate * 1.0; // O2释放量与CO2固定量相等
+
+      // 更新数值显示
+      elements.rateValue.textContent = state.rate.toFixed(2);
+      elements.o2Value.textContent = state.o2Rate.toFixed(2);
+      elements.chartRateValue.textContent = state.rate.toFixed(2);
+
+      // 高亮效果
+      elements.rateValue.classList.add('highlight');
+      setTimeout(() => elements.rateValue.classList.remove('highlight'), 300);
+
+      // 更新滑块轨道
+      elements.lightTrack.style.width = `${(state.light / 1000) * 100}%`;
+      elements.co2Track.style.width = `${((state.co2 - 200) / 1800) * 100}%`;
+
+      // 更新光照覆盖层
+      elements.lightOverlay.style.opacity = state.light / 1000;
+
+      // 更新植物颜色 (基于光照)
+      const greenIntensity = 0.5 + (state.light / 1000) * 0.5;
+      document.getElementById('leafColor1').style.stopColor = `rgb(${Math.round(34 + (150-34)*greenIntensity)}, ${Math.round(222 + (255-222)*greenIntensity)}, ${Math.round(128 + (200-128)*greenIntensity)})`;
+      
+      // 更新气泡动画速度 (基于CO2浓度)
+      const bubbleSpeed = Math.max(1, 3 - (state.co2 / 500));
+      document.querySelectorAll('.bubble').forEach(bubble => {
+        bubble.style.animationDuration = `${bubbleSpeed}s`;
+      });
+
+      // 记录数据
+      if (state.dataLog.length === 0 || 
+          state.dataLog[state.dataLog.length - 1].light !== state.light ||
+          state.dataLog[state.dataLog.length - 1].co2 !== state.co2) {
+        state.dataLog.push({
+          time: new Date().toLocaleTimeString(),
+          light: state.light,
+          co2: state.co2,
+          rate: state.rate
+        });
+        updateDataLog();
+      }
+    }
+
+    // 更新数据日志
+    function updateDataLog() {
+      if (state.dataLog.length === 0) return;
+      
+      elements.dataLog.innerHTML = state.dataLog.slice(-10).reverse().map(entry => `
+        <div class="log-entry">
+          <span class="log-time">${entry.time}</span>
+          <span class="log-values">光:${entry.light} | CO₂:${entry.co2} | 速率:${entry.rate.toFixed(2)}</span>
+        </div>
+      `).join('');
+    }
+
+    // 图表绘制
+    const ctx = elements.chart.getContext('2d');
+    let animationId;
+
+    function initChart() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = elements.chart.getBoundingClientRect();
+      elements.chart.width = rect.width * dpr;
+      elements.chart.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      elements.chart.style.width = rect.width + 'px';
+      elements.chart.style.height = rect.height + 'px';
+    }
+
+    function drawChart() {
+      const width = elements.chart.getBoundingClientRect().width;
+      const height = elements.chart.getBoundingClientRect().height;
+      const padding = { top: 20, right: 20, bottom: 30, left: 50 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+
+      // 清空画布
+      ctx.clearRect(0, 0, width, height);
+
+      // 绘制网格
+      ctx.strokeStyle = 'rgba(74, 222, 128, 0.1)';
+      ctx.lineWidth = 1;
+
+      // 水平网格
+      for (let i = 0; i <= 5; i++) {
+        const y = padding.top + (chartHeight / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+        ctx.stroke();
+      }
+
+      // 垂直网格
+      for (let i = 0; i <= 6; i++) {
+        const x = padding.left + (chartWidth / 6) * i;
+        ctx.beginPath();
+        ctx.moveTo(x, padding.top);
+        ctx.lineTo(x, height - padding.bottom);
+        ctx.stroke();
+      }
+
+      // 绘制坐标轴
+      ctx.strokeStyle = 'rgba(74, 222, 128, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, padding.top);
+      ctx.lineTo(padding.left, height - padding.bottom);
+      ctx.lineTo(width - padding.right, height - padding.bottom);
+      ctx.stroke();
+
+      // 绘制标签
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '11px Inter';
+      ctx.textAlign = 'right';
+      
+      // Y轴标签
+      for (let i = 0; i <= 5; i++) {
+        const value = 100 - (100 / 5) * i;
+        const y = padding.top + (chartHeight / 5) * i;
+        ctx.fillText(value.toFixed(0), padding.left - 8, y + 4);
+      }
+
+      // X轴标签
+      ctx.textAlign = 'center';
+      for (let i = 0; i <= 6; i++) {
+        const x = padding.left + (chartWidth / 6) * i;
+        const seconds = Math.round((state.maxDataPoints / 60) * (6 - i));
+        ctx.fillText(`${seconds}s`, x, height - 10);
+      }
+
+      // 添加数据点到图表
+      state.chartData.push(state.rate);
+      if (state.chartData.length > state.maxDataPoints) {
+        state.chartData.shift();
+      }
+
+      if (state.chartData.length < 2) return;
+
+      // 绘制曲线
+      const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+      gradient.addColorStop(0, 'rgba(74, 222, 128, 0.3)');
+      gradient.addColorStop(1, 'rgba(74, 222, 128, 0)');
+
+      // 填充区域
+      ctx.beginPath();
+      state.chartData.forEach((value, index) => {
+        const x = padding.left + (index / (state.maxDataPoints - 1)) * chartWidth;
+        const y = padding.top + chartHeight - (value / 100) * chartHeight;
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.lineTo(padding.left + ((state.chartData.length - 1) / (state.maxDataPoints - 1)) * chartWidth, height - padding.bottom);
+      ctx.lineTo(padding.left, height - padding.bottom);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // 绘制线条
+      ctx.beginPath();
+      ctx.strokeStyle = '#4ade80';
+      ctx.lineWidth = 2;
+      state.chartData.forEach((value, index) => {
+        const x = padding.left + (index / (state.maxDataPoints - 1)) * chartWidth;
+        const y = padding.top + chartHeight - (value / 100) * chartHeight;
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+
+      animationId = requestAnimationFrame(drawChart);
+    }
+
+    // 导出CSV
+    function exportCSV() {
+      if (state.dataLog.length === 0) {
+        alert('暂无数据可导出');
+        return;
+      }
+
+      const headers = ['时间', '光照强度 (μmol/m²/s)', 'CO₂浓度 (ppm)', '光合作用速率 (μmol/m²/s)'];
+      const rows = state.dataLog.map(entry => [
+        entry.time,
+        entry.light,
+        entry.co2,
+        entry.rate.toFixed(4)
+      ]);
+
+      const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `光合作用实验数据_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // 重置
+    function reset() {
+      state.light = 800;
+      state.co2 = 400;
+      state.dataLog = [];
+      state.chartData = [];
+      
+      elements.lightSlider.value = state.light;
+      elements.co2Slider.value = state.co2;
+      elements.lightValue.textContent = state.light;
+      elements.co2Value.textContent = state.co2;
+      
+      updateDisplay();
+      updateDataLog();
+    }
+
+    // 事件监听
+    elements.lightSlider.addEventListener('input', (e) => {
+      state.light = parseInt(e.target.value);
+      elements.lightValue.textContent = state.light;
+      updateDisplay();
+    });
+
+    elements.co2Slider.addEventListener('input', (e) => {
+      state.co2 = parseInt(e.target.value);
+      elements.co2Value.textContent = state.co2;
+      updateDisplay();
+    });
+
+    elements.resetBtn.addEventListener('click', reset);
+    elements.exportBtn.addEventListener('click', exportCSV);
+
+    // Tab切换
+    elements.tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        elements.tabBtns.forEach(b => b.classList.remove('active'));
+        elements.infoContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // 窗口调整
+    window.addEventListener('resize', () => {
+      initChart();
+    });
+
+    // 初始化
+    function init() {
+      initChart();
+      updateDisplay();
+      drawChart();
+      
+      // 定期更新速率（模拟实时测量）
+      setInterval(updateDisplay, 100);
+    }
+
+    init();
+  </script>
+</body>
+</html>

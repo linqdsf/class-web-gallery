@@ -199,17 +199,19 @@ apps:
     school: 深圳外国语学校
     school_icon: 🏫
     category: teacher
-    description: 虚拟光合作用实验平台，模拟不同光照强度CO2浓度对光合作用速率的影响。
-    url: https://bioviz.cn/photosynthesis
-    repo: https://github.com/wang-bio/photosynthesis
-    tags: [光合作用, 实验模拟, 植物学]
-    thumbnail: /assets/thumbnails/photosynthesis.svg
+    description: 虚拟光合作用实验平台，实时调节光照强度和CO₂浓度，观察光合作用速率变化。支持数据导出和动态图表可视化。
+    url: /teacher-apps/teacher/photosynthesis-lab/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/photosynthesis-lab
+    tags: [光合作用, 实验模拟, 植物学, CO₂浓度, 光照强度, 动态图表]
+    thumbnail: /assets/thumbnails/photosynthesis-lab.svg
     features:
-      - 光照强度调节
-      - CO2浓度控制
-      - 温度变量
-      - 数据曲线实时绘制
-    tech_stack: [Canvas API, JavaScript, Chart.js]
+      - 光照强度调节 (0-1000 μmol/m²/s)
+      - CO₂浓度控制 (200-2000 ppm)
+      - 实时速率计算 (米氏方程模型)
+      - 动态图表可视化
+      - 3D植物动画效果
+      - 实验数据导出CSV
+    tech_stack: [Canvas API, JavaScript, CSS3]
     date: 2024-03-05
     featured: true
     likes: 198

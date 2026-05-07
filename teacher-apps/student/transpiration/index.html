@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植物蒸腾作用实验 - 生物学习工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #27ae60 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        header { background: rgba(0,0,0,0.3); padding: 20px; text-align: center; }
+        header h1 { font-size: 1.8em; color: #2ecc71; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .experiment-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 800px) { .experiment-area { grid-template-columns: 1fr; } }
+        .panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .plant-container {
+            height: 300px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #8B4513 60%, #8B4513 100%);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .sun { position: absolute; top: 20px; right: 20px; font-size: 3em; }
+        .plant {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .stem {
+            width: 8px;
+            height: 100px;
+            background: #228B22;
+            margin: 0 auto;
+        }
+        .leaf {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            background: #32CD32;
+            border-radius: 50% 0 50% 0;
+        }
+        .leaf:nth-child(1) { left: -40px; top: 10px; transform: rotate(-30deg); }
+        .leaf:nth-child(2) { right: -40px; top: 10px; transform: rotate(30deg) scaleX(-1); }
+        .leaf:nth-child(3) { left: -35px; top: 40px; transform: rotate(-20deg); }
+        .leaf:nth-child(4) { right: -35px; top: 40px; transform: rotate(20deg) scaleX(-1); }
+        .water-drops {
+            position: absolute;
+            font-size: 1.2em;
+            animation: drip 2s infinite;
+        }
+        @keyframes drip {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(50px); }
+        }
+        .beaker {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 50px;
+            background: rgba(135,206,235,0.5);
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 0 0 10px 10px;
+        }
+        .water-level {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(135,206,235,0.7);
+            border-radius: 0 0 7px 7px;
+            transition: height 0.5s;
+        }
+        .controls { margin: 20px 0; }
+        .control-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        .control-row label { flex: 0 0 150px; color: #2ecc71; }
+        .control-row input[type="range"] { flex: 1; margin: 0 15px; }
+        .control-row span { width: 80px; text-align: right; }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .result-card {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .result-card h4 { color: #3498db; margin-bottom: 5px; }
+        .result-card .value { font-size: 1.8em; color: #2ecc71; }
+        .chart-container { margin-top: 20px; }
+        canvas { max-height: 200px; }
+        .btn-group { display: flex; gap: 10px; margin: 20px 0; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: #2ecc71; color: #fff; }
+        .btn:hover { transform: scale(1.05); }
+        .info-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .info-box h4 { color: #f39c12; margin-bottom: 10px; }
+        .info-box ul { padding-left: 20px; color: #ccc; }
+        .info-box li { margin-bottom: 5px; }
+        footer { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌿 植物蒸腾作用实验</h1>
+        <p>探究影响蒸腾作用的环境因素</p>
+    </header>
+
+    <div class="container">
+        <div class="experiment-area">
+            <div class="panel">
+                <h3 style="color:#2ecc71; margin-bottom:15px;">🌱 实验装置</h3>
+                <div class="plant-container" id="plantContainer">
+                    <div class="sun">☀️</div>
+                    <div class="plant" id="plant">
+                        <div class="leaf"></div>
+                        <div class="leaf"></div>
+                        <div class="leaf"></div>
+                        <div class="leaf"></div>
+                        <div class="stem"></div>
+                    </div>
+                    <div class="beaker">
+                        <div class="water-level" id="waterLevel" style="height:80%;"></div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <h4>💡 实验原理</h4>
+                    <ul>
+                        <li>植物通过根系吸收水分</li>
+                        <li>水分通过导管运输到叶片</li>
+                        <li>大部分水分通过气孔散失（水蒸气）</li>
+                        <li>蒸腾作用拉动水分和无机盐运输</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3 style="color:#3498db; margin-bottom:15px;">⚙️ 环境参数控制</h3>
+                <div class="controls">
+                    <div class="control-row">
+                        <label>光照强度</label>
+                        <input type="range" id="light" min="0" max="100" value="70" oninput="updateExperiment()">
+                        <span id="lightValue">70%</span>
+                    </div>
+                    <div class="control-row">
+                        <label>温度 (°C)</label>
+                        <input type="range" id="temperature" min="15" max="45" value="25" oninput="updateExperiment()">
+                        <span id="tempValue">25°C</span>
+                    </div>
+                    <div class="control-row">
+                        <label>相对湿度 (%)</label>
+                        <input type="range" id="humidity" min="20" max="100" value="60" oninput="updateExperiment()">
+                        <span id="humidityValue">60%</span>
+                    </div>
+                    <div class="control-row">
+                        <label>风速</label>
+                        <input type="range" id="wind" min="0" max="100" value="20" oninput="updateExperiment()">
+                        <span id="windValue">低</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startExperiment()">▶ 开始实验</button>
+                </div>
+
+                <div class="results" id="results">
+                    <div class="result-card">
+                        <h4>蒸腾速率</h4>
+                        <div class="value" id="transpirationRate">0</div>
+                        <small>g/h</small>
+                    </div>
+                    <div class="result-card">
+                        <h4>吸水速率</h4>
+                        <div class="value" id="uptakeRate">0</div>
+                        <small>mL/h</small>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="resultChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" style="margin-top:20px;">
+            <h3 style="color:#f39c12; margin-bottom:15px;">📊 实验结论</h3>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:15px;">
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#2ecc71;">☀️ 光照</h4>
+                    <p style="color:#ccc; font-size:0.9em;">光照促进气孔开放，提高蒸腾速率。光照越强，蒸腾作用越强。</p>
+                </div>
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#e74c3c;">🌡️ 温度</h4>
+                    <p style="color:#ccc; font-size:0.9em;">温度升高加速水分子运动，提高蒸腾速率。但过高会关闭气孔。</p>
+                </div>
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#3498db;">💧 湿度</h4>
+                    <p style="color:#ccc; font-size:0.9em;">湿度越高，蒸气压差越小，蒸腾速率越低。</p>
+                </div>
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#9b59b6;">🌬️ 风速</h4>
+                    <p style="color:#ccc; font-size:0.9em;">适度风速带走水汽促进蒸腾，强风会关闭气孔降低蒸腾。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>生物学习工具 · 仅供学习参考</p>
+    </footer>
+
+    <script>
+        let chart = null;
+        let animationId = null;
+
+        function updateExperiment() {
+            document.getElementById('lightValue').textContent = document.getElementById('light').value + '%';
+            document.getElementById('tempValue').textContent = document.getElementById('temperature').value + '°C';
+            document.getElementById('humidityValue').textContent = document.getElementById('humidity').value + '%';
+            const wind = document.getElementById('wind').value;
+            let windText = '无风';
+            if (wind > 30) windText = '微风';
+            if (wind > 60) windText = '中风';
+            if (wind > 80) windText = '强风';
+            document.getElementById('windValue').textContent = windText;
+        }
+
+        function calculateTranspiration() {
+            const light = parseInt(document.getElementById('light').value) / 100;
+            const temp = parseInt(document.getElementById('temperature').value);
+            const humidity = parseInt(document.getElementById('humidity').value) / 100;
+            const wind = parseInt(document.getElementById('wind').value) / 100;
+
+            // 基础蒸腾速率
+            let rate = 0.5;
+
+            // 光照影响 (0-100%)
+            rate *= (0.2 + 0.8 * light);
+
+            // 温度影响 (最适25°C)
+            const tempEffect = temp <= 30 ? temp / 30 : Math.max(0, 1.5 - temp / 40);
+            rate *= tempEffect;
+
+            // 湿度影响 (负相关)
+            rate *= (1.5 - 0.5 * humidity);
+
+            // 风速影响 (倒U型)
+            const windEffect = wind < 0.7 ? 1 + wind : 1.7 - wind;
+            rate *= windEffect;
+
+            return rate;
+        }
+
+        function startExperiment() {
+            if (animationId) cancelAnimationFrame(animationId);
+
+            const rate = calculateTranspiration();
+            document.getElementById('transpirationRate').textContent = rate.toFixed(2);
+            document.getElementById('uptakeRate').textContent = (rate * 0.8).toFixed(2);
+
+            // 动画效果
+            const container = document.getElementById('plantContainer');
+            const waterLevel = document.getElementById('waterLevel');
+            let time = 0;
+            const data = { labels: [], values: [] };
+
+            if (chart) chart.destroy();
+
+            const ctx = document.getElementById('resultChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '蒸腾速率',
+                        data: [],
+                        borderColor: '#2ecc71',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    animation: false
+                }
+            });
+
+            function animate() {
+                time++;
+                const currentRate = rate * (1 + Math.sin(time / 10) * 0.1);
+                
+                // 更新图表
+                if (chart.data.labels.length > 20) {
+                    chart.data.labels.shift();
+                    chart.data.datasets[0].data.shift();
+                }
+                chart.data.labels.push(time + 's');
+                chart.data.datasets[0].data.push(currentRate);
+                chart.update();
+
+                // 更新水位
+                const level = Math.max(10, 80 - time * rate * 0.5);
+                waterLevel.style.height = level + '%';
+
+                // 添加水珠动画
+                if (time % 10 === 0) {
+                    const drop = document.createElement('div');
+                    drop.className = 'water-drops';
+                    drop.textContent = '💧';
+                    drop.style.left = (80 + Math.random() * 40) + '%';
+                    drop.style.top = '30%';
+                    container.appendChild(drop);
+                    setTimeout(() => drop.remove(), 2000);
+                }
+
+                if (time < 100) {
+                    animationId = requestAnimationFrame(animate);
+                }
+            }
+
+            animate();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

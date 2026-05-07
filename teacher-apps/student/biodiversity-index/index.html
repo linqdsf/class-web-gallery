@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生物多样性指数计算器 - 生物学习工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2ecc71 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        header { background: rgba(0,0,0,0.3); padding: 20px; text-align: center; }
+        header h1 { font-size: 1.8em; color: #2ecc71; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+        .panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .panel h2 { color: #2ecc71; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .species-input {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .species-input input {
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+        }
+        .species-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 50px;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .species-row span { color: #aaa; }
+        .species-row input { 
+            width: 100%; 
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            text-align: center;
+        }
+        .remove-btn {
+            width: 30px;
+            height: 30px;
+            background: #e74c3c;
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+        }
+        .add-species {
+            padding: 10px 20px;
+            background: #2ecc71;
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-group { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        .btn-calculate { background: #2ecc71; color: #fff; }
+        .btn-reset { background: #e74c3c; color: #fff; }
+        .btn-sample { background: #3498db; color: #fff; }
+        .btn:hover { transform: scale(1.05); }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .result-card {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .result-card h4 { color: #3498db; margin-bottom: 10px; }
+        .result-card .value { font-size: 2em; color: #2ecc71; }
+        .result-card .formula { color: #aaa; font-size: 0.85em; margin-top: 5px; }
+        .chart-container { margin-top: 20px; }
+        canvas { max-height: 250px; }
+        .formula-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        .formula-box h4 { color: #f39c12; margin-bottom: 10px; }
+        .formula-box p { color: #aaa; margin: 5px 0; font-size: 0.9em; }
+        .preset-ecosystems {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .preset-btn {
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid #555;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .preset-btn:hover { background: rgba(46,204,113,0.2); border-color: #2ecc71; }
+        footer { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌍 生物多样性指数计算器</h1>
+        <p>计算物种丰富度和多样性指数</p>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <div class="panel">
+                <h2>📝 物种数据输入</h2>
+                <div id="speciesList">
+                    <div class="species-row">
+                        <span>物种名称</span>
+                        <span>个体数</span>
+                        <span></span>
+                    </div>
+                </div>
+                <button class="add-species" onclick="addSpecies()">+ 添加物种</button>
+
+                <div class="btn-group">
+                    <button class="btn btn-sample" onclick="loadSample()">📋 加载示例</button>
+                    <button class="btn btn-calculate" onclick="calculateIndex()">🧮 计算</button>
+                    <button class="btn btn-reset" onclick="resetData()">↺ 重置</button>
+                </div>
+
+                <div class="preset-ecosystems">
+                    <button class="preset-btn" onclick="loadPreset('forest')">🌲 热带雨林</button>
+                    <button class="preset-btn" onclick="loadPreset('grassland')">🌿 温带草原</button>
+                    <button class="preset-btn" onclick="loadPreset('ocean')">🌊 海洋生态系</button>
+                    <button class="preset-btn" onclick="loadPreset('pond')">🏞️ 淡水池塘</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>📊 计算结果</h2>
+                <div class="results-grid" id="results">
+                    <div class="result-card">
+                        <h4>物种丰富度指数 (S)</h4>
+                        <div class="value" id="richness">-</div>
+                        <p class="formula">物种数量</p>
+                    </div>
+                    <div class="result-card">
+                        <h4>总个体数 (N)</h4>
+                        <div class="value" id="total">-</div>
+                        <p class="formula">所有物种个体总数</p>
+                    </div>
+                    <div class="result-card">
+                        <h4>香农指数 (H')</h4>
+                        <div class="value" id="shannon">-</div>
+                        <p class="formula">0-4+</p>
+                    </div>
+                    <div class="result-card">
+                        <h4>辛普森指数 (D)</h4>
+                        <div class="value" id="simpson">-</div>
+                        <p class="formula">0-1 (越高越多样)</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+
+                <div class="formula-box">
+                    <h4>📐 公式说明</h4>
+                    <p><strong>香农指数：</strong>H' = -Σ(pi × ln(pi))</p>
+                    <p><strong>辛普森指数：</strong>D = 1 - Σ(pi²)</p>
+                    <p>其中 pi = 该物种个体数 / 总个体数</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" style="margin-top:20px;">
+            <h2>📚 指数解读指南</h2>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:15px; margin-top:15px;">
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#2ecc71;">🟢 香农指数 (H') 解读</h4>
+                    <ul style="color:#ccc; padding-left:20px;">
+                        <li>H' < 1：多样性低</li>
+                        <li>H' 1-2：中等多样性</li>
+                        <li>H' 2-3：较高多样性</li>
+                        <li>H' > 3：高度多样性</li>
+                    </ul>
+                </div>
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#3498db;">🔵 辛普森指数 (D) 解读</h4>
+                    <ul style="color:#ccc; padding-left:20px;">
+                        <li>D < 0.3：多样性低</li>
+                        <li>D 0.3-0.5：中等多样性</li>
+                        <li>D 0.5-0.7：较高多样性</li>
+                        <li>D > 0.7：高多样性</li>
+                    </ul>
+                </div>
+                <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px;">
+                    <h4 style="color:#f39c12;">🟡 影响因素</h4>
+                    <ul style="color:#ccc; padding-left:20px;">
+                        <li>栖息地破坏 → 指数降低</li>
+                        <li>气候变化 → 影响分布</li>
+                        <li>外来物种入侵 → 降低本土多样性</li>
+                        <li>保护措施 → 有助于恢复</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>生物学习工具 · 仅供学习参考</p>
+    </footer>
+
+    <script>
+        let chart = null;
+        let speciesCount = 0;
+
+        function addSpecies() {
+            speciesCount++;
+            const list = document.getElementById('speciesList');
+            const row = document.createElement('div');
+            row.className = 'species-row';
+            row.id = 'species-' + speciesCount;
+            row.innerHTML = `
+                <input type="text" placeholder="物种${speciesCount}" class="species-name">
+                <input type="number" placeholder="数量" class="species-count" min="0" value="0">
+                <button class="remove-btn" onclick="removeSpecies('species-${speciesCount}')">×</button>
+            `;
+            list.appendChild(row);
+        }
+
+        function removeSpecies(id) {
+            const row = document.getElementById(id);
+            if (row) row.remove();
+        }
+
+        function loadSample() {
+            const samples = [
+                { name: '松树', count: 45 },
+                { name: '桦树', count: 32 },
+                { name: '橡树', count: 28 },
+                { name: '灌木A', count: 55 },
+                { name: '灌木B', count: 40 },
+                { name: '草本植物', count: 120 }
+            ];
+            loadData(samples);
+        }
+
+        function loadPreset(type) {
+            const presets = {
+                forest: [
+                    { name: '乔木层', count: 150 },
+                    { name: '灌木层', count: 300 },
+                    { name: '草本层', count: 500 },
+                    { name: '苔藓', count: 200 },
+                    { name: '真菌', count: 80 }
+                ],
+                grassland: [
+                    { name: '禾本科', count: 400 },
+                    { name: '豆科', count: 150 },
+                    { name: '菊科', count: 100 },
+                    { name: '杂草', count: 200 }
+                ],
+                ocean: [
+                    { name: '浮游植物', count: 1000 },
+                    { name: '浮游动物', count: 800 },
+                    { name: '鱼类', count: 300 },
+                    { name: '甲壳类', count: 200 },
+                    { name: '海洋哺乳类', count: 20 }
+                ],
+                pond: [
+                    { name: '浮游藻类', count: 500 },
+                    { name: '水蚤', count: 300 },
+                    { name: '蚊子幼虫', count: 200 },
+                    { name: '青蛙', count: 15 },
+                    { name: '鱼', count: 50 }
+                ]
+            };
+            loadData(presets[type] || []);
+        }
+
+        function loadData(samples) {
+            document.getElementById('speciesList').innerHTML = `
+                <div class="species-row">
+                    <span>物种名称</span>
+                    <span>个体数</span>
+                    <span></span>
+                </div>
+            `;
+            speciesCount = 0;
+            samples.forEach(s => {
+                speciesCount++;
+                const list = document.getElementById('speciesList');
+                const row = document.createElement('div');
+                row.className = 'species-row';
+                row.id = 'species-' + speciesCount;
+                row.innerHTML = `
+                    <input type="text" value="${s.name}" class="species-name">
+                    <input type="number" value="${s.count}" class="species-count" min="0">
+                    <button class="remove-btn" onclick="removeSpecies('species-${speciesCount}')">×</button>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function calculateIndex() {
+            const rows = document.querySelectorAll('.species-row[id]');
+            const data = [];
+            
+            rows.forEach(row => {
+                const name = row.querySelector('.species-name').value;
+                const count = parseInt(row.querySelector('.species-count').value) || 0;
+                if (name && count > 0) {
+                    data.push({ name, count });
+                }
+            });
+
+            if (data.length === 0) {
+                alert('请输入至少一个物种数据！');
+                return;
+            }
+
+            const N = data.reduce((sum, d) => sum + d.count, 0);
+            const S = data.length;
+
+            // 香农指数
+            let H = 0;
+            data.forEach(d => {
+                const p = d.count / N;
+                if (p > 0) H -= p * Math.log(p);
+            });
+
+            // 辛普森指数
+            let D = 0;
+            data.forEach(d => {
+                const p = d.count / N;
+                D += p * p;
+            });
+            D = 1 - D;
+
+            // 更新结果显示
+            document.getElementById('richness').textContent = S;
+            document.getElementById('total').textContent = N;
+            document.getElementById('shannon').textContent = H.toFixed(3);
+            document.getElementById('simpson').textContent = D.toFixed(3);
+
+            // 更新图表
+            updateChart(data, N);
+        }
+
+        function updateChart(data, total) {
+            const ctx = document.getElementById('pieChart').getContext('2d');
+            
+            if (chart) chart.destroy();
+            
+            const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#34495e'];
+            
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d.name),
+                    datasets: [{
+                        data: data.map(d => d.count),
+                        backgroundColor: colors.slice(0, data.length)
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#fff' } }
+                    }
+                }
+            });
+        }
+
+        function resetData() {
+            document.getElementById('speciesList').innerHTML = `
+                <div class="species-row">
+                    <span>物种名称</span>
+                    <span>个体数</span>
+                    <span></span>
+                </div>
+            `;
+            speciesCount = 0;
+            document.getElementById('richness').textContent = '-';
+            document.getElementById('total').textContent = '-';
+            document.getElementById('shannon').textContent = '-';
+            document.getElementById('simpson').textContent = '-';
+            if (chart) chart.destroy();
+        }
+
+        // 初始化
+        addSpecies();
+        addSpecies();
+        addSpecies();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

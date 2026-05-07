@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>细菌生长曲线模拟 - 生物学习工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d6e6e 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        header {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 { font-size: 1.8em; color: #2ecc71; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .controls-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2ecc71;
+        }
+        .control-group input, .control-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+        .chart-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        canvas { width: 100%; height: 300px; }
+        .phase-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .phase-card {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #2ecc71;
+            transition: all 0.3s;
+        }
+        .phase-card:hover { transform: scale(1.02); }
+        .phase-card h4 { color: #2ecc71; margin-bottom: 5px; }
+        .phase-card .time { color: #f39c12; font-size: 0.9em; }
+        .phase-card p { color: #aaa; font-size: 0.85em; margin-top: 5px; }
+        .btn-group { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        .btn-play { background: #2ecc71; color: #fff; }
+        .btn-reset { background: #e74c3c; color: #fff; }
+        .btn:hover { transform: scale(1.05); }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .data-table th { background: rgba(46,204,113,0.2); color: #2ecc71; }
+        footer { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🦠 细菌生长曲线模拟器</h1>
+        <p>探究细菌数量随时间变化的规律</p>
+    </header>
+
+    <div class="container">
+        <div class="controls-panel">
+            <div class="control-group">
+                <label>初始细菌数量</label>
+                <input type="number" id="initialCount" value="100" min="10" max="1000">
+            </div>
+            <div class="control-group">
+                <label>培养温度 (°C)</label>
+                <input type="range" id="temperature" value="37" min="20" max="50">
+                <span id="tempValue">37°C (最适)</span>
+            </div>
+            <div class="control-group">
+                <label>营养浓度</label>
+                <select id="nutrient">
+                    <option value="high">高</option>
+                    <option value="medium" selected>中</option>
+                    <option value="low">低</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>模拟时长 (小时)</label>
+                <input type="range" id="duration" value="24" min="12" max="48">
+                <span id="durationValue">24小时</span>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-play" onclick="startSimulation()">▶ 开始模拟</button>
+            <button class="btn btn-reset" onclick="resetSimulation()">↺ 重置</button>
+        </div>
+
+        <div class="chart-container">
+            <h3 style="color:#2ecc71; margin-bottom:15px;">📈 细菌生长曲线</h3>
+            <canvas id="growthChart"></canvas>
+            <div class="phase-info">
+                <div class="phase-card" id="phase-1">
+                    <h4>🔵 调整期</h4>
+                    <span class="time">0-2小时</span>
+                    <p>细菌适应新环境，合成所需酶</p>
+                </div>
+                <div class="phase-card" id="phase-2">
+                    <h4>🟢 对数期</h4>
+                    <span class="time">2-12小时</span>
+                    <p>细菌数量呈指数增长，代谢活跃</p>
+                </div>
+                <div class="phase-card" id="phase-3">
+                    <h4>🟡 稳定期</h4>
+                    <span class="time">12-18小时</span>
+                    <p>资源限制，出生率=死亡率</p>
+                </div>
+                <div class="phase-card" id="phase-4">
+                    <h4>🔴 衰亡期</h4>
+                    <span class="time">18-24小时</span>
+                    <p>死亡超过出生，细菌数量下降</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3 style="color:#3498db; margin-bottom:15px;">📊 实验数据记录</h3>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>时间 (h)</th>
+                            <th>细菌数量</th>
+                            <th>生长阶段</th>
+                            <th>增长率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataBody"></tbody>
+                </table>
+            </div>
+            <button class="btn btn-play" style="margin-top:15px;" onclick="exportData()">📥 导出数据</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>生物学习工具 · 仅供学习参考</p>
+    </footer>
+
+    <script>
+        let chart = null;
+        const data = [];
+
+        document.getElementById('temperature').addEventListener('input', function() {
+            document.getElementById('tempValue').textContent = this.value + '°C';
+            if (this.value == 37) document.getElementById('tempValue').textContent += ' (最适)';
+        });
+
+        document.getElementById('duration').addEventListener('input', function() {
+            document.getElementById('durationValue').textContent = this.value + '小时';
+        });
+
+        function calculateGrowth(t, N0, temp, nutrient) {
+            const tempFactor = temp <= 37 ? temp / 37 : 2 - temp / 50;
+            const nutrientFactor = nutrient === 'high' ? 1.5 : nutrient === 'low' ? 0.5 : 1;
+            
+            // 四阶段模型
+            if (t < 2) {
+                // 调整期：缓慢增长
+                return N0 * (1 + 0.1 * t * tempFactor * nutrientFactor);
+            } else if (t < 12) {
+                // 对数期：指数增长
+                const k = 0.3 * tempFactor * nutrientFactor;
+                return N0 * Math.exp(k * (t - 2));
+            } else if (t < 18) {
+                // 稳定期：接近最大值
+                const K = N0 * 1000 * nutrientFactor;
+                const t_adj = t - 12;
+                return K * (1 - 0.5 * Math.exp(-0.2 * t_adj));
+            } else {
+                // 衰亡期：指数下降
+                const K = N0 * 1000 * nutrientFactor;
+                const k = 0.1;
+                return K * 0.5 * Math.exp(-k * (t - 18));
+            }
+        }
+
+        function getPhase(t) {
+            if (t < 2) return { name: '调整期', color: '#3498db' };
+            if (t < 12) return { name: '对数期', color: '#2ecc71' };
+            if (t < 18) return { name: '稳定期', color: '#f1c40f' };
+            return { name: '衰亡期', color: '#e74c3c' };
+        }
+
+        function startSimulation() {
+            const N0 = parseInt(document.getElementById('initialCount').value);
+            const temp = parseInt(document.getElementById('temperature').value);
+            const nutrient = document.getElementById('nutrient').value;
+            const duration = parseInt(document.getElementById('duration').value);
+
+            data.length = 0;
+            
+            for (let t = 0; t <= duration; t += 0.5) {
+                const count = Math.round(calculateGrowth(t, N0, temp, nutrient));
+                data.push({ time: t, count: count, phase: getPhase(t) });
+            }
+
+            updateChart();
+            updateTable();
+            highlightPhases();
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            if (chart) chart.destroy();
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.time + 'h'),
+                    datasets: [{
+                        label: '细菌数量',
+                        data: data.map(d => d.count),
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46,204,113,0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: '时间 (小时)' } },
+                        y: { title: { display: true, text: '细菌数量' }, beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#fff' } }
+                    }
+                }
+            });
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('dataBody');
+            tbody.innerHTML = '';
+            
+            data.forEach((d, i) => {
+                const prev = i > 0 ? data[i-1].count : d.count;
+                const growthRate = ((d.count - prev) / prev * 100).toFixed(1);
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${d.time}</td>
+                    <td>${d.count.toLocaleString()}</td>
+                    <td style="color:${d.phase.color}">${d.phase.name}</td>
+                    <td>${growthRate}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function highlightPhases() {
+            const colors = { '调整期': '#3498db', '对数期': '#2ecc71', '稳定期': '#f1c40f', '衰亡期': '#e74c3c' };
+            document.querySelectorAll('.phase-card').forEach(card => {
+                card.style.borderColor = '#555';
+                card.style.opacity = '0.5';
+            });
+            
+            if (data.length > 0) {
+                const mainPhase = data[Math.floor(data.length / 2)].phase.name;
+                const cardId = Object.keys(colors).indexOf(mainPhase) + 1;
+                const card = document.getElementById('phase-' + cardId);
+                if (card) {
+                    card.style.borderColor = colors[mainPhase];
+                    card.style.opacity = '1';
+                }
+            }
+        }
+
+        function resetSimulation() {
+            data.length = 0;
+            document.getElementById('dataBody').innerHTML = '';
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+        }
+
+        function exportData() {
+            let csv = '时间(小时),细菌数量,生长阶段,增长率(%)\n';
+            data.forEach((d, i) => {
+                const prev = i > 0 ? data[i-1].count : d.count;
+                const growthRate = ((d.count - prev) / prev * 100).toFixed(1);
+                csv += `${d.time},${d.count},${d.phase.name},${growthRate}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bacteria_growth_data.csv';
+            a.click();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

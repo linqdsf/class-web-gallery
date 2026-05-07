@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATP与能量代谢图谱 - 生物学习工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e74c3c 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        header { background: rgba(0,0,0,0.3); padding: 20px; text-align: center; }
+        header h1 { font-size: 1.8em; color: #f1c40f; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .atp-intro {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .atp-visual {
+            font-size: 4em;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .atp-structure {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        @media (max-width: 700px) { .atp-structure { grid-template-columns: 1fr; } }
+        .component-card {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .component-card .icon { font-size: 3em; margin-bottom: 10px; }
+        .component-card h3 { color: #f1c40f; }
+        .component-card p { color: #aaa; margin-top: 8px; }
+        .metabolism-map {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .metabolism-map h2 { color: #f1c40f; margin-bottom: 20px; }
+        .map-container {
+            position: relative;
+            height: 400px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .map-node {
+            position: absolute;
+            padding: 15px 20px;
+            background: rgba(241,196,15,0.2);
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 120px;
+        }
+        .map-node:hover {
+            transform: scale(1.1);
+            background: rgba(241,196,15,0.4);
+        }
+        .map-node .icon { font-size: 2em; }
+        .map-node h4 { color: #fff; margin-top: 5px; font-size: 0.9em; }
+        .arrow-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .arrow-svg path {
+            fill: none;
+            stroke: rgba(241,196,15,0.5);
+            stroke-width: 2;
+            marker-end: url(#arrowhead);
+        }
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .info-card {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #f1c40f;
+        }
+        .info-card h4 { color: #f1c40f; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .info-card ul { padding-left: 20px; color: #ccc; }
+        .info-card li { margin-bottom: 5px; }
+        .cycle-diagram {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .cycle-diagram h2 { color: #f1c40f; margin-bottom: 15px; }
+        .cycle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+        .cycle-step {
+            text-align: center;
+            padding: 15px;
+        }
+        .cycle-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(241,196,15,0.2);
+            border: 2px solid #f1c40f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            margin: 0 auto 10px;
+        }
+        .cycle-name { color: #fff; font-weight: bold; }
+        .cycle-desc { color: #aaa; font-size: 0.85em; }
+        .cycle-arrow { font-size: 2em; color: #f1c40f; margin: 0 10px; }
+        footer { text-align: center; padding: 20px; color: #666; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚡ ATP与能量代谢图谱</h1>
+        <p>探索细胞能量的奥秘</p>
+    </header>
+
+    <div class="container">
+        <div class="atp-intro">
+            <h2 style="color:#f1c40f;">什么是ATP？</h2>
+            <div class="atp-visual">⚡</div>
+            <p style="font-size:1.1em; max-width:600px; margin:0 auto; color:#ccc;">
+                ATP（腺苷三磷酸）是细胞的能量货币，负责储存和传递化学能。<br>
+                它的结构像一个可充电的电池，随时为细胞的各种活动提供能量。
+            </p>
+            <div class="atp-structure">
+                <div class="component-card">
+                    <div class="icon">🔵</div>
+                    <h3>腺苷</h3>
+                    <p>由腺嘌呤和核糖组成<br>提供结合位点</p>
+                </div>
+                <div class="component-card">
+                    <div class="icon">⛓️</div>
+                    <h3>三个磷酸基团</h3>
+                    <p>α、β、γ磷酸键<br>高能磷酸键储存能量</p>
+                </div>
+                <div class="component-card">
+                    <div class="icon">🔋</div>
+                    <h3>高能键</h3>
+                    <p>断裂时释放30.54kJ/mol<br>为细胞反应供能</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="metabolism-map">
+            <h2>🗺️ ATP代谢网络</h2>
+            <div class="map-container">
+                <svg class="arrow-svg">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="rgba(241,196,15,0.5)"/>
+                        </marker>
+                    </defs>
+                </svg>
+                
+                <div class="map-node" style="left:40%; top:10%;" onclick="showInfo('photosynthesis')">
+                    <div class="icon">🌱</div>
+                    <h4>光合作用</h4>
+                </div>
+                
+                <div class="map-node" style="left:15%; top:40%;" onclick="showInfo('cellular')">
+                    <div class="icon">🔥</div>
+                    <h4>细胞呼吸</h4>
+                </div>
+                
+                <div class="map-node" style="left:40%; top:40%;" onclick="showInfo('atp')">
+                    <div class="icon">⚡</div>
+                    <h4>ATP合成</h4>
+                </div>
+                
+                <div class="map-node" style="left:65%; top:40%;" onclick="showInfo('energy')">
+                    <div class="icon">💪</div>
+                    <h4>能量消耗</h4>
+                </div>
+                
+                <div class="map-node" style="left:40%; top:70%;" onclick="showInfo('fermentation')">
+                    <div class="icon">🦠</div>
+                    <h4>无氧呼吸</h4>
+                </div>
+            </div>
+
+            <div id="infoPanel" class="info-cards" style="display:none;"></div>
+        </div>
+
+        <div class="cycle-diagram">
+            <h2>♻️ ATP- ADP循环</h2>
+            <div class="cycle-container">
+                <div class="cycle-step">
+                    <div class="cycle-icon">🍬</div>
+                    <div class="cycle-name">能量物质</div>
+                    <div class="cycle-desc">葡萄糖等</div>
+                </div>
+                <div class="cycle-arrow">→</div>
+                <div class="cycle-step">
+                    <div class="cycle-icon">⚡</div>
+                    <div class="cycle-name">ATP合成</div>
+                    <div class="cycle-desc">ADP + Pi + 能量</div>
+                </div>
+                <div class="cycle-arrow">→</div>
+                <div class="cycle-step">
+                    <div class="cycle-icon">🏃</div>
+                    <div class="cycle-name">能量释放</div>
+                    <div class="cycle-desc">ATP水解</div>
+                </div>
+                <div class="cycle-arrow">↺</div>
+            </div>
+            <p style="text-align:center; color:#aaa; margin-top:15px;">
+                ATP在细胞中不断被合成和水解，每天的周转次数可达数百次！<br>
+                人体每天需要分解约40kg的ATP来维持生命活动。
+            </p>
+        </div>
+
+        <div class="info-cards" style="margin-top:20px;">
+            <div class="info-card">
+                <h4>⚡ ATP的功能</h4>
+                <ul>
+                    <li>为细胞分裂提供能量</li>
+                    <li>为肌肉收缩供能</li>
+                    <li>维持体温</li>
+                    <li>物质主动运输</li>
+                    <li>神经信号传递</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h4>🔄 ATP的来源</h4>
+                <ul>
+                    <li>有氧呼吸（主要）：36-38个ATP/葡萄糖</li>
+                    <li>无氧呼吸：2个ATP/葡萄糖</li>
+                    <li>光合作用光反应</li>
+                    <li>磷酸肌酸储备</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h4>📊 能量效率</h4>
+                <ul>
+                    <li>葡萄糖氧化：约40%能量储存在ATP</li>
+                    <li>ATP水解释能：30.54 kJ/mol</li>
+                    <li>ATP分子量：507 Da</li>
+                    <li>人体ATP总量：约250g</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>生物学习工具 · 仅供学习参考</p>
+    </footer>
+
+    <script>
+        const infoData = {
+            photosynthesis: {
+                title: '🌱 光合作用产生ATP',
+                points: [
+                    '场所：叶绿体类囊体薄膜',
+                    '光反应阶段产生ATP',
+                    '利用光能将ADP转化为ATP',
+                    '同时产生NADPH',
+                    '为暗反应提供能量和还原力'
+                ]
+            },
+            cellular: {
+                title: '🔥 细胞呼吸产生ATP',
+                points: [
+                    '主要场所：线粒体',
+                    '有氧呼吸三个阶段：',
+                    '  - 细胞质：糖酵解（2ATP）',
+                    '  - 线粒体基质：柠檬酸循环（2ATP）',
+                    '  - 线粒体内膜：电子传递链（34ATP）'
+                ]
+            },
+            atp: {
+                title: '⚡ ATP合成',
+                points: [
+                    'ADP + Pi + 能量 → ATP + H₂O',
+                    '底物水平磷酸化',
+                    '氧化磷酸化（主要方式）',
+                    '光合磷酸化（光合作用）',
+                    '效率高、速度快'
+                ]
+            },
+            energy: {
+                title: '💪 能量消耗用途',
+                points: [
+                    '主动运输',
+                    '肌肉收缩',
+                    '生物合成',
+                    '细胞分裂',
+                    '神经冲动传导',
+                    '体温维持'
+                ]
+            },
+            fermentation: {
+                title: '🦠 无氧呼吸',
+                points: [
+                    '场所：细胞质',
+                    '产物：乳酸或酒精+CO₂',
+                    '产量：仅2ATP/葡萄糖',
+                    '适用：缺氧环境',
+                    '例：乳酸菌、酵母菌'
+                ]
+            }
+        };
+
+        function showInfo(key) {
+            const data = infoData[key];
+            const panel = document.getElementById('infoPanel');
+            panel.style.display = 'grid';
+            panel.innerHTML = `
+                <div class="info-card" style="grid-column: 1 / -1;">
+                    <h4>${data.title}</h4>
+                    <ul>
+                        ${data.points.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            // 滚动到信息面板
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>

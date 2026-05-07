@@ -148,8 +148,8 @@ apps:
       - 理解DNA复制与分配
       - 区分有丝分裂与减数分裂
       - 自主控制动画播放速度
-    url: https://bioviz.cn/cell-division
-    repo: https://github.com/zhang-bio/cell-division
+    url: /teacher-apps/teacher/cell-division-3d/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/cell-division-3d
     tags: [细胞生物学, 3D动画, 可视化]
     thumbnail: /assets/thumbnails/cell-division.svg
     features:
@@ -277,8 +277,8 @@ apps:
     school_icon: 🏫
     category: teacher
     description: 并排对比有丝分裂和减数分裂全过程，标注关键差异点。
-    url: https://bioviz.cn/mitosis-meiosis
-    repo: https://github.com/zhao-bio/mitosis-meiosis
+    url: /teacher-apps/teacher/mitosis-vs-meiosis/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/mitosis-vs-meiosis
     tags: [细胞分裂, 对比学习, 遗传学]
     thumbnail: /assets/thumbnails/mitosis-meiosis.svg
     features:
@@ -327,8 +327,8 @@ apps:
     school_icon: 🏫
     category: teacher
     description: 交互式对比两种作用的物质变化、能量转换、反应场所等。
-    url: https://bioviz.cn/respire-photosynth
-    repo: https://github.com/zhou-bio/respire-photosynth
+    url: /teacher-apps/teacher/respire-photosynth/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/respire-photosynth
     tags: [新陈代谢, 对比学习, 植物学]
     thumbnail: /assets/thumbnails/respire-photosynth.svg
     features:
@@ -352,8 +352,8 @@ apps:
     school_icon: 🏫
     category: teacher
     description: 互动式人体系统学习，点击各器官了解功能与相互协作关系。
-    url: https://bioviz.cn/human-body
-    repo: https://github.com/wu-bio/human-body
+    url: /teacher-apps/teacher/human-body-systems/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/human-body-systems
     tags: [人体解剖, 器官系统, 交互学习]
     thumbnail: /assets/thumbnails/human-body.svg
     features:
@@ -377,8 +377,8 @@ apps:
     school_icon: 🏫
     category: teacher
     description: 动画展示转录和翻译全过程，详解中心法则。
-    url: https://bioviz.cn/protein-synthesis
-    repo: https://github.com/zheng-bio/protein-synthesis
+    url: /teacher-apps/teacher/protein-synthesis/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/protein-synthesis
     tags: [分子生物学, 中心法则, 蛋白质合成]
     thumbnail: /assets/thumbnails/protein-synthesis.svg
     features:
@@ -404,8 +404,8 @@ apps:
     category: student
     grade: 高二
     description: 输入细菌初始数量和培养条件，自动生成生长曲线并计算代时。
-    url: https://biolearn.cn/bacteria-growth
-    repo: https://github.com/lihaoran/bacteria-growth
+    url: /teacher-apps/student/bacteria-growth/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/bacteria-growth
     tags: [微生物, 曲线绘制, 数据分析]
     thumbnail: /assets/thumbnails/bacteria-growth.svg
     features:
@@ -456,8 +456,8 @@ apps:
     category: student
     grade: 高二
     description: 模拟探究影响蒸腾作用因素的实验，记录数据并分析结论。
-    url: https://biolearn.cn/transpiration
-    repo: https://github.com/zhangyuxuan/transpiration
+    url: /teacher-apps/student/transpiration/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/transpiration
     tags: [植物学, 实验, 探究学习]
     thumbnail: /assets/thumbnails/transpiration.svg
     features:
@@ -508,8 +508,8 @@ apps:
     category: student
     grade: 高二
     description: 输入样方调查数据，计算物种丰富度指数、Simpson指数和Shannon指数。
-    url: https://biolearn.cn/biodiversity
-    repo: https://github.com/liuzihan/biodiversity
+    url: /teacher-apps/student/biodiversity-index/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/biodiversity-index
     tags: [生态学, 生物多样性, 数据处理]
     thumbnail: /assets/thumbnails/biodiversity.svg
     features:
@@ -534,8 +534,8 @@ apps:
     category: student
     grade: 高二
     description: 看图识别细胞分裂时期的小测验，附带详细解析。
-    url: https://biolearn.cn/mitosis-identify
-    repo: https://github.com/zhaowenbo/mitosis-identify
+    url: /teacher-apps/student/mitosis-identify/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/mitosis-identify
     tags: [细胞分裂, 测验, 图像识别]
     thumbnail: /assets/thumbnails/mitosis-identify.svg
     features:
@@ -640,8 +640,8 @@ apps:
     category: student
     grade: 高一
     description: 了解ATP的结构、合成和分解，以及它在细胞能量代谢中的作用。
-    url: https://biolearn.cn/atp-metabolism
-    repo: https://github.com/zhengyuxuan/atp-metabolism
+    url: /teacher-apps/student/atp-metabolism/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/atp-metabolism
     tags: [新陈代谢, ATP, 能量转换]
     thumbnail: /assets/thumbnails/atp-metabolism.svg
     features:

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光合作用 vs 呼吸作用 - 生物教学工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        header {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 1.8em;
+            background: linear-gradient(90deg, #27ae60, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+        .panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .photo-panel h2 { color: #27ae60; }
+        .resp-panel h2 { color: #e74c3c; }
+        .equation-box {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .molecule { 
+            display: inline-block; 
+            padding: 5px 10px; 
+            margin: 3px; 
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .h2o { background: #3498db; }
+        .co2 { background: #95a5a6; }
+        .o2 { background: #9b59b6; }
+        .c6h12o6 { background: #f39c12; }
+        .arrow { font-size: 1.5em; color: #f1c40f; }
+        .light { background: #f1c40f; color: #333; padding: 2px 8px; border-radius: 3px; }
+        .atp { background: #e74c3c; }
+        .process-list {
+            list-style: none;
+            padding: 0;
+        }
+        .process-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .step-num {
+            width: 24px;
+            height: 24px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+        .animation-area {
+            height: 250px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .leaf {
+            position: absolute;
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-radius: 50% 0 50% 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .mitochondria {
+            position: absolute;
+            width: 120px;
+            height: 60px;
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            border-radius: 30px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .mitochondria::before, .mitochondria::after {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 15px;
+            background: rgba(255,255,255,0.3);
+            left: 10%;
+            border-radius: 5px;
+        }
+        .mitochondria::before { top: 15px; }
+        .mitochondria::after { bottom: 15px; }
+        .molecule-anim {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .comparison-table th { background: rgba(52,152,219,0.2); }
+        .comparison-table th:nth-child(2) { color: #27ae60; }
+        .comparison-table th:nth-child(3) { color: #e74c3c; }
+        .controls { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
+        .btn-success { background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; }
+        .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
+        .btn:hover { transform: scale(1.05); }
+        .location-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .location-tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #555;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .location-tab.active { background: #3498db; border-color: #3498db; }
+        .energy-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .energy-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .energy-card h4 { color: #f1c40f; margin-bottom: 8px; }
+        .energy-value { font-size: 2em; font-weight: bold; }
+        .day-night-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .toggle-switch {
+            width: 60px;
+            height: 30px;
+            background: #f1c40f;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-switch.night { background: #2c3e50; }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+        .toggle-switch.night::after { left: 32px; }
+        .timeline { height: 60px; background: rgba(0,0,0,0.2); border-radius: 10px; margin: 15px 0; position: relative; overflow: hidden; }
+        .sun { position: absolute; width: 40px; height: 40px; background: #f1c40f; border-radius: 50%; top: 10px; animation: moveSun 24s linear infinite; }
+        @keyframes moveSun { 0% { left: -40px; } 100% { left: calc(100% + 40px); } }
+        footer { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌿 光合作用 vs 🫁 呼吸作用</h1>
+        <p>能量转换的两种核心代谢途径</p>
+    </header>
+
+    <div class="container">
+        <div class="day-night-toggle">
+            <span>🌙 夜间</span>
+            <div class="toggle-switch" onclick="toggleDayNight(this)"></div>
+            <span>☀️ 白天</span>
+        </div>
+
+        <div class="main-grid">
+            <div class="panel photo-panel">
+                <h2>🌱 光合作用</h2>
+                <div class="equation-box">
+                    <span class="molecule co2">CO₂</span> + <span class="molecule h2o">H₂O</span>
+                    <span class="arrow"> → </span>
+                    <span class="molecule c6h12o6">C₆H₁₂O₆</span> + <span class="molecule o2">O₂</span>
+                    <br><br>
+                    <span class="light">光能</span> + <span class="molecule atp">叶绿体</span>
+                </div>
+                <div class="energy-display">
+                    <div class="energy-card">
+                        <h4>能量转化</h4>
+                        <div class="energy-value" style="color:#f1c40f;">光能→化学能</div>
+                    </div>
+                    <div class="energy-card">
+                        <h4>ATP产量</h4>
+                        <div class="energy-value" style="color:#27ae60;">不直接产ATP</div>
+                    </div>
+                    <div class="energy-card">
+                        <h4>主要产物</h4>
+                        <div class="energy-value" style="color:#e74c3c;">葡萄糖</div>
+                    </div>
+                </div>
+                <div class="animation-area" id="photo-anim">
+                    <div class="leaf"></div>
+                </div>
+                <ul class="process-list">
+                    <li><span class="step-num">1</span> 光反应：光解水，释放O₂，合成ATP和NADPH</li>
+                    <li><span class="step-num">2</span> 暗反应（碳反应）：CO₂固定，合成葡萄糖</li>
+                    <li><span class="step-num">3</span> 能量转换：光能转化为化学能储存在有机物中</li>
+                </ul>
+                <div class="controls">
+                    <button class="btn btn-success" onclick="startPhotoAnimation()">▶ 播放光合作用动画</button>
+                </div>
+            </div>
+
+            <div class="panel resp-panel">
+                <h2>🫁 细胞呼吸</h2>
+                <div class="equation-box">
+                    <span class="molecule c6h12o6">C₆H₁₂O₆</span> + <span class="molecule o2">O₂</span>
+                    <span class="arrow"> → </span>
+                    <span class="molecule co2">CO₂</span> + <span class="molecule h2o">H₂O</span>
+                    <br><br>
+                    <span class="molecule atp">ATP</span> + 能量
+                </div>
+                <div class="energy-display">
+                    <div class="energy-card">
+                        <h4>能量转化</h4>
+                        <div class="energy-value" style="color:#e74c3c;">化学能→ATP</div>
+                    </div>
+                    <div class="energy-card">
+                        <h4>ATP产量</h4>
+                        <div class="energy-value" style="color:#f1c40f;">~38 ATP</div>
+                    </div>
+                    <div class="energy-card">
+                        <h4>主要产物</h4>
+                        <div class="energy-value" style="color:#3498db;">CO₂ + H₂O</div>
+                    </div>
+                </div>
+                <div class="animation-area" id="resp-anim">
+                    <div class="mitochondria"></div>
+                </div>
+                <ul class="process-list">
+                    <li><span class="step-num">1</span> 有氧呼吸第一阶段：葡萄糖→丙酮酸+少量ATP（细胞质）</li>
+                    <li><span class="step-num">2</span> 有氧呼吸第二阶段：丙酮酸→CO₂+[H]（线粒体基质）</li>
+                    <li><span class="step-num">3</span> 有氧呼吸第三阶段：[H]+O₂→H₂O+大量ATP（线粒体内膜）</li>
+                    <li><span class="step-num">4</span> 无氧呼吸：丙酮酸→酒精+CO₂ 或 乳酸</li>
+                </ul>
+                <div class="controls">
+                    <button class="btn btn-danger" onclick="startRespAnimation()">▶ 播放呼吸作用动画</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" style="margin-top: 20px;">
+            <h2 style="color:#3498db;">📊 光合作用与呼吸作用对比</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>对比项目</th>
+                        <th>光合作用</th>
+                        <th>细胞呼吸</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>反应场所</td><td>叶绿体</td><td>细胞质、线粒体</td></tr>
+                    <tr><td>能量来源</td><td>光能</td><td>化学能（有机物）</td></tr>
+                    <tr><td>物质变化</td><td>无机物→有机物</td><td>有机物→无机物</td></tr>
+                    <tr><td>气体吸收</td><td>CO₂</td><td>O₂</td></tr>
+                    <tr><td>气体释放</td><td>O₂</td><td>CO₂</td></tr>
+                    <tr><td>能量转换</td><td>光能→化学能</td><td>化学能→ATP</td></tr>
+                    <tr><td>进行时间</td><td>只在光下</td><td>时刻进行</td></tr>
+                    <tr><td>产物</td><td>有机物 + O₂</td><td>CO₂ + H₂O + ATP</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="panel" style="margin-top: 20px;">
+            <h2 style="color:#f1c40f;">🔄 两者关系</h2>
+            <div style="text-align: center; padding: 30px;">
+                <div style="display: inline-block; padding: 20px; background: rgba(39,174,96,0.2); border-radius: 10px; margin: 0 20px;">
+                    <h3 style="color:#27ae60;">光合作用</h3>
+                    <p>合成有机物<br>释放O₂<br>储存能量</p>
+                </div>
+                <div style="display: inline-block; vertical-align: middle; font-size: 2em;">⇄</div>
+                <div style="display: inline-block; padding: 20px; background: rgba(231,76,60,0.2); border-radius: 10px; margin: 0 20px;">
+                    <h3 style="color:#e74c3c;">呼吸作用</h3>
+                    <p>分解有机物<br>释放CO₂<br>释放能量</p>
+                </div>
+                <p style="margin-top: 20px; color:#aaa;">
+                    绿色植物通过光合作用制造有机物，一部分供自身呼吸作用分解利用，<br>
+                    另一部分用于构建自身和喂养消费者，形成生态系统中的物质循环和能量流动。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>生物教学互动工具 · 仅供学习参考</p>
+    </footer>
+
+    <script>
+        let animationRunning = false;
+
+        function toggleDayNight(el) {
+            el.classList.toggle('night');
+            const bg = document.body.style;
+            if (el.classList.contains('night')) {
+                bg.background = 'linear-gradient(135deg, #1a1a2e 0%, #2c3e50 100%)';
+            } else {
+                bg.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+            }
+        }
+
+        function createMolecule(container, type, x, y) {
+            const mol = document.createElement('div');
+            mol.className = 'molecule-anim';
+            mol.textContent = type;
+            mol.style.left = x + 'px';
+            mol.style.top = y + 'px';
+            if (type === 'CO₂') mol.style.background = '#95a5a6';
+            if (type === 'O₂') mol.style.background = '#9b59b6';
+            if (type === 'H₂O') mol.style.background = '#3498db';
+            if (type === 'C₆H₁₂O₆') mol.style.background = '#f39c12';
+            if (type === 'ATP') mol.style.background = '#e74c3c';
+            container.appendChild(mol);
+            return mol;
+        }
+
+        function startPhotoAnimation() {
+            if (animationRunning) return;
+            animationRunning = true;
+            
+            const area = document.getElementById('photo-anim');
+            area.innerHTML = '<div class="leaf"></div>';
+            
+            const molecules = [];
+            molecules.push(createMolecule(area, 'CO₂', 20, 100));
+            molecules.push(createMolecule(area, 'H₂O', 20, 150));
+            molecules.push(createMolecule(area, '光', 200, 20));
+            
+            let frame = 0;
+            const interval = setInterval(() => {
+                frame++;
+                if (frame > 60) {
+                    clearInterval(interval);
+                    animationRunning = false;
+                    startPhotoAnimation();
+                    return;
+                }
+                
+                molecules.forEach((mol, i) => {
+                    const x = parseFloat(mol.style.left);
+                    if (x < 200) mol.style.left = (x + 3) + 'px';
+                });
+            }, 50);
+        }
+
+        function startRespAnimation() {
+            if (animationRunning) return;
+            animationRunning = true;
+            
+            const area = document.getElementById('resp-anim');
+            area.innerHTML = '<div class="mitochondria"></div>';
+            
+            const molecules = [];
+            molecules.push(createMolecule(area, 'C₆H₁₂O₆', 50, 100));
+            molecules.push(createMolecule(area, 'O₂', 50, 150));
+            molecules.push(createMolecule(area, 'ATP', 280, 100));
+            molecules.push(createMolecule(area, 'CO₂', 300, 80));
+            molecules.push(createMolecule(area, 'H₂O', 300, 130));
+            
+            let frame = 0;
+            const interval = setInterval(() => {
+                frame++;
+                if (frame > 60) {
+                    clearInterval(interval);
+                    animationRunning = false;
+                    startRespAnimation();
+                    return;
+                }
+                
+                const glc = molecules[0];
+                const o2 = molecules[1];
+                const atp = molecules[2];
+                const co2 = molecules[3];
+                const h2o = molecules[4];
+                
+                if (parseFloat(glc.style.left) < 200) {
+                    glc.style.left = (parseFloat(glc.style.left) + 2) + 'px';
+                    o2.style.left = (parseFloat(o2.style.left) + 2) + 'px';
+                }
+                if (parseFloat(atp.style.left) > 150) {
+                    atp.style.left = (parseFloat(atp.style.left) - 2) + 'px';
+                }
+                if (parseFloat(co2.style.left) < 350) {
+                    co2.style.left = (parseFloat(co2.style.left) + 2) + 'px';
+                    h2o.style.left = (parseFloat(h2o.style.left) + 2) + 'px';
+                }
+            }, 50);
+        }
+    </script>
+</body>
+</html>

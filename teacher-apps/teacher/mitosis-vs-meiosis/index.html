@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>有丝分裂 vs 减数分裂 - 生物教学工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        header {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 1.8em;
+            background: linear-gradient(90deg, #e94560, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        header p {
+            color: #aaa;
+            margin-top: 5px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            border: 2px solid #e94560;
+            background: transparent;
+            color: #fff;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover, .tab-btn.active {
+            background: #e94560;
+            color: #fff;
+        }
+        .phase-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .phase-btn {
+            padding: 8px 16px;
+            border: 1px solid #555;
+            background: rgba(255,255,255,0.1);
+            color: #aaa;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        .phase-btn:hover, .phase-btn.active {
+            border-color: #f39c12;
+            color: #f39c12;
+            background: rgba(243,156,18,0.1);
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        .panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel h2 {
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .cell-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .cell {
+            position: relative;
+        }
+        .chromosome {
+            position: absolute;
+            background: linear-gradient(90deg, #e94560, #ff6b8a);
+            border-radius: 5px;
+            transition: all 0.5s ease;
+        }
+        .chromosome.sister {
+            background: linear-gradient(90deg, #3498db, #5dade2);
+        }
+        .info-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        .info-box h3 {
+            color: #f39c12;
+            margin-bottom: 10px;
+        }
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .info-box li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #ccc;
+        }
+        .info-box li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .comparison-table th {
+            background: rgba(233,69,96,0.2);
+            color: #e94560;
+        }
+        .comparison-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .animation-area {
+            width: 100%;
+            height: 400px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .cell-visual {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(46,204,113,0.2);
+            border: 3px solid rgba(46,204,113,0.5);
+            transition: all 0.5s;
+        }
+        .nucleus {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(52,152,219,0.3);
+            border: 2px solid rgba(52,152,219,0.5);
+        }
+        .chromosome-visual {
+            position: absolute;
+            width: 30px;
+            height: 6px;
+            background: linear-gradient(90deg, #e94560, #ff6b8a);
+            border-radius: 3px;
+            transition: all 0.5s;
+        }
+        .chromosome-visual.mitosis {
+            background: linear-gradient(90deg, #9b59b6, #be90d4);
+        }
+        .chromosome-visual.meiosis {
+            background: linear-gradient(90deg, #e74c3c, #ec7063);
+        }
+        .spindle {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f1c40f, transparent);
+            transform-origin: left center;
+            opacity: 0.5;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .play-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #e94560, #f39c12);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(233,69,96,0.4);
+        }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #aaa;
+        }
+        .speed-control input {
+            width: 100px;
+        }
+        .key-diff {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .diff-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #e94560;
+        }
+        .diff-card h4 {
+            color: #f39c12;
+            margin-bottom: 8px;
+        }
+        .diff-card p {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🧬 有丝分裂 vs 减数分裂 对比演示</h1>
+        <p>直观理解两种细胞分裂方式的本质区别</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchMode('comparison')">对比视图</button>
+            <button class="tab-btn" onclick="switchMode('mitosis')">有丝分裂动画</button>
+            <button class="tab-btn" onclick="switchMode('meiosis')">减数分裂动画</button>
+            <button class="tab-btn" onclick="switchMode('quiz')">测验模式</button>
+        </div>
+
+        <div id="comparison" class="content-section">
+            <div class="main-content">
+                <div class="panel">
+                    <h2>🌱 有丝分裂 (Mitosis)</h2>
+                    <div class="cell-container" id="mitosis-container"></div>
+                    <div class="info-box">
+                        <h3>特点</h3>
+                        <ul>
+                            <li>分裂次数：1次</li>
+                            <li>子细胞数：2个</li>
+                            <li>染色体数：与母细胞相同</li>
+                            <li>遗传物质：完全相同</li>
+                            <li>发生场所：体细胞</li>
+                            <li>目的：生长和修复</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h2>🌸 减数分裂 (Meiosis)</h2>
+                    <div class="cell-container" id="meiosis-container"></div>
+                    <div class="info-box">
+                        <h3>特点</h3>
+                        <ul>
+                            <li>分裂次数：2次 (Meiosis I + II)</li>
+                            <li>子细胞数：4个</li>
+                            <li>染色体数：减半</li>
+                            <li>遗传物质：各不相同</li>
+                            <li>发生场所：生殖器官</li>
+                            <li>目的：产生配子</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <h2>📊 关键区别对比表</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>对比项目</th>
+                            <th>有丝分裂</th>
+                            <th>减数分裂</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>分裂场所</td>
+                            <td>所有体细胞</td>
+                            <td>睾丸/卵巢</td>
+                        </tr>
+                        <tr>
+                            <td>复制次数</td>
+                            <td>1次</td>
+                            <td>1次</td>
+                        </tr>
+                        <tr>
+                            <td>分裂次数</td>
+                            <td>1次</td>
+                            <td>2次</td>
+                        </tr>
+                        <tr>
+                            <td>同源染色体</td>
+                            <td>配对后分离</td>
+                            <td>联会、四分体</td>
+                        </tr>
+                        <tr>
+                            <td>交叉互换</td>
+                            <td>无</td>
+                            <td>有（前期I）</td>
+                        </tr>
+                        <tr>
+                            <td>子细胞数量</td>
+                            <td>2个</td>
+                            <td>4个</td>
+                        </tr>
+                        <tr>
+                            <td>染色体数目</td>
+                            <td>不变</td>
+                            <td>减半</td>
+                        </tr>
+                        <tr>
+                            <td>遗传组成</td>
+                            <td>完全相同</td>
+                            <td>各不相同</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="key-diff">
+                <div class="diff-card">
+                    <h4>🔑 联会与四分体</h4>
+                    <p>减数分裂特有的同源染色体配对现象，形成四分体，进行遗传信息交换。</p>
+                </div>
+                <div class="diff-card">
+                    <h4>🔑 交叉互换</h4>
+                    <p>同源染色体的非姐妹染色单体之间交换片段，产生基因重组。</p>
+                </div>
+                <div class="diff-card">
+                    <h4>🔑 同源染色体分离</h4>
+                    <p>减数第一次分裂的核心事件，导致染色体数目减半。</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="mitosis" class="content-section" style="display: none;">
+            <div class="phase-selector">
+                <button class="phase-btn" onclick="showMitosisPhase('interphase')">间期</button>
+                <button class="phase-btn" onclick="showMitosisPhase('prophase')">前期</button>
+                <button class="phase-btn" onclick="showMitosisPhase('metaphase')">中期</button>
+                <button class="phase-btn" onclick="showMitosisPhase('anaphase')">后期</button>
+                <button class="phase-btn" onclick="showMitosisPhase('telophase')">末期</button>
+            </div>
+            <div class="panel">
+                <h2 id="mitosis-title">有丝分裂 - 间期</h2>
+                <div class="animation-area" id="mitosis-area"></div>
+                <div class="info-box" id="mitosis-info">
+                    <p>细胞处于生长和DNA复制准备阶段，染色体复制完成。</p>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="play-btn" onclick="playMitosis()">▶ 播放动画</button>
+                <div class="speed-control">
+                    <span>速度:</span>
+                    <input type="range" min="0.5" max="3" value="1" step="0.5" onchange="setSpeed(this.value)">
+                    <span id="speed-value">1x</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="meiosis" class="content-section" style="display: none;">
+            <div class="phase-selector">
+                <button class="phase-btn" onclick="showMeiosisPhase('prophase1')">前期I</button>
+                <button class="phase-btn" onclick="showMeiosisPhase('metaphase1')">中期I</button>
+                <button class="phase-btn" onclick="showMeiosisPhase('anaphase1')">后期I</button>
+                <button class="phase-btn" onclick="showMeiosisPhase('telophase1')">末期I</button>
+                <button class="phase-btn" onclick="showMeiosisPhase('prophase2')">前期II</button>
+                <button class="phase-btn" onclick="showMeiosisPhase('metaphase2')">中期II</button>
+                <button class="phase-btn" onclick="showMeiosisPhase('anaphase2')">后期II</button>
+                <button class="phase-btn" onclick="showMeiosisPhase('telophase2')">末期II</button>
+            </div>
+            <div class="panel">
+                <h2 id="meiosis-title">减数分裂 - 前期I</h2>
+                <div class="animation-area" id="meiosis-area"></div>
+                <div class="info-box" id="meiosis-info">
+                    <p>同源染色体联会形成四分体，可能发生交叉互换。</p>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="play-btn" onclick="playMeiosis()">▶ 播放动画</button>
+            </div>
+        </div>
+
+        <div id="quiz" class="content-section" style="display: none;">
+            <div class="panel">
+                <h2>🧪 分裂方式识别测验</h2>
+                <div id="quiz-container">
+                    <div class="quiz-question">
+                        <h3 id="quiz-q">问题 1/5</h3>
+                        <p id="quiz-text">以下哪个特征是减数分裂特有的？</p>
+                        <div id="quiz-options"></div>
+                        <div id="quiz-result" style="margin-top: 15px;"></div>
+                        <button class="play-btn" id="quiz-next" style="display:none; margin-top:15px;" onclick="nextQuestion()">下一题</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>生物教学互动工具 · 仅供学习参考</p>
+    </footer>
+
+    <script>
+        const mitosisPhases = {
+            interphase: {
+                title: '有丝分裂 - 间期',
+                info: '<p><strong>主要事件：</strong></p><ul><li>细胞生长</li><li>DNA复制</li><li>蛋白质合成</li></ul><p>染色体复制完成，但呈染色质状态。</p>',
+                description: '间期是分裂的准备阶段，细胞进行生长和DNA复制。'
+            },
+            prophase: {
+                title: '有丝分裂 - 前期',
+                info: '<p><strong>主要事件：</strong></p><ul><li>染色质高度螺旋化形成染色体</li><li>核膜逐渐解体</li><li>核仁逐渐消失</li><li>中心体发出星射线形成纺锤体</li></ul>',
+                description: '染色质缩短变粗，核膜开始解体。'
+            },
+            metaphase: {
+                title: '有丝分裂 - 中期',
+                info: '<p><strong>主要事件：</strong></p><ul><li>染色体排列在细胞中央的赤道板上</li><li>纺锤体完全形成</li><li>染色体形态固定，数目清晰</li></ul>',
+                description: '染色体整齐排列在赤道板上，是观察染色体的最佳时期。'
+            },
+            anaphase: {
+                title: '有丝分裂 - 后期',
+                info: '<p><strong>主要事件：</strong></p><ul><li>着丝点分裂</li><li>姐妹染色单体分开成为两条子染色体</li><li>子染色体在纺锤丝牵引下向两极移动</li></ul>',
+                description: '姐妹染色单体分离，染色体数目暂时加倍。'
+            },
+            telophase: {
+                title: '有丝分裂 - 末期',
+                info: '<p><strong>主要事件：</strong></p><ul><li>染色体到达两极</li><li>核膜重新形成</li><li>核仁重新出现</li><li>染色质出现</li><li>细胞质分裂</li></ul>',
+                description: '细胞核重新形成，细胞质分裂，形成两个子细胞。'
+            }
+        };
+
+        const meiosisPhases = {
+            prophase1: {
+                title: '减数分裂 - 前期I',
+                info: '<p><strong>主要事件：</strong></p><ul><li>同源染色体联会</li><li>形成四分体</li><li>交叉互换（非姐妹染色单体）</li><li>核膜解体</li></ul>',
+                description: '减数分裂特有的联会现象，是基因重组的基础。'
+            },
+            metaphase1: {
+                title: '减数分裂 - 中期I',
+                info: '<p><strong>主要事件：</strong></p><ul><li>四分体排列在赤道板上</li><li>同源染色体对称排列在两侧</li></ul>',
+                description: '与有丝分裂不同，同源染色体对排列在赤道板两侧。'
+            },
+            anaphase1: {
+                title: '减数分裂 - 后期I',
+                info: '<p><strong>主要事件：</strong></p><ul><li>同源染色体分离</li><li>非同源染色体自由组合</li><li>移向两极</li></ul>',
+                description: '染色体数目减半的关键时期，着丝点不分裂。'
+            },
+            telophase1: {
+                title: '减数分裂 - 末期I',
+                info: '<p><strong>主要事件：</strong></p><ul><li>核膜重建</li><li>细胞质分裂</li><li>形成两个子细胞</li></ul>',
+                description: '每个子细胞中染色体数目已减半。'
+            },
+            prophase2: {
+                title: '减数分裂 - 前期II',
+                info: '<p><strong>主要事件：</strong></p><ul><li>核膜解体</li><li>形成纺锤体</li></ul>',
+                description: '准备进入第二次分裂。'
+            },
+            metaphase2: {
+                title: '减数分裂 - 中期II',
+                info: '<p><strong>主要事件：</strong></p><ul><li>染色体排列在赤道板上</li></ul>',
+                description: '与有丝分裂中期相似，但染色体数目已减半。'
+            },
+            anaphase2: {
+                title: '减数分裂 - 后期II',
+                info: '<p><strong>主要事件：</strong></p><ul><li>着丝点分裂</li><li>姐妹染色单体分离</li></ul>',
+                description: '与有丝分裂后期相似。'
+            },
+            telophase2: {
+                title: '减数分裂 - 末期II',
+                info: '<p><strong>主要事件：</strong></p><ul><li>核膜重建</li><li>细胞质分裂</li><li>形成4个配子</li></ul>',
+                description: '最终形成4个遗传物质各不相同的配子。'
+            }
+        };
+
+        const quizQuestions = [
+            {
+                q: '以下哪个特征是减数分裂特有的？',
+                options: ['DNA复制', '形成纺锤体', '联会与交叉互换', '核膜解体'],
+                answer: 2
+            },
+            {
+                q: '有丝分裂产生的子细胞，染色体数目？',
+                options: ['减半', '不变', '加倍', '随机'],
+                answer: 1
+            },
+            {
+                q: '减数分裂产生的子细胞数量是？',
+                options: ['1个', '2个', '4个', '8个'],
+                answer: 2
+            },
+            {
+                q: '以下哪个时期发生同源染色体分离？',
+                options: ['有丝分裂后期', '减数第一次分裂后期', '减数第二次分裂后期', '分裂间期'],
+                answer: 1
+            },
+            {
+                q: '交叉互换发生在减数分裂的哪个阶段？',
+                options: ['间期', '前期I', '中期I', '后期I'],
+                answer: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let animationSpeed = 1;
+
+        function switchMode(mode) {
+            document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(mode).style.display = 'block';
+            event.target.classList.add('active');
+            
+            if (mode === 'mitosis') showMitosisPhase('interphase');
+            if (mode === 'meiosis') showMeiosisPhase('prophase1');
+            if (mode === 'quiz') startQuiz();
+        }
+
+        function showMitosisPhase(phase) {
+            document.querySelectorAll('#mitosis .phase-btn').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const data = mitosisPhases[phase];
+            document.getElementById('mitosis-title').textContent = data.title;
+            document.getElementById('mitosis-info').innerHTML = data.info;
+            
+            drawMitosisCell(phase);
+        }
+
+        function showMeiosisPhase(phase) {
+            document.querySelectorAll('#meiosis .phase-btn').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const data = meiosisPhases[phase];
+            document.getElementById('meiosis-title').textContent = data.title;
+            document.getElementById('meiosis-info').innerHTML = data.info;
+            
+            drawMeiosisCell(phase);
+        }
+
+        function drawMitosisCell(phase) {
+            const area = document.getElementById('mitosis-area');
+            area.innerHTML = '';
+            
+            const cell = document.createElement('div');
+            cell.className = 'cell-visual';
+            cell.style.width = '200px';
+            cell.style.height = '200px';
+            cell.style.left = '50%';
+            cell.style.top = '50%';
+            cell.style.transform = 'translate(-50%, -50%)';
+            
+            const nucleus = document.createElement('div');
+            nucleus.className = 'nucleus';
+            nucleus.style.width = '120px';
+            nucleus.style.height = '120px';
+            nucleus.style.left = '50%';
+            nucleus.style.top = '50%';
+            nucleus.style.transform = 'translate(-50%, -50%)';
+            
+            cell.appendChild(nucleus);
+            area.appendChild(cell);
+            
+            switch(phase) {
+                case 'interphase':
+                    // DNA复制准备
+                    for (let i = 0; i < 4; i++) {
+                        const chrom = document.createElement('div');
+                        chrom.className = 'chromosome-visual mitosis';
+                        chrom.style.left = (80 + Math.random() * 40) + 'px';
+                        chrom.style.top = (80 + Math.random() * 40) + 'px';
+                        chrom.style.transform = `rotate(${Math.random() * 180}deg)`;
+                        cell.appendChild(chrom);
+                    }
+                    break;
+                case 'prophase':
+                    // 染色体出现
+                    for (let i = 0; i < 4; i++) {
+                        const chrom = document.createElement('div');
+                        chrom.className = 'chromosome-visual mitosis';
+                        chrom.style.width = '25px';
+                        chrom.style.left = (70 + i * 25) + 'px';
+                        chrom.style.top = '90px';
+                        cell.appendChild(chrom);
+                    }
+                    break;
+                case 'metaphase':
+                    // 排列在赤道板上
+                    nucleus.style.display = 'none';
+                    for (let i = 0; i < 4; i++) {
+                        const chrom = document.createElement('div');
+                        chrom.className = 'chromosome-visual mitosis';
+                        chrom.style.left = (70 + i * 25) + 'px';
+                        chrom.style.top = '97px';
+                        cell.appendChild(chrom);
+                    }
+                    break;
+                case 'anaphase':
+                    // 分离
+                    for (let i = 0; i < 4; i++) {
+                        const chrom = document.createElement('div');
+                        chrom.className = 'chromosome-visual mitosis';
+                        if (i < 2) {
+                            chrom.style.left = (60 - i * 10) + 'px';
+                            chrom.style.transform = 'rotate(-30deg)';
+                        } else {
+                            chrom.style.left = (150 + (i-2) * 10) + 'px';
+                            chrom.style.transform = 'rotate(30deg)';
+                        }
+                        chrom.style.top = '90px';
+                        cell.appendChild(chrom);
+                    }
+                    break;
+                case 'telophase':
+                    // 两个子细胞
+                    cell.style.width = '300px';
+                    const child1 = document.createElement('div');
+                    child1.className = 'cell-visual';
+                    child1.style.width = '120px';
+                    child1.style.height = '120px';
+                    child1.style.left = '60px';
+                    child1.style.top = '40px';
+                    child1.style.transform = 'none';
+                    child1.style.borderColor = 'rgba(46,204,113,0.8)';
+                    
+                    const child2 = document.createElement('div');
+                    child2.className = 'cell-visual';
+                    child2.style.width = '120px';
+                    child2.style.height = '120px';
+                    child2.style.left = '180px';
+                    child2.style.top = '40px';
+                    child2.style.transform = 'none';
+                    child2.style.borderColor = 'rgba(46,204,113,0.8)';
+                    
+                    area.innerHTML = '';
+                    area.appendChild(child1);
+                    area.appendChild(child2);
+                    return;
+            }
+        }
+
+        function drawMeiosisCell(phase) {
+            const area = document.getElementById('meiosis-area');
+            area.innerHTML = '';
+            
+            const cell = document.createElement('div');
+            cell.className = 'cell-visual';
+            cell.style.width = '200px';
+            cell.style.height = '200px';
+            cell.style.left = '50%';
+            cell.style.top = '50%';
+            cell.style.transform = 'translate(-50%, -50%)';
+            area.appendChild(cell);
+            
+            const chromosomeColors = ['#e74c3c', '#3498db'];
+            
+            switch(phase) {
+                case 'prophase1':
+                    // 四分体形成
+                    for (let i = 0; i < 2; i++) {
+                        for (let j = 0; j < 2; j++) {
+                            const chrom = document.createElement('div');
+                            chrom.className = 'chromosome-visual meiosis';
+                            chrom.style.background = `linear-gradient(90deg, ${chromosomeColors[i]}, ${chromosomeColors[(i+1)%2]})`;
+                            chrom.style.width = '35px';
+                            chrom.style.left = (70 + i * 60) + 'px';
+                            chrom.style.top = (85 + j * 30) + 'px';
+                            cell.appendChild(chrom);
+                        }
+                    }
+                    break;
+                case 'metaphase1':
+                    // 四分体排列
+                    for (let i = 0; i < 2; i++) {
+                        for (let j = 0; j < 2; j++) {
+                            const chrom = document.createElement('div');
+                            chrom.className = 'chromosome-visual meiosis';
+                            chrom.style.background = `linear-gradient(90deg, ${chromosomeColors[i]}, ${chromosomeColors[(i+1)%2]})`;
+                            chrom.style.width = '35px';
+                            chrom.style.left = (80 + i * 40) + 'px';
+                            chrom.style.top = '95px';
+                            cell.appendChild(chrom);
+                        }
+                    }
+                    break;
+                case 'anaphase1':
+                    // 同源分离
+                    for (let i = 0; i < 2; i++) {
+                        for (let j = 0; j < 2; j++) {
+                            const chrom = document.createElement('div');
+                            chrom.className = 'chromosome-visual meiosis';
+                            chrom.style.width = '35px';
+                            chrom.style.left = (80 + i * 40 - (i === 0 ? 30 : 30)) + 'px';
+                            chrom.style.top = (85 + j * 30) + 'px';
+                            cell.appendChild(chrom);
+                        }
+                    }
+                    break;
+                case 'telophase1':
+                    // 两个细胞
+                    cell.style.width = '300px';
+                    const child1 = document.createElement('div');
+                    child1.className = 'cell-visual';
+                    child1.style.width = '100px';
+                    child1.style.height = '100px';
+                    child1.style.left = '50px';
+                    child1.style.top = '50px';
+                    child1.style.transform = 'none';
+                    area.appendChild(child1);
+                    
+                    const child2 = document.createElement('div');
+                    child2.className = 'cell-visual';
+                    child2.style.width = '100px';
+                    child2.style.height = '100px';
+                    child2.style.left = '150px';
+                    child2.style.top = '50px';
+                    child2.style.transform = 'none';
+                    area.appendChild(child2);
+                    return;
+                case 'prophase2':
+                case 'metaphase2':
+                case 'anaphase2':
+                case 'telophase2':
+                    // 第二次分裂
+                    if (phase === 'telophase2') {
+                        const childs = [];
+                        for (let i = 0; i < 4; i++) {
+                            const child = document.createElement('div');
+                            child.className = 'cell-visual';
+                            child.style.width = '60px';
+                            child.style.height = '60px';
+                            child.style.left = (40 + (i % 2) * 100) + 'px';
+                            child.style.top = (50 + Math.floor(i / 2) * 100) + 'px';
+                            child.style.transform = 'none';
+                            area.appendChild(child);
+                        }
+                        return;
+                    }
+                    const cell2 = document.createElement('div');
+                    cell2.className = 'cell-visual';
+                    cell2.style.width = '100px';
+                    cell2.style.height = '100px';
+                    cell2.style.left = '100px';
+                    cell2.style.top = '50px';
+                    cell2.style.transform = 'none';
+                    area.appendChild(cell2);
+                    break;
+            }
+        }
+
+        function playMitosis() {
+            const phases = ['interphase', 'prophase', 'metaphase', 'anaphase', 'telophase'];
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < phases.length) {
+                    showMitosisPhase(phases[i]);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1500 / animationSpeed);
+        }
+
+        function playMeiosis() {
+            const phases = ['prophase1', 'metaphase1', 'anaphase1', 'telophase1', 'prophase2', 'metaphase2', 'anaphase2', 'telophase2'];
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < phases.length) {
+                    showMeiosisPhase(phases[i]);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1500 / animationSpeed);
+        }
+
+        function setSpeed(speed) {
+            animationSpeed = parseFloat(speed);
+            document.getElementById('speed-value').textContent = speed + 'x';
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = quizQuestions[currentQuestion];
+            document.getElementById('quiz-q').textContent = `问题 ${currentQuestion + 1}/${quizQuestions.length}`;
+            document.getElementById('quiz-text').textContent = q.q;
+            
+            const optionsDiv = document.getElementById('quiz-options');
+            optionsDiv.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'phase-btn';
+                btn.style.display = 'block';
+                btn.style.width = '100%';
+                btn.style.textAlign = 'left';
+                btn.style.marginBottom = '8px';
+                btn.textContent = `${String.fromCharCode(65 + idx)}. ${opt}`;
+                btn.onclick = () => checkAnswer(idx);
+                optionsDiv.appendChild(btn);
+            });
+            
+            document.getElementById('quiz-result').innerHTML = '';
+            document.getElementById('quiz-next').style.display = 'none';
+        }
+
+        function checkAnswer(idx) {
+            const q = quizQuestions[currentQuestion];
+            const resultDiv = document.getElementById('quiz-result');
+            
+            if (idx === q.answer) {
+                score++;
+                resultDiv.innerHTML = '<span style="color:#27ae60;">✓ 回答正确！</span>';
+            } else {
+                resultDiv.innerHTML = `<span style="color:#e74c3c;">✗ 回答错误！正确答案是：${q.options[q.answer]}</span>`;
+            }
+            
+            if (currentQuestion < quizQuestions.length - 1) {
+                document.getElementById('quiz-next').style.display = 'inline-block';
+            } else {
+                document.getElementById('quiz-result').innerHTML += `<br><strong>最终得分：${score}/${quizQuestions.length}</strong>`;
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            showQuestion();
+        }
+
+        // 初始化对比视图
+        document.addEventListener('DOMContentLoaded', () => {
+            drawMitosisCell('interphase');
+        });
+    </script>
+</body>
+</html>

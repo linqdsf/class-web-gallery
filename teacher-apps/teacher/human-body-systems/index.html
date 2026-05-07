@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人体系统探险 - 生物教学工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        header {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 1.8em;
+            background: linear-gradient(90deg, #e94560, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .body-display {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .body-display { grid-template-columns: 1fr; }
+        }
+        .body-outline {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        .body-svg {
+            width: 100%;
+            max-width: 250px;
+            height: 400px;
+        }
+        .system-list {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .system-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #fff;
+            width: 100%;
+            text-align: left;
+            font-size: 1em;
+        }
+        .system-btn:hover, .system-btn.active {
+            border-color: #3498db;
+            background: rgba(52,152,219,0.1);
+        }
+        .system-btn .icon { font-size: 2em; }
+        .system-btn h3 { color: #fff; }
+        .system-btn p { color: #aaa; font-size: 0.85em; }
+        .detail-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        .detail-panel.active { display: block; }
+        .detail-panel h2 { color: #f39c12; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .organ-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .organ-card {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .organ-card:hover { background: rgba(52,152,219,0.2); transform: scale(1.05); }
+        .organ-card .icon { font-size: 2em; margin-bottom: 8px; }
+        .organ-card h4 { color: #3498db; margin-bottom: 5px; }
+        .organ-card p { color: #aaa; font-size: 0.85em; }
+        .flow-diagram {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .flow-step {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        .flow-step .num {
+            width: 30px;
+            height: 30px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        .quick-facts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .fact {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #27ae60;
+        }
+        .fact h5 { color: #27ae60; margin-bottom: 5px; }
+        footer { text-align: center; padding: 20px; color: #666; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🧍 人体系统探险</h1>
+        <p>探索人体九大系统的奥秘</p>
+    </header>
+
+    <div class="container">
+        <div class="body-display">
+            <div class="body-outline">
+                <h3 style="color:#3498db; margin-bottom:15px;">人体系统分布</h3>
+                <svg class="body-svg" viewBox="0 0 200 400">
+                    <!-- 头部 -->
+                    <ellipse cx="100" cy="40" rx="30" ry="35" fill="none" stroke="#3498db" stroke-width="2"/>
+                    <!-- 颈部 -->
+                    <rect x="90" y="75" width="20" height="15" fill="none" stroke="#3498db" stroke-width="2"/>
+                    <!-- 躯干 -->
+                    <path d="M60,90 Q50,150 60,220 L140,220 Q150,150 140,90 Z" fill="none" stroke="#3498db" stroke-width="2"/>
+                    <!-- 手臂 -->
+                    <path d="M60,95 L30,150 L25,200" fill="none" stroke="#3498db" stroke-width="2"/>
+                    <path d="M140,95 L170,150 L175,200" fill="none" stroke="#3498db" stroke-width="2"/>
+                    <!-- 腿 -->
+                    <path d="M75,220 L70,300 L65,380" fill="none" stroke="#3498db" stroke-width="2"/>
+                    <path d="M125,220 L130,300 L135,380" fill="none" stroke="#3498db" stroke-width="2"/>
+                    <!-- 系统标记点 -->
+                    <circle cx="100" cy="55" r="8" fill="#e94560" id="dot-nervous" style="cursor:pointer" onclick="showSystem('nervous')"/>
+                    <circle cx="100" cy="150" r="8" fill="#e74c3c" id="dot-circulatory" style="cursor:pointer" onclick="showSystem('circulatory')"/>
+                    <circle cx="100" cy="130" r="8" fill="#f39c12" id="dot-digestive" style="cursor:pointer" onclick="showSystem('digestive')"/>
+                    <circle cx="100" cy="170" r="8" fill="#3498db" id="dot-respiratory" style="cursor:pointer" onclick="showSystem('respiratory')"/>
+                    <circle cx="85" cy="160" r="8" fill="#9b59b6" id="dot-lymphatic" style="cursor:pointer" onclick="showSystem('lymphatic')"/>
+                </svg>
+                <p style="color:#aaa; font-size:0.85em; margin-top:10px;">点击标记查看系统详情</p>
+            </div>
+
+            <div class="system-list">
+                <h3 style="color:#3498db; margin-bottom:15px;">九大系统</h3>
+                <button class="system-btn" onclick="showSystem('nervous')">
+                    <span class="icon">🧠</span>
+                    <div>
+                        <h3>神经系统</h3>
+                        <p>协调各系统活动，控制行为和思维</p>
+                    </div>
+                </button>
+                <button class="system-btn" onclick="showSystem('circulatory')">
+                    <span class="icon">❤️</span>
+                    <div>
+                        <h3>循环系统</h3>
+                        <p>运输血液和营养物质，抵抗疾病</p>
+                    </div>
+                </button>
+                <button class="system-btn" onclick="showSystem('digestive')">
+                    <span class="icon">🍽️</span>
+                    <div>
+                        <h3>消化系统</h3>
+                        <p>分解食物，吸收营养，排泄废物</p>
+                    </div>
+                </button>
+                <button class="system-btn" onclick="showSystem('respiratory')">
+                    <span class="icon">🫁</span>
+                    <div>
+                        <h3>呼吸系统</h3>
+                        <p>气体交换，供应氧气排出二氧化碳</p>
+                    </div>
+                </button>
+                <button class="system-btn" onclick="showSystem('skeletal')">
+                    <span class="icon">🦴</span>
+                    <div>
+                        <h3>骨骼系统</h3>
+                        <p>支撑身体，保护内脏，造血功能</p>
+                    </div>
+                </button>
+                <button class="system-btn" onclick="showSystem('muscular')">
+                    <span class="icon">💪</span>
+                    <div>
+                        <h3>肌肉系统</h3>
+                        <p>产生运动，维持姿势，产生热量</p>
+                    </div>
+                </button>
+                <button class="system-btn" onclick="showSystem('urinary')">
+                    <span class="icon">💧</span>
+                    <div>
+                        <h3>泌尿系统</h3>
+                        <p>过滤血液，排出废物，调节水平衡</p>
+                    </div>
+                </button>
+                <button class="system-btn" onclick="showSystem('endocrine')">
+                    <span class="icon">⚗️</span>
+                    <div>
+                        <h3>内分泌系统</h3>
+                        <p>分泌激素，调节代谢和生长发育</p>
+                    </div>
+                </button>
+                <button class="system-btn" onclick="showSystem('reproductive')">
+                    <span class="icon">🧬</span>
+                    <div>
+                        <h3>生殖系统</h3>
+                        <p>产生配子，繁衍后代</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div id="detail-panels">
+            <div class="detail-panel" id="panel-nervous">
+                <h2>🧠 神经系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">🧠</div>
+                        <h4>大脑</h4>
+                        <p>思维、记忆、语言</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">⚡</div>
+                        <h4>脊髓</h4>
+                        <p>神经传导中枢</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🔌</div>
+                        <h4>神经</h4>
+                        <p>传递信号</p>
+                    </div>
+                </div>
+                <div class="flow-diagram">
+                    <h4 style="color:#3498db; margin-bottom:10px;">神经冲动传导路径</h4>
+                    <div class="flow-step"><span class="num">1</span>感受器接收刺激</div>
+                    <div class="flow-step"><span class="num">2</span>传入神经到中枢</div>
+                    <div class="flow-step"><span class="num">3</span>神经中枢分析处理</div>
+                    <div class="flow-step"><span class="num">4</span>传出神经到效应器</div>
+                    <div class="flow-step"><span class="num">5</span>效应器产生反应</div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>神经元数量</h5><p>约860亿个</p></div>
+                    <div class="fact"><h5>信息传递速度</h5><p>可达120米/秒</p></div>
+                    <div class="fact"><h5>可产生突触</h5><p>每个神经元可达1万个</p></div>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="panel-circulatory">
+                <h2>❤️ 循环系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">❤️</div>
+                        <h4>心脏</h4>
+                        <p>泵血功能，每分跳动70次</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🩸</div>
+                        <h4>血管</h4>
+                        <p>动脉、静脉、毛细血管</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🩸</div>
+                        <h4>血液</h4>
+                        <p>运输营养和废物</p>
+                    </div>
+                </div>
+                <div class="flow-diagram">
+                    <h4 style="color:#e74c3c; margin-bottom:10px;">体循环路径</h4>
+                    <div class="flow-step"><span class="num">1</span>左心室→主动脉</div>
+                    <div class="flow-step"><span class="num">2</span>全身毛细血管物质交换</div>
+                    <div class="flow-step"><span class="num">3</span>上下腔静脉→右心房</div>
+                    <h4 style="color:#3498db; margin:15px 0 10px;">肺循环路径</h4>
+                    <div class="flow-step"><span class="num">1</span>右心室→肺动脉</div>
+                    <div class="flow-step"><span class="num">2</span>肺毛细血管气体交换</div>
+                    <div class="flow-step"><span class="num">3</span>肺静脉→左心房</div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>每天泵血量</h5><p>约8000升</p></div>
+                    <div class="fact"><h5>血液流经距离</h5><p>每天约19000公里</p></div>
+                    <div class="fact"><h5>红细胞寿命</h5><p>约120天</p></div>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="panel-digestive">
+                <h2>🍽️ 消化系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">🦷</div>
+                        <h4>口腔</h4>
+                        <p>咀嚼、唾液消化</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🫃</div>
+                        <h4>胃</h4>
+                        <p>储存、初步消化</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🦴</div>
+                        <h4>小肠</h4>
+                        <p>主要消化吸收</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🟤</div>
+                        <h4>大肠</h4>
+                        <p>吸收水分、排泄</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🍀</div>
+                        <h4>肝脏</h4>
+                        <p>代谢、解毒</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🥛</div>
+                        <h4>胰腺</h4>
+                        <p>分泌消化酶</p>
+                    </div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>消化道长度</h5><p>约9米</p></div>
+                    <div class="fact"><h5>小肠吸收面积</h5><p>约200平方米</p></div>
+                    <div class="fact"><h5>胃容量</h5><p>约1-1.5升</p></div>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="panel-respiratory">
+                <h2>🫁 呼吸系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">👃</div>
+                        <h4>鼻腔</h4>
+                        <p>过滤、加温、加湿</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🦅</div>
+                        <h4>气管</h4>
+                        <p>气体通道</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🌳</div>
+                        <h4>肺</h4>
+                        <p>气体交换场所</p>
+                    </div>
+                </div>
+                <div class="flow-diagram">
+                    <h4 style="color:#3498db; margin-bottom:10px;">呼吸运动过程</h4>
+                    <div class="flow-step"><span class="num">吸气</span>膈肌收缩下降→胸腔扩大→肺扩张→气体进入</div>
+                    <div class="flow-step"><span class="num">呼气</span>膈肌舒张上升→胸腔缩小→肺收缩→气体排出</div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>肺泡数量</h5><p>约3-4亿个</p></div>
+                    <div class="fact"><h5>每次呼吸量</h5><p>约500毫升</p></div>
+                    <div class="fact"><h5>每天呼吸次数</h5><p>约2万次</p></div>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="panel-skeletal">
+                <h2>🦴 骨骼系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">💀</div>
+                        <h4>颅骨</h4>
+                        <p>保护大脑</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🦴</div>
+                        <h4>躯干骨</h4>
+                        <p>支撑身体</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🦵</div>
+                        <h4>四肢骨</h4>
+                        <p>运动功能</p>
+                    </div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>骨的数量</h5><p>成人206块</div>
+                    <div class="fact"><h5>最长的骨</h5><p>股骨</p></div>
+                    <div class="fact"><h5>最小的骨</h5><p>镫骨</p></div>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="panel-muscular">
+                <h2>💪 肌肉系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">🏋️</div>
+                        <h4>骨骼肌</h4>
+                        <p>随意运动</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">❤️</div>
+                        <h4>心肌</h4>
+                        <p>心脏搏动</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🌀</div>
+                        <h4>平滑肌</h4>
+                        <p>内脏蠕动</p>
+                    </div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>肌肉数量</h5><p>约600多块</p></div>
+                    <div class="fact"><h5>肌肉占比</h5><p>体重约40%</p></div>
+                    <div class="fact"><h5>最强肌</h5><p>咬肌</p></div>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="panel-urinary">
+                <h2>💧 泌尿系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">🫘</div>
+                        <h4>肾脏</h4>
+                        <p>过滤血液</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🧼</div>
+                        <h4>输尿管</h4>
+                        <p>输送尿液</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">💦</div>
+                        <h4>膀胱</h4>
+                        <p>储存尿液</p>
+                    </div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>每天滤过</h5><p>约180升原尿</p></div>
+                    <div class="fact"><h5>实际排出</h5><p>约1.5升终尿</p></div>
+                    <div class="fact"><h5>肾单位</h5><p>约100万个</p></div>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="panel-endocrine">
+                <h2>⚗️ 内分泌系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">🧠</div>
+                        <h4>垂体</h4>
+                        <p>分泌多种激素</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🦋</div>
+                        <h4>甲状腺</h4>
+                        <p>调节代谢</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🍫</div>
+                        <h4>胰岛</h4>
+                        <p>调节血糖</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🥜</div>
+                        <h4>肾上腺</h4>
+                        <p>应激反应</p>
+                    </div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>主要激素</h5><p>数十种</p></div>
+                    <div class="fact"><h5>调节方式</h5><p>反馈调节</p></div>
+                    <div class="fact"><h5>作用特点</h5><p>微量高效</p></div>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="panel-reproductive">
+                <h2>🧬 生殖系统</h2>
+                <div class="organ-grid">
+                    <div class="organ-card">
+                        <div class="icon">🥚</div>
+                        <h4>卵巢/睾丸</h4>
+                        <p>产生配子</p>
+                    </div>
+                    <div class="organ-card">
+                        <div class="icon">🍼</div>
+                        <h4>子宫/前列腺</h4>
+                        <p>孕育/分泌</p>
+                    </div>
+                </div>
+                <div class="quick-facts">
+                    <div class="fact"><h5>配子</h5><p>卵子/精子</p></div>
+                    <div class="fact"><h5>受精部位</h5><p>输卵管壶腹</p></div>
+                    <div class="fact"><h5>着床部位</h5><p>子宫内膜</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>生物教学互动工具 · 仅供学习参考</p>
+    </footer>
+
+    <script>
+        function showSystem(system) {
+            document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.system-btn').forEach(b => b.classList.remove('active'));
+            
+            const panel = document.getElementById('panel-' + system);
+            if (panel) {
+                panel.classList.add('active');
+            }
+            
+            const btns = document.querySelectorAll('.system-btn');
+            const systems = ['nervous', 'circulatory', 'digestive', 'respiratory', 'skeletal', 'muscular', 'urinary', 'endocrine', 'reproductive'];
+            const idx = systems.indexOf(system);
+            if (idx >= 0 && btns[idx]) {
+                btns[idx].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

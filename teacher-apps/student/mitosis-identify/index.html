@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>有丝分裂识别练习 - 生物学习工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #9b59b6 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        header { background: rgba(0,0,0,0.3); padding: 20px; text-align: center; }
+        header h1 { font-size: 1.8em; color: #9b59b6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .game-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .stat { text-align: center; }
+        .stat-label { color: #aaa; font-size: 0.85em; }
+        .stat-value { font-size: 1.8em; color: #9b59b6; }
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 800px) { .game-area { grid-template-columns: 1fr; } }
+        .cell-display {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cell-visual {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(155,89,182,0.2);
+            border: 3px solid rgba(155,89,182,0.5);
+            position: relative;
+        }
+        .chromosome-mock {
+            position: absolute;
+            width: 30px;
+            height: 6px;
+            background: linear-gradient(90deg, #e74c3c, #ff6b8a);
+            border-radius: 3px;
+        }
+        .question-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .question-text {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+        .option-btn {
+            padding: 15px 20px;
+            background: rgba(155,89,182,0.2);
+            border: 2px solid #9b59b6;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .option-btn:hover { background: rgba(155,89,182,0.4); }
+        .option-btn.correct { background: #27ae60; border-color: #27ae60; }
+        .option-btn.wrong { background: #e74c3c; border-color: #e74c3c; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        .btn-start { background: #9b59b6; color: #fff; }
+        .btn-next { background: #3498db; color: #fff; }
+        .btn:hover { transform: scale(1.05); }
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: rgba(39,174,96,0.2); border: 1px solid #27ae60; }
+        .feedback.wrong { background: rgba(231,76,60,0.2); border: 1px solid #e74c3c; }
+        .tutorial {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .tutorial h3 { color: #9b59b6; margin-bottom: 15px; }
+        .phase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .phase-card {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .phase-card .name { color: #9b59b6; font-weight: bold; }
+        .phase-card .desc { color: #aaa; font-size: 0.85em; margin-top: 5px; }
+        footer { text-align: center; padding: 20px; color: #666; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔬 有丝分裂识别练习</h1>
+        <p>通过观察细胞分裂图谱，学习识别各时期特征</p>
+    </header>
+
+    <div class="container">
+        <div class="game-panel">
+            <div class="stats-bar">
+                <div class="stat">
+                    <div class="stat-label">得分</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">题号</div>
+                    <div class="stat-value" id="questionNum">0/10</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">正确率</div>
+                    <div class="stat-value" id="accuracy">-%</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">用时</div>
+                    <div class="stat-value" id="timer">0s</div>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="cell-display">
+                    <div class="cell-visual" id="cellVisual"></div>
+                </div>
+                <div class="question-area">
+                    <div class="question-text" id="questionText">
+                        点击"开始练习"按钮开始游戏！
+                    </div>
+                    <div class="options" id="optionsArea"></div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="btn-group">
+                        <button class="btn btn-start" id="startBtn" onclick="startGame()">🎮 开始练习</button>
+                        <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()" style="display:none;">下一题 →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tutorial">
+            <h3>📚 有丝分裂各时期特征速查</h3>
+            <div class="phase-grid">
+                <div class="phase-card">
+                    <div class="name">间期</div>
+                    <div class="desc">染色质、核膜存在</div>
+                </div>
+                <div class="phase-card">
+                    <div class="name">前期</div>
+                    <div class="desc">染色体出现、核膜消失</div>
+                </div>
+                <div class="phase-card">
+                    <div class="name">中期</div>
+                    <div class="desc">染色体排列赤道板</div>
+                </div>
+                <div class="phase-card">
+                    <div class="name">后期</div>
+                    <div class="desc">姐妹染色单体分离</div>
+                </div>
+                <div class="phase-card">
+                    <div class="name">末期</div>
+                    <div class="desc">核膜重建、细胞质分裂</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>生物学习工具 · 仅供学习参考</p>
+    </footer>
+
+    <script>
+        const phases = [
+            {
+                name: '间期',
+                desc: 'DNA复制，染色质状态',
+                features: ['核膜完整', '核仁可见', '染色质丝'],
+                correctAnswer: 0,
+                options: ['间期', '前期', '中期', '末期']
+            },
+            {
+                name: '前期',
+                desc: '染色体缩短变粗',
+                features: ['染色体出现', '核膜解体', '纺锤体形成'],
+                correctAnswer: 1,
+                options: ['间期', '前期', '中期', '末期']
+            },
+            {
+                name: '中期',
+                desc: '染色体排列赤道板',
+                features: ['着丝点排列整齐', '形态固定', '易于观察计数'],
+                correctAnswer: 2,
+                options: ['间期', '前期', '中期', '末期']
+            },
+            {
+                name: '后期',
+                desc: '姐妹染色单体分离',
+                features: ['着丝点分裂', '子染色体移向两极', '数目加倍'],
+                correctAnswer: 3,
+                options: ['间期', '前期', '中期', '后期']
+            },
+            {
+                name: '末期',
+                desc: '形成两个子细胞',
+                features: ['染色体到两极', '核膜重建', '细胞质分裂'],
+                correctAnswer: 4,
+                options: ['中期', '后期', '末期', '胞质分裂期']
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let totalAnswered = 0;
+        let timerInterval = null;
+        let seconds = 0;
+        let gameStarted = false;
+        let answered = false;
+
+        function startGame() {
+            currentQuestion = 0;
+            score = 0;
+            totalAnswered = 0;
+            seconds = 0;
+            gameStarted = true;
+            answered = false;
+            
+            document.getElementById('score').textContent = '0';
+            document.getElementById('accuracy').textContent = '-%';
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                seconds++;
+                document.getElementById('timer').textContent = seconds + 's';
+            }, 1000);
+
+            document.getElementById('startBtn').textContent = '🔄 重新开始';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            answered = false;
+            const q = phases[currentQuestion];
+            
+            document.getElementById('questionNum').textContent = (currentQuestion + 1) + '/5';
+            document.getElementById('questionText').textContent = '这是哪个分裂时期的细胞？';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            // 绘制细胞示意图
+            drawCell(currentQuestion);
+            
+            // 显示选项
+            const optionsArea = document.getElementById('optionsArea');
+            optionsArea.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(idx);
+                optionsArea.appendChild(btn);
+            });
+        }
+
+        function drawCell(phase) {
+            const cell = document.getElementById('cellVisual');
+            cell.innerHTML = '';
+            
+            const nucleus = document.createElement('div');
+            nucleus.className = 'nucleus';
+            nucleus.style.cssText = 'position:absolute;width:100px;height:100px;background:rgba(52,152,219,0.3);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid rgba(52,152,219,0.5);';
+            
+            switch(phase) {
+                case 0: // 间期
+                    // DNA复制状态
+                    for (let i = 0; i < 4; i++) {
+                        const chrom = document.createElement('div');
+                        chrom.className = 'chromosome-mock';
+                        chrom.style.left = (70 + i * 15) + 'px';
+                        chrom.style.top = '90px';
+                        chrom.style.transform = `rotate(${i * 30}deg)`;
+                        chrom.style.width = '20px';
+                        cell.appendChild(chrom);
+                    }
+                    cell.appendChild(nucleus);
+                    break;
+                case 1: // 前期
+                    // 染色体出现
+                    for (let i = 0; i < 4; i++) {
+                        const chrom = document.createElement('div');
+                        chrom.className = 'chromosome-mock';
+                        chrom.style.left = (60 + i * 25) + 'px';
+                        chrom.style.top = '95px';
+                        cell.appendChild(chrom);
+                    }
+                    break;
+                case 2: // 中期
+                    // 排列赤道板
+                    for (let i = 0; i < 4; i++) {
+                        const chrom = document.createElement('div');
+                        chrom.className = 'chromosome-mock';
+                        chrom.style.left = (60 + i * 25) + 'px';
+                        chrom.style.top = '97px';
+                        cell.appendChild(chrom);
+                    }
+                    // 赤道板线
+                    const line = document.createElement('div');
+                    line.style.cssText = 'position:absolute;width:180px;height:2px;background:#f1c40f;left:10px;top:98px;';
+                    cell.appendChild(line);
+                    break;
+                case 3: // 后期
+                    // 分离
+                    for (let i = 0; i < 4; i++) {
+                        const chrom = document.createElement('div');
+                        chrom.className = 'chromosome-mock';
+                        if (i < 2) {
+                            chrom.style.left = (60 - i * 15) + 'px';
+                            chrom.style.transform = 'rotate(-20deg)';
+                        } else {
+                            chrom.style.left = (130 + (i-2) * 15) + 'px';
+                            chrom.style.transform = 'rotate(20deg)';
+                        }
+                        chrom.style.top = '95px';
+                        cell.appendChild(chrom);
+                    }
+                    break;
+                case 4: // 末期
+                    // 两个子细胞
+                    const cell1 = document.createElement('div');
+                    cell1.style.cssText = 'position:absolute;width:80px;height:80px;background:rgba(155,89,182,0.2);border-radius:50%;left:30px;top:60px;border:2px solid rgba(155,89,182,0.5);';
+                    const cell2 = document.createElement('div');
+                    cell2.style.cssText = 'position:absolute;width:80px;height:80px;background:rgba(155,89,182,0.2);border-radius:50%;right:30px;top:60px;border:2px solid rgba(155,89,182,0.5);';
+                    cell.appendChild(cell1);
+                    cell.appendChild(cell2);
+                    break;
+            }
+        }
+
+        function checkAnswer(idx) {
+            if (answered) return;
+            answered = true;
+            
+            const q = phases[currentQuestion];
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            buttons.forEach((btn, i) => {
+                btn.style.pointerEvents = 'none';
+                if (i === q.correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (i === idx) {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            totalAnswered++;
+            
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            
+            if (idx === q.correctAnswer) {
+                score += 20;
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = `<strong>✓ 正确！</strong> 这是${q.name}。<br>特征：${q.features.join('、')}`;
+            } else {
+                feedback.className = 'feedback wrong show';
+                feedback.innerHTML = `<strong>✗ 错误！</strong> 这是${q.name}，不是${q.options[idx]}。<br>特征：${q.features.join('、')}`;
+            }
+            
+            document.getElementById('score').textContent = score;
+            const accuracy = Math.round(score / totalAnswered);
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            
+            if (currentQuestion < phases.length - 1) {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('feedback').innerHTML += '<br><br><strong>🎉 练习完成！</strong> 你的最终得分：' + score + '分';
+                document.getElementById('startBtn').textContent = '🎮 再来一次';
+                if (timerInterval) clearInterval(timerInterval);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            showQuestion();
+        }
+    </script>
+</body>
+</html>

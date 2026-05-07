@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神经冲动传导演示 - 高中生物</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #0c0c1e 0%, #1a1a3e 50%, #2d1b4e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.05);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, #fbbf24, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 25px;
+            padding: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .experiment-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .canvas-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+        }
+
+        .canvas-title {
+            font-size: 1rem;
+            color: #fbbf24;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        canvas {
+            width: 100%;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(251, 191, 36, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+
+        .info-panel {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: #fbbf24;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phase-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .phase-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: rgba(255,255,255,0.2);
+            z-index: 0;
+        }
+
+        .phase {
+            text-align: center;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .phase-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: all 0.3s;
+        }
+
+        .phase.active .phase-dot {
+            background: #fbbf24;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+
+        .phase-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .phase.active .phase-label {
+            color: #fbbf24;
+        }
+
+        .knowledge-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .knowledge-card h4 {
+            color: #fbbf24;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .knowledge-card p {
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .voltage-scale {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .scale-bar {
+            flex: 1;
+            height: 20px;
+            background: linear-gradient(90deg, #3b82f6, #10b981, #fbbf24, #ef4444);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .scale-bar::before,
+        .scale-bar::after {
+            position: absolute;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .scale-bar::before {
+            content: '-70mV';
+            left: 0;
+            top: 25px;
+        }
+
+        .scale-bar::after {
+            content: '+40mV';
+            right: 0;
+            top: 25px;
+        }
+
+        .ion-channel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .channel {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .channel-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .channel-name {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .channel-status {
+            font-size: 0.75rem;
+            margin-top: 5px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .channel-status.closed {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .channel-status.open {
+            background: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fbbf24;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚡ 神经冲动传导演示</h1>
+        <div class="header-info">
+            <span>高中生物 · 神经调节</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="experiment-area">
+            <div class="canvas-container">
+                <div class="canvas-title">神经纤维电位变化曲线</div>
+                <canvas id="nerveCanvas" height="280"></canvas>
+                
+                <div class="ion-channel">
+                    <div class="channel">
+                        <div class="channel-icon">🔵</div>
+                        <div class="channel-name">Na⁺通道</div>
+                        <div class="channel-status closed" id="naStatus">关闭</div>
+                    </div>
+                    <div class="channel">
+                        <div class="channel-icon">🟢</div>
+                        <div class="channel-name">K⁺通道</div>
+                        <div class="channel-status closed" id="kStatus">关闭</div>
+                    </div>
+                    <div class="channel">
+                        <div class="channel-icon">⚡</div>
+                        <div class="channel-name">Na⁺/K⁺泵</div>
+                        <div class="channel-status closed" id="pumpStatus">休眠</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value" id="voltageValue">-70</div>
+                    <div class="stat-label">膜电位 (mV)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="phaseValue">静息</div>
+                    <div class="stat-label">当前阶段</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="naConc">145</div>
+                    <div class="stat-label">Na⁺ 内 (mM)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="kConc">5</div>
+                    <div class="stat-label">K⁺ 内 (mM)</div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <div class="phase-indicator">
+                    <div class="phase active" data-phase="rest">
+                        <div class="phase-dot">1</div>
+                        <div class="phase-label">静息电位</div>
+                    </div>
+                    <div class="phase" data-phase="depolarize">
+                        <div class="phase-dot">2</div>
+                        <div class="phase-label">去极化</div>
+                    </div>
+                    <div class="phase" data-phase="overshoot">
+                        <div class="phase-dot">3</div>
+                        <div class="phase-label">反极化</div>
+                    </div>
+                    <div class="phase" data-phase="repolarize">
+                        <div class="phase-dot">4</div>
+                        <div class="phase-label">复极化</div>
+                    </div>
+                    <div class="phase" data-phase="hyperpolarize">
+                        <div class="phase-dot">5</div>
+                        <div class="phase-label">超极化</div>
+                    </div>
+                    <div class="phase" data-phase="restore">
+                        <div class="phase-dot">6</div>
+                        <div class="phase-label">恢复</div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="startBtn">
+                        ⚡ 刺激神经
+                    </button>
+                    <button class="btn btn-secondary" id="resetBtn">
+                        🔄 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="section-title">
+                <span>📚</span>
+                知识详解
+            </div>
+
+            <div class="knowledge-card">
+                <h4>静息电位 (约-70mV)</h4>
+                <p>神经纤维在静息状态下，细胞膜外正内负。主要是K⁺外流造成的。</p>
+            </div>
+
+            <div class="knowledge-card">
+                <h4>动作电位过程</h4>
+                <p>
+                    <strong>去极化：</strong>Na⁺通道开放，Na⁺内流<br>
+                    <strong>反极化：</strong>膜电位逆转，变为正电位<br>
+                    <strong>复极化：</strong>K⁺通道开放，K⁺外流<br>
+                    <strong>超极化：</strong>K⁺继续外流，低于静息电位
+                </p>
+            </div>
+
+            <div class="knowledge-card">
+                <h4>离子浓度</h4>
+                <p>
+                    细胞内：Na⁺≈12mM, K⁺≈140mM<br>
+                    细胞外：Na⁺≈145mM, K⁺≈5mM
+                </p>
+            </div>
+
+            <div class="voltage-scale">
+                <span style="font-size:0.8rem;">-70mV</span>
+                <div class="scale-bar"></div>
+                <span style="font-size:0.8rem;">+40mV</span>
+            </div>
+
+            <div class="control-group" style="margin-top:20px;">
+                <div class="control-label">
+                    <span>刺激强度</span>
+                    <span id="stimValue">50%</span>
+                </div>
+                <input type="range" id="stimSlider" min="0" max="100" value="50">
+            </div>
+
+            <div class="knowledge-card">
+                <h4>传导特点</h4>
+                <p>
+                    <strong>双向传导：</strong>刺激点向两侧传导<br>
+                    <strong>不衰减性：</strong>幅度不变<br>
+                    <strong>绝缘性：</strong>髓鞘提高传导速度<br>
+                    <strong>相对不疲劳：</strong>但耗能大
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('nerveCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let isAnimating = false;
+        let voltage = -70;
+        let phase = 'rest';
+        let animationId = null;
+        let dataPoints = [];
+        let time = 0;
+        
+        const naStatus = document.getElementById('naStatus');
+        const kStatus = document.getElementById('kStatus');
+        const pumpStatus = document.getElementById('pumpStatus');
+        
+        function initCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 50;
+        }
+
+        function drawCurve() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // 坐标轴
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+
+            // 标注
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '12px Microsoft YaHei';
+            ctx.textAlign = 'right';
+            ctx.fillText('+40mV', padding - 5, padding + 5);
+            ctx.fillText('0mV', padding - 5, (padding + height - padding) / 2 + 5);
+            ctx.fillText('-70mV', padding - 5, height - padding + 5);
+
+            // 参考线
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(padding, (padding + height - padding) / 2);
+            ctx.lineTo(width - padding, (padding + height - padding) / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 曲线
+            if (dataPoints.length > 1) {
+                ctx.beginPath();
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 3;
+
+                dataPoints.forEach((point, i) => {
+                    const x = padding + (i / 200) * (width - padding * 2);
+                    const y = height - padding - ((point + 70) / 110) * (height - padding * 2);
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                ctx.stroke();
+
+                // 填充
+                ctx.lineTo(padding + (dataPoints.length - 1) / 200 * (width - padding * 2), height - padding);
+                ctx.lineTo(padding, height - padding);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(251, 191, 36, 0.1)';
+                ctx.fill();
+            }
+
+            // 轴标签
+            ctx.textAlign = 'center';
+            ctx.fillText('时间 (ms)', (padding + width - padding) / 2, height - 5);
+        }
+
+        function updateDisplay() {
+            document.getElementById('voltageValue').textContent = Math.round(voltage);
+            
+            const phases = {
+                'rest': '静息',
+                'depolarize': '去极化',
+                'overshoot': '反极化',
+                'repolarize': '复极化',
+                'hyperpolarize': '超极化',
+                'restore': '恢复'
+            };
+            document.getElementById('phaseValue').textContent = phases[phase];
+
+            // 更新离子通道状态
+            if (phase === 'rest' || phase === 'restore') {
+                naStatus.textContent = '关闭';
+                naStatus.className = 'channel-status closed';
+                kStatus.textContent = '关闭';
+                kStatus.className = 'channel-status closed';
+                pumpStatus.textContent = '活动';
+                pumpStatus.className = 'channel-status open';
+            } else if (phase === 'depolarize' || phase === 'overshoot') {
+                naStatus.textContent = '开放';
+                naStatus.className = 'channel-status open';
+                kStatus.textContent = '部分开放';
+                kStatus.className = 'channel-status open';
+                pumpStatus.textContent = '暂停';
+                pumpStatus.className = 'channel-status closed';
+            } else if (phase === 'repolarize' || phase === 'hyperpolarize') {
+                naStatus.textContent = '失活';
+                naStatus.className = 'channel-status closed';
+                kStatus.textContent = '开放';
+                kStatus.className = 'channel-status open';
+                pumpStatus.textContent = '暂停';
+                pumpStatus.className = 'channel-status closed';
+            }
+
+            // 更新阶段指示器
+            document.querySelectorAll('.phase').forEach(p => {
+                p.classList.toggle('active', p.dataset.phase === phase);
+            });
+
+            // 更新Na/K浓度
+            if (phase === 'depolarize' || phase === 'overshoot') {
+                document.getElementById('naConc').textContent = Math.round(20 + Math.random() * 10);
+                document.getElementById('kConc').textContent = Math.round(5 - Math.random() * 2);
+            } else {
+                document.getElementById('naConc').textContent = Math.round(12 + Math.random() * 3);
+                document.getElementById('kConc').textContent = Math.round(138 + Math.random() * 4);
+            }
+        }
+
+        function simulate() {
+            if (!isAnimating) return;
+
+            time++;
+            
+            // 动作电位曲线模拟
+            if (time < 20) {
+                phase = 'rest';
+                voltage = -70 + Math.random() * 2;
+            } else if (time < 40) {
+                phase = 'depolarize';
+                voltage = -70 + (time - 20) * 5.5;
+            } else if (time < 50) {
+                phase = 'overshoot';
+                voltage = Math.min(40, 40 - (time - 40) * 4);
+            } else if (time < 80) {
+                phase = 'repolarize';
+                voltage = 40 - (time - 50) * 1.5;
+            } else if (time < 100) {
+                phase = 'hyperpolarize';
+                voltage = -20 - (time - 80) * 0.5;
+            } else if (time < 150) {
+                phase = 'restore';
+                voltage = -30 + (time - 100) * 0.5;
+            } else {
+                phase = 'rest';
+                voltage = -70;
+                isAnimating = false;
+                document.getElementById('startBtn').textContent = '⚡ 刺激神经';
+                document.getElementById('startBtn').classList.remove('btn-secondary');
+                document.getElementById('startBtn').classList.add('btn-primary');
+            }
+
+            dataPoints.push(voltage);
+            if (dataPoints.length > 200) dataPoints.shift();
+
+            updateDisplay();
+            drawCurve();
+
+            if (isAnimating) {
+                animationId = requestAnimationFrame(simulate);
+            }
+        }
+
+        function startSimulation() {
+            if (isAnimating) {
+                isAnimating = false;
+                cancelAnimationFrame(animationId);
+                document.getElementById('startBtn').textContent = '⚡ 刺激神经';
+                document.getElementById('startBtn').classList.remove('btn-secondary');
+                document.getElementById('startBtn').classList.add('btn-primary');
+                return;
+            }
+
+            const stimIntensity = document.getElementById('stimSlider').value;
+            
+            if (stimIntensity < 30) {
+                alert('刺激强度不足！需要达到阈值才能产生动作电位。');
+                return;
+            }
+
+            // 重置
+            dataPoints = [];
+            time = 0;
+            voltage = -70;
+            
+            for (let i = 0; i < 20; i++) {
+                dataPoints.push(-70 + Math.random() * 2);
+            }
+
+            isAnimating = true;
+            document.getElementById('startBtn').textContent = '⏸ 暂停';
+            document.getElementById('startBtn').classList.remove('btn-primary');
+            document.getElementById('startBtn').classList.add('btn-secondary');
+            
+            simulate();
+        }
+
+        function reset() {
+            isAnimating = false;
+            cancelAnimationFrame(animationId);
+            dataPoints = [];
+            time = 0;
+            voltage = -70;
+            phase = 'rest';
+            
+            for (let i = 0; i < 20; i++) {
+                dataPoints.push(-70 + Math.random() * 2);
+            }
+
+            document.getElementById('startBtn').textContent = '⚡ 刺激神经';
+            document.getElementById('startBtn').classList.remove('btn-secondary');
+            document.getElementById('startBtn').classList.add('btn-primary');
+
+            updateDisplay();
+            drawCurve();
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startSimulation);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+
+        document.getElementById('stimSlider').addEventListener('input', (e) => {
+            document.getElementById('stimValue').textContent = e.target.value + '%';
+        });
+
+        window.addEventListener('resize', () => {
+            initCanvas();
+            drawCurve();
+        });
+
+        initCanvas();
+        reset();
+    </script>
+</body>
+</html>

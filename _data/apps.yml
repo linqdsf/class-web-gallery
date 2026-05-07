@@ -227,8 +227,8 @@ apps:
     school_icon: 🏫
     category: teacher
     description: 动态演示静息电位、动作电位的形成过程，支持离子通道开关控制。
-    url: https://bioviz.cn/nerve-impulse
-    repo: https://github.com/chen-bio/nerve-impulse
+    url: /teacher-apps/teacher/nerve-impulse/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/nerve-impulse
     tags: [神经生物学, 电生理, 动画演示]
     thumbnail: /assets/thumbnails/nerve-impulse.svg
     features:
@@ -252,8 +252,8 @@ apps:
     school_icon: 🏫
     category: teacher
     description: 可视化展示生态系统中能量流动和物质循环，支持自定义食物网结构。
-    url: https://bioviz.cn/ecosystem
-    repo: https://github.com/liu-bio/ecosystem
+    url: /teacher-apps/teacher/ecosystem-energy/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/ecosystem-energy
     tags: [生态学, 能量流动, 可视化]
     thumbnail: /assets/thumbnails/ecosystem.svg
     features:
@@ -302,8 +302,8 @@ apps:
     school_icon: 🏫
     category: teacher
     description: 通过豌豆杂交实验模拟，理解分离定律和自由组合定律。
-    url: https://bioviz.cn/mendel
-    repo: https://github.com/sun-bio/mendel
+    url: /teacher-apps/teacher/mendel-laws/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/teacher/mendel-laws
     tags: [遗传学, 孟德尔, 实验模拟]
     thumbnail: /assets/thumbnails/mendel.svg
     features:
@@ -430,8 +430,8 @@ apps:
     category: student
     grade: 高一
     description: 根据父母血型预测子女可能的血型分布概率。
-    url: https://biolearn.cn/blood-type
-    repo: https://github.com/wangsiqi/blood-type
+    url: /teacher-apps/student/blood-type-calculator/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/blood-type-calculator
     tags: [血型, 遗传计算, 概率]
     thumbnail: /assets/thumbnails/blood-type.svg
     features:
@@ -482,8 +482,8 @@ apps:
     category: student
     grade: 高一
     description: 通过配对游戏学习各种细胞器的名称、功能和分布位置。
-    url: https://biolearn.cn/organelle-game
-    repo: https://github.com/chensiyuan/organelle-game
+    url: /teacher-apps/student/organelle-game/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/organelle-game
     tags: [细胞器, 游戏化学习, 记忆训练]
     thumbnail: /assets/thumbnails/organelle-game.svg
     features:
@@ -588,8 +588,8 @@ apps:
     category: student
     grade: 高二
     description: 交互式学习人体三道防线的组成和免疫反应过程。
-    url: https://biolearn.cn/immune-system
-    repo: https://github.com/zhoutianxiang/immune-system
+    url: /teacher-apps/student/immune-system/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/immune-system
     tags: [免疫学, 人体健康, 交互学习]
     thumbnail: /assets/thumbnails/immune-system.svg
     features:
@@ -614,8 +614,8 @@ apps:
     category: student
     grade: 高三
     description: 学习染色体核型分析的基本方法，模拟排列和异常识别。
-    url: https://biolearn.cn/karyotype
-    repo: https://github.com/wuxinyi/karyotype
+    url: /teacher-apps/student/karyotype-analysis/index.html
+    repo: https://github.com/linqdsf/class-web-gallery/tree/main/teacher-apps/student/karyotype-analysis
     tags: [遗传学, 染色体, 核型分析]
     thumbnail: /assets/thumbnails/karyotype.svg
     features:

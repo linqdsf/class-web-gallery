@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>血型遗传计算器 - 高中生物</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #7f1d1d 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.2);
+            padding: 25px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .parent-selector {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .parent-box {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .blood-type-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            background: rgba(255,255,255,0.1);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blood-type-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .blood-type-btn.selected {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.3);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+
+        .blood-type-label {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .cross-symbol {
+            font-size: 3rem;
+            color: #fbbf24;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .result-item.possible {
+            background: rgba(34, 197, 94, 0.3);
+            border: 2px solid #22c55e;
+        }
+
+        .result-item.impossible {
+            opacity: 0.4;
+        }
+
+        .result-type {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .result-percent {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+
+        .result-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .result-bar-fill {
+            height: 100%;
+            background: #22c55e;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        .genotype-info {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .genotype-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .genotype-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .genotype-item.possible {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+        }
+
+        .genotype-symbol {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .genotype-percent {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .blood-facts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .fact-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .fact-card h4 {
+            color: #fbbf24;
+            margin-bottom: 10px;
+        }
+
+        .fact-card p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.8);
+        }
+
+        @media (max-width: 768px) {
+            .parent-selector { grid-template-columns: 1fr; }
+            .cross-symbol { font-size: 2rem; }
+            .result-grid, .genotype-grid { grid-template-columns: repeat(2, 1fr); }
+            .blood-facts { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🩸 血型遗传计算器</h1>
+        <p>根据父母血型预测子女可能的血型分布</p>
+    </div>
+
+    <div class="main-container">
+        <div class="card">
+            <div class="section-title"><span>👨</span>选择父母血型</div>
+            <div class="parent-selector">
+                <div class="parent-box">
+                    <div class="blood-type-label">父亲血型</div>
+                    <div id="fatherButtons">
+                        <button class="blood-type-btn" data-type="A">A</button>
+                        <button class="blood-type-btn" data-type="B">B</button>
+                        <button class="blood-type-btn selected" data-type="O">O</button>
+                        <button class="blood-type-btn" data-type="AB">AB</button>
+                    </div>
+                    <div class="blood-type-label" id="fatherType" style="margin-top:15px;">O型</div>
+                </div>
+                <div class="cross-symbol">×</div>
+                <div class="parent-box">
+                    <div class="blood-type-label">母亲血型</div>
+                    <div id="motherButtons">
+                        <button class="blood-type-btn selected" data-type="A">A</button>
+                        <button class="blood-type-btn" data-type="B">B</button>
+                        <button class="blood-type-btn" data-type="O">O</button>
+                        <button class="blood-type-btn" data-type="AB">AB</button>
+                    </div>
+                    <div class="blood-type-label" id="motherType" style="margin-top:15px;">A型</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title"><span>👶</span>子女可能的血型</div>
+            <div class="result-grid" id="resultGrid"></div>
+            <div class="genotype-info">
+                <div class="section-title" style="font-size:1rem;"><span>🧬</span>基因型分布</div>
+                <div class="genotype-grid" id="genotypeGrid"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title"><span>📚</span>血型知识</div>
+            <div class="blood-facts">
+                <div class="fact-card">
+                    <h4>ABO血型系统</h4>
+                    <p>ABO血型系统由ABO基因决定：<br>
+                    - IA基因产生A抗原<br>
+                    - IB基因产生B抗原<br>
+                    - i基因不产生抗原<br><br>
+                    基因型与血型关系：<br>
+                    A型: IAIA 或 IAi<br>
+                    B型: IBIB 或 IBi<br>
+                    AB型: IAIB<br>
+                    O型: ii</p>
+                </div>
+                <div class="fact-card">
+                    <h4>遗传规律</h4>
+                    <p>血型遗传遵循孟德尔定律：<br><br>
+                    - IA和IB对i为显性<br>
+                    - IA和IB为共显性<br>
+                    - ii为隐性，表现为O型<br><br>
+                    示例：<br>
+                    A型(IAi) × B型(IBi)<br>
+                   子女可能：A、B、AB、O</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inheritanceTable = {
+            'A-A': { 'A': 75, 'O': 25, genotypes: { 'IAIA': 25, 'IAi': 50, 'ii': 25 } },
+            'A-B': { 'A': 25, 'B': 25, 'AB': 50, genotypes: { 'IAIB': 50, 'IAi': 25, 'IBi': 25 } },
+            'A-AB': { 'A': 50, 'B': 25, 'AB': 25, genotypes: { 'IAIA': 25, 'IAi': 25, 'IBi': 25, 'IAIB': 25 } },
+            'A-O': { 'A': 50, 'O': 50, genotypes: { 'IAi': 50, 'ii': 50 } },
+            'B-B': { 'B': 75, 'O': 25, genotypes: { 'IBIB': 25, 'IBi': 50, 'ii': 25 } },
+            'B-AB': { 'A': 25, 'B': 50, 'AB': 25, genotypes: { 'IAIB': 25, 'IBi': 25, 'IBIB': 25, 'IAi': 25 } },
+            'B-O': { 'B': 50, 'O': 50, genotypes: { 'IBi': 50, 'ii': 50 } },
+            'AB-AB': { 'A': 25, 'B': 25, 'AB': 50, genotypes: { 'IAIB': 100 } },
+            'AB-O': { 'A': 50, 'B': 50, genotypes: { 'IAi': 50, 'IBi': 50 } },
+            'O-O': { 'O': 100, genotypes: { 'ii': 100 } }
+        };
+
+        function getKey(father, mother) {
+            const combos = [father + '-' + mother, mother + '-' + father];
+            for (const c of combos) {
+                if (inheritanceTable[c]) return c;
+            }
+            return null;
+        }
+
+        function updateResults() {
+            const father = document.querySelector('#fatherButtons .blood-type-btn.selected')?.dataset.type || 'O';
+            const mother = document.querySelector('#motherButtons .blood-type-btn.selected')?.dataset.type || 'A';
+            document.getElementById('fatherType').textContent = father + '型';
+            document.getElementById('motherType').textContent = mother + '型';
+
+            const key = getKey(father, mother);
+            const results = inheritanceTable[key] || { 'A': 0, 'B': 0, 'AB': 0, 'O': 0 };
+
+            const resultGrid = document.getElementById('resultGrid');
+            resultGrid.innerHTML = '';
+            ['A', 'B', 'AB', 'O'].forEach(type => {
+                const percent = results[type] || 0;
+                const div = document.createElement('div');
+                div.className = 'result-item ' + (percent > 0 ? 'possible' : 'impossible');
+                div.innerHTML = '<div class="result-type">' + type + '</div><div class="result-percent">' + percent + '%</div><div class="result-bar"><div class="result-bar-fill" style="width:' + percent + '%;"></div></div>';
+                resultGrid.appendChild(div);
+            });
+
+            const genotypeGrid = document.getElementById('genotypeGrid');
+            genotypeGrid.innerHTML = '';
+            if (results.genotypes) {
+                Object.entries(results.genotypes).forEach(([genotype, percent]) => {
+                    const bloodType = genotype.includes('IA') && genotype.includes('IB') ? 'AB' : genotype.includes('IA') ? 'A' : genotype.includes('IB') ? 'B' : 'O';
+                    const div = document.createElement('div');
+                    div.className = 'genotype-item ' + (percent > 0 ? 'possible' : '');
+                    div.innerHTML = '<div class="genotype-symbol">' + genotype.replace('IA', 'I<sup>A</sup>').replace('IB', 'I<sup>B</sup>') + '</div><div>→ ' + bloodType + '型</div><div class="genotype-percent">' + percent + '%</div>';
+                    genotypeGrid.appendChild(div);
+                });
+            }
+        }
+
+        document.querySelectorAll('#fatherButtons .blood-type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#fatherButtons .blood-type-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                updateResults();
+            });
+        });
+
+        document.querySelectorAll('#motherButtons .blood-type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#motherButtons .blood-type-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                updateResults();
+            });
+        });
+
+        updateResults();
+    </script>
+</body>
+</html>

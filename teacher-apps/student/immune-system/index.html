@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>免疫系统工作流程图 - 高中生物</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 50%, #155e75 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.2);
+            padding: 20px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .defense-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .defense-line {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .line-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .line-icon {
+            font-size: 2.5rem;
+        }
+
+        .line-title {
+            flex: 1;
+        }
+
+        .line-title h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .line-title p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .process-flow {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            min-height: 120px;
+        }
+
+        .process-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            min-width: 100px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .process-step:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+        }
+
+        .process-step.active {
+            background: rgba(6, 182, 212, 0.3);
+            border: 2px solid #06b6d4;
+        }
+
+        .process-icon {
+            font-size: 2rem;
+        }
+
+        .process-name {
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: #06b6d4;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .info-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .info-card h4 {
+            color: #22d3ee;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .info-card p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .detail-panel {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .detail-panel.show {
+            display: block;
+        }
+
+        .detail-content {
+            display: none;
+        }
+
+        .detail-content.show {
+            display: block;
+        }
+
+        .detail-content h4 {
+            color: #22d3ee;
+            margin-bottom: 15px;
+        }
+
+        .detail-content ul {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        @media (max-width: 900px) {
+            .info-cards { grid-template-columns: 1fr; }
+            .process-flow { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ 人体免疫系统工作流程图</h1>
+        <p>了解人体的三道防线和免疫反应过程</p>
+    </div>
+
+    <div class="main-container">
+        <div class="defense-lines">
+            <!-- 第一道防线 -->
+            <div class="defense-line">
+                <div class="line-header" onclick="toggleDetail('first')">
+                    <span class="line-icon">🧱</span>
+                    <div class="line-title">
+                        <h3>第一道防线：非特异性免疫</h3>
+                        <p>皮肤和黏膜的屏障作用</p>
+                    </div>
+                </div>
+
+                <div class="process-flow" id="firstFlow">
+                    <div class="process-step" data-info="skin">
+                        <span class="process-icon">🧍</span>
+                        <span class="process-name">皮肤</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="mucous">
+                        <span class="process-icon">💧</span>
+                        <span class="process-name">黏膜</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="secretion">
+                        <span class="process-icon">🧪</span>
+                        <span class="process-name">分泌物</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="lysosome">
+                        <span class="process-icon">🔴</span>
+                        <span class="process-name">溶菌酶</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="gastric">
+                        <span class="process-icon">🫃</span>
+                        <span class="process-name">胃酸</span>
+                    </div>
+                </div>
+
+                <div class="detail-panel" id="firstDetail">
+                    <div class="detail-content" id="firstContent">
+                        <h4>第一道防线详解</h4>
+                        <ul>
+                            <li><strong>皮肤：</strong>完整的皮肤可以阻挡大多数病原体入侵</li>
+                            <li><strong>黏膜：</strong>呼吸道、消化道等黏膜分泌黏液捕获病原体</li>
+                            <li><strong>分泌物：</strong>泪液、唾液中的杀菌物质</li>
+                            <li><strong>溶菌酶：</strong>可溶解细菌细胞壁</li>
+                            <li><strong>胃酸：</strong>强酸性环境杀死大多数病原体</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二道防线 -->
+            <div class="defense-line">
+                <div class="line-header" onclick="toggleDetail('second')">
+                    <span class="line-icon">⚔️</span>
+                    <div class="line-title">
+                        <h3>第二道防线：非特异性免疫</h3>
+                        <p>体液中的杀菌物质和吞噬细胞</p>
+                    </div>
+                </div>
+
+                <div class="process-flow" id="secondFlow">
+                    <div class="process-step" data-info="phagocyte">
+                        <span class="process-icon">🟡</span>
+                        <span class="process-name">吞噬细胞</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="neutrophil">
+                        <span class="process-icon">⚪</span>
+                        <span class="process-name">中性粒细胞</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="macrophage">
+                        <span class="process-icon">🔵</span>
+                        <span class="process-name">巨噬细胞</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="natural">
+                        <span class="process-icon">🟠</span>
+                        <span class="process-name">NK细胞</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="complement">
+                        <span class="process-icon">💜</span>
+                        <span class="process-name">补体系统</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="interferon">
+                        <span class="process-icon">🟣</span>
+                        <span class="process-name">干扰素</span>
+                    </div>
+                </div>
+
+                <div class="detail-panel" id="secondDetail">
+                    <div class="detail-content" id="secondContent">
+                        <h4>第二道防线详解</h4>
+                        <ul>
+                            <li><strong>吞噬细胞：</strong>吞噬并消化病原体</li>
+                            <li><strong>中性粒细胞：</strong>最早到达感染部位的免疫细胞</li>
+                            <li><strong>巨噬细胞：</strong>大型吞噬细胞，处理死亡细胞和病原体</li>
+                            <li><strong>NK细胞：</strong>自然杀伤细胞，杀伤病毒感染细胞和肿瘤细胞</li>
+                            <li><strong>补体系统：</strong>一组蛋白质，协助抗体和吞噬细胞发挥作用</li>
+                            <li><strong>干扰素：</strong>抗病毒蛋白，阻止病毒复制</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第三道防线 -->
+            <div class="defense-line">
+                <div class="line-header" onclick="toggleDetail('third')">
+                    <span class="line-icon">🎯</span>
+                    <div class="line-title">
+                        <h3>第三道防线：特异性免疫</h3>
+                        <p>体液免疫和细胞免疫</p>
+                    </div>
+                </div>
+
+                <div class="process-flow" id="thirdFlow">
+                    <div class="process-step" data-info="antigen">
+                        <span class="process-icon">🦠</span>
+                        <span class="process-name">抗原</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="APC">
+                        <span class="process-icon">🔴</span>
+                        <span class="process-name">抗原呈递细胞</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="helperT">
+                        <span class="process-icon">🟢</span>
+                        <span class="process-name">辅助T细胞</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="Bcell">
+                        <span class="process-icon">🔵</span>
+                        <span class="process-name">B细胞</span>
+                    </div>
+                    <span class="arrow">↙️</span>
+                    <div class="process-step" data-info="plasma">
+                        <span class="process-icon">💉</span>
+                        <span class="process-name">浆细胞</span>
+                    </div>
+                    <span class="arrow">↘️</span>
+                    <div class="process-step" data-info="antibody">
+                        <span class="process-icon">Y</span>
+                        <span class="process-name">抗体</span>
+                    </div>
+                </div>
+
+                <div class="process-flow" style="margin-top:15px;">
+                    <div class="process-step" data-info="cyto">
+                        <span class="process-icon">⚡</span>
+                        <span class="process-name">细胞毒性T细胞</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="infected">
+                        <span class="process-icon">🦠</span>
+                        <span class="process-name">感染细胞</span>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="process-step" data-info="kill">
+                        <span class="process-icon">💀</span>
+                        <span class="process-name">裂解</span>
+                    </div>
+                </div>
+
+                <div class="detail-panel" id="thirdDetail">
+                    <div class="detail-content" id="thirdContent">
+                        <h4>第三道防线详解</h4>
+                        <ul>
+                            <li><strong>体液免疫：</strong>B细胞产生抗体，中和抗原</li>
+                            <li><strong>细胞免疫：</strong>T细胞直接杀伤靶细胞</li>
+                            <li><strong>抗原：</strong>刺激机体产生免疫反应的物质</li>
+                            <li><strong>抗体：</strong>由浆细胞分泌，特异性结合抗原</li>
+                            <li><strong>记忆细胞：</strong>免疫记忆，快速二次应答</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <h4>免疫类型对比</h4>
+                <p>
+                    <strong>非特异性免疫：</strong>对所有病原体都有防御作用，无选择性<br><br>
+                    <strong>特异性免疫：</strong>针对特定抗原，具有专一性
+                </p>
+            </div>
+            <div class="info-card">
+                <h4>免疫器官</h4>
+                <p>
+                    <strong>中枢：</strong>骨髓、胸腺<br><br>
+                    <strong>外周：</strong>淋巴结、脾脏、扁桃体
+                </p>
+            </div>
+            <div class="info-card">
+                <h4>疫苗原理</h4>
+                <p>
+                    疫苗是减毒或灭活的病原体，刺激机体产生记忆细胞，当真正病原体入侵时可快速产生免疫反应。
+                </p>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="playAnimation()">▶️ 播放免疫过程</button>
+            <button class="btn btn-secondary" onclick="resetAnimation()">🔄 重置</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleDetail(id) {
+            const panel = document.getElementById(id + 'Detail');
+            const content = document.getElementById(id + 'Content');
+            panel.classList.toggle('show');
+            content.classList.toggle('show');
+        }
+
+        let animationIndex = 0;
+        let animationInterval = null;
+
+        function playAnimation() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+            }
+
+            const steps = document.querySelectorAll('.process-step');
+            steps.forEach(s => s.classList.remove('active'));
+
+            animationIndex = 0;
+            animationInterval = setInterval(() => {
+                if (animationIndex < steps.length) {
+                    steps[animationIndex].classList.add('active');
+                    animationIndex++;
+                } else {
+                    clearInterval(animationInterval);
+                }
+            }, 500);
+        }
+
+        function resetAnimation() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+            }
+            document.querySelectorAll('.process-step').forEach(s => s.classList.remove('active'));
+            animationIndex = 0;
+        }
+
+        // 默认展开第一道防线详情
+        toggleDetail('first');
+    </script>
+</body>
+</html>

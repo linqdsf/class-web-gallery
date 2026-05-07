@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生态系统能量流动图 - 高中生物</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a3a1a 0%, #2d5a2d 50%, #1a4a1a 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.3);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #86efac;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+            padding: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .canvas-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 25px;
+            min-height: 600px;
+        }
+
+        .canvas-title {
+            text-align: center;
+            color: #86efac;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        canvas {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #86efac, #4ade80);
+            color: #1a3a1a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(134, 239, 172, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .info-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: #86efac;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .level-info {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .level-info:hover {
+            border-color: rgba(134, 239, 172, 0.3);
+        }
+
+        .level-info.selected {
+            border-color: #86efac;
+            background: rgba(134, 239, 172, 0.1);
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .level-icon {
+            font-size: 1.5rem;
+        }
+
+        .level-name {
+            font-weight: bold;
+            color: #86efac;
+        }
+
+        .level-example {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+        }
+
+        .level-energy {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .energy-bar {
+            height: 8px;
+            background: rgba(134, 239, 172, 0.3);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #86efac, #4ade80);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        .pyramid-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .pyramid-card h4 {
+            color: #86efac;
+            margin-bottom: 15px;
+        }
+
+        .pyramid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pyramid-level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .rule-box {
+            background: rgba(134, 239, 172, 0.1);
+            border-left: 4px solid #86efac;
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin-top: 20px;
+        }
+
+        .rule-box h4 {
+            color: #86efac;
+            margin-bottom: 10px;
+        }
+
+        .rule-box p {
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #86efac;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+
+        .slider-control {
+            margin-top: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #86efac;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌿 生态系统能量流动图</h1>
+        <div class="header-info">
+            <span>高中生物 · 生态系统</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="canvas-container">
+            <div class="canvas-title">生态系统能量流动示意图</div>
+            <canvas id="ecosystemCanvas"></canvas>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="animateBtn">▶️ 播放能量流动</button>
+                <button class="btn btn-secondary" id="showPyramidBtn">📊 显示金字塔</button>
+                <button class="btn btn-secondary" id="resetBtn">🔄 重置</button>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value" id="solarValue">10000</div>
+                    <div class="stat-label">太阳能输入 (kJ)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="grassValue">1000</div>
+                    <div class="stat-label">生产者能量 (kJ)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="efficiencyValue">10%</div>
+                    <div class="stat-label">传递效率</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="section-title">�层级信息</div>
+
+            <div class="level-info" data-level="sun">
+                <div class="level-header">
+                    <span class="level-icon">☀️</span>
+                    <span class="level-name">太阳能</span>
+                </div>
+                <div class="level-example">太阳光</div>
+                <div class="level-energy">
+                    <span>能量: <span id="sunEnergy">10000</span> kJ/m²/年</span>
+                </div>
+            </div>
+
+            <div class="level-info selected" data-level="grass">
+                <div class="level-header">
+                    <span class="level-icon">🌱</span>
+                    <span class="level-name">生产者</span>
+                </div>
+                <div class="level-example">草、树、农作物</div>
+                <div class="level-energy">
+                    <span>能量: <span id="grassEnergy">1000</span> kJ/m²/年</span>
+                </div>
+                <div class="energy-bar">
+                    <div class="energy-fill" style="width: 10%;"></div>
+                </div>
+            </div>
+
+            <div class="level-info" data-level="grasshopper">
+                <div class="level-header">
+                    <span class="level-icon">🦗</span>
+                    <span class="level-name">初级消费者</span>
+                </div>
+                <div class="level-example">草食昆虫、兔子、羊</div>
+                <div class="level-energy">
+                    <span>能量: <span id="grasshopperEnergy">100</span> kJ/m²/年</span>
+                </div>
+                <div class="energy-bar">
+                    <div class="energy-fill" style="width: 1%;"></div>
+                </div>
+            </div>
+
+            <div class="level-info" data-level="frog">
+                <div class="level-header">
+                    <span class="level-icon">🐸</span>
+                    <span class="level-name">次级消费者</span>
+                </div>
+                <div class="level-example">青蛙、蜘蛛、食虫鸟</div>
+                <div class="level-energy">
+                    <span>能量: <span id="frogEnergy">10</span> kJ/m²/年</span>
+                </div>
+                <div class="energy-bar">
+                    <div class="energy-fill" style="width: 0.1%;"></div>
+                </div>
+            </div>
+
+            <div class="level-info" data-level="snake">
+                <div class="level-header">
+                    <span class="level-icon">🐍</span>
+                    <span class="level-name">三级消费者</span>
+                </div>
+                <div class="level-example">蛇、狐狸、老鹰</div>
+                <div class="level-energy">
+                    <span>能量: <span id="snakeEnergy">1</span> kJ/m²/年</span>
+                </div>
+                <div class="energy-bar">
+                    <div class="energy-fill" style="width: 0.01%;"></div>
+                </div>
+            </div>
+
+            <div class="level-info" data-level="decomposer">
+                <div class="level-header">
+                    <span class="level-icon">🦠</span>
+                    <span class="level-name">分解者</span>
+                </div>
+                <div class="level-example">细菌、真菌、腐食动物</div>
+                <div class="level-energy">
+                    <span>能量: 部分回流</span>
+                </div>
+            </div>
+
+            <div class="slider-control">
+                <div class="slider-label">
+                    <span>传递效率 (林德曼效率)</span>
+                    <span id="efficiencyDisplay">10%</span>
+                </div>
+                <input type="range" id="efficiencySlider" min="5" max="20" value="10">
+            </div>
+
+            <div class="rule-box">
+                <h4>📖 能量流动特点</h4>
+                <p>
+                    <strong>单向流动：</strong>能量沿食物链单向流动，不能循环<br><br>
+                    <strong>逐级递减：</strong>每个营养级能量约10%传到下一级<br><br>
+                    <strong>散失形式：</strong>呼吸作用消耗、热能散失
+                </p>
+            </div>
+
+            <div class="pyramid-card">
+                <h4>能量金字塔</h4>
+                <div class="pyramid">
+                    <div class="pyramid-level" style="width: 20%; background: #6ee7b7;">三级消费者 1</div>
+                    <div class="pyramid-level" style="width: 35%; background: #4ade80;">次级消费者 10</div>
+                    <div class="pyramid-level" style="width: 60%; background: #22c55e;">初级消费者 100</div>
+                    <div class="pyramid-level" style="width: 100%; background: #16a34a;">生产者 1000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('ecosystemCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let isAnimating = false;
+        let animationId = null;
+        let particles = [];
+        let efficiency = 10;
+
+        const levels = {
+            sun: { x: 0.5, y: 0.08, icon: '☀️', name: '太阳能', energy: 10000 },
+            grass: { x: 0.5, y: 0.28, icon: '🌱', name: '生产者', energy: 1000 },
+            grasshopper: { x: 0.25, y: 0.48, icon: '🦗', name: '初级消费者', energy: 100 },
+            frog: { x: 0.4, y: 0.68, icon: '🐸', name: '次级消费者', energy: 10 },
+            snake: { x: 0.55, y: 0.85, icon: '🐍', name: '三级消费者', energy: 1 },
+            decomposer: { x: 0.8, y: 0.5, icon: '🦠', name: '分解者', energy: 0 }
+        };
+
+        function initCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 50;
+            canvas.height = 500;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // 画连接线 (能量流动路径)
+            ctx.strokeStyle = 'rgba(134, 239, 172, 0.3)';
+            ctx.lineWidth = 3;
+
+            // 太阳到生产者
+            drawArrow(w * 0.5, h * 0.12, w * 0.5, h * 0.23);
+
+            // 生产者到初级消费者
+            drawArrow(w * 0.4, h * 0.33, w * 0.25, h * 0.43);
+            drawArrow(w * 0.6, h * 0.33, w * 0.25, h * 0.43);
+
+            // 初级到次级
+            drawArrow(w * 0.2, h * 0.53, w * 0.35, h * 0.63);
+
+            // 次级到三级
+            drawArrow(w * 0.45, h * 0.73, w * 0.55, h * 0.8);
+
+            // 分解者连接
+            drawArrow(w * 0.6, h * 0.33, w * 0.75, h * 0.45);
+            ctx.setLineDash([5, 5]);
+            drawArrow(w * 0.85, h * 0.55, w * 0.55, h * 0.8);
+            ctx.setLineDash([]);
+
+            // 画各层级
+            Object.entries(levels).forEach(([key, level]) => {
+                drawLevel(level, key);
+            });
+
+            // 画粒子
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#fbbf24';
+                ctx.fill();
+                
+                // 发光效果
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#fbbf24';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function drawLevel(level, key) {
+            const x = level.x * canvas.width;
+            const y = level.y * canvas.height;
+            const size = key === 'sun' ? 70 : 60;
+
+            // 背景圆
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+            
+            if (key === 'sun') {
+                gradient.addColorStop(0, 'rgba(251, 191, 36, 0.8)');
+                gradient.addColorStop(1, 'rgba(251, 191, 36, 0.2)');
+            } else if (key === 'decomposer') {
+                gradient.addColorStop(0, 'rgba(168, 85, 247, 0.8)');
+                gradient.addColorStop(1, 'rgba(168, 85, 247, 0.2)');
+            } else {
+                const colors = {
+                    grass: ['#22c55e', '#16a34a'],
+                    grasshopper: ['#f97316', '#ea580c'],
+                    frog: ['#3b82f6', '#2563eb'],
+                    snake: ['#ef4444', '#dc2626']
+                };
+                const c = colors[key] || ['#86efac', '#4ade80'];
+                gradient.addColorStop(0, c[0].replace(')', ', 0.8)').replace('rgb', 'rgba'));
+                gradient.addColorStop(1, c[1].replace(')', ', 0.2)').replace('rgb', 'rgba'));
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // 边框
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 图标和文字
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(level.icon, x, y - 10);
+
+            ctx.font = 'bold 14px Microsoft YaHei';
+            ctx.fillStyle = '#fff';
+            ctx.fillText(level.name, x, y + 25);
+
+            ctx.font = '12px Microsoft YaHei';
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillText(level.energy + ' kJ', x, y + 42);
+        }
+
+        function drawArrow(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            // 箭头
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const headLength = 10;
+            
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLength * Math.cos(angle - Math.PI / 6), y2 - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLength * Math.cos(angle + Math.PI / 6), y2 - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.stroke();
+        }
+
+        function animate() {
+            if (!isAnimating) return;
+
+            // 移动粒子
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                // 到达目标后创建新粒子
+                if (Math.abs(p.x - p.targetX) < 5 && Math.abs(p.y - p.targetY) < 5) {
+                    if (p.targetLevel < 4) {
+                        // 创建下一级粒子
+                        const nextTargets = [
+                            { x: 0.5, y: 0.28, level: 1 },   // 到生产者
+                            { x: 0.25, y: 0.48, level: 2 },  // 到初级
+                            { x: 0.4, y: 0.68, level: 3 },   // 到次级
+                            { x: 0.55, y: 0.85, level: 4 }   // 到三级
+                        ];
+                        const next = nextTargets[p.targetLevel];
+                        createParticle(p.x, p.y, next.x, next.y, next.level);
+                    }
+                    p.dead = true;
+                }
+            });
+
+            particles = particles.filter(p => !p.dead);
+
+            // 移除死亡粒子
+            particles = particles.filter(p => {
+                if (p.dead) return false;
+                return p.y < canvas.height && p.x > 0 && p.x < canvas.width;
+            });
+
+            draw();
+
+            if (isAnimating) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        function createParticle(fromX, fromY, toX, toY, level) {
+            const targetX = toX * canvas.width;
+            const targetY = toY * canvas.height;
+            
+            const particle = {
+                x: fromX,
+                y: fromY,
+                targetX: targetX,
+                targetY: targetY,
+                targetLevel: level,
+                vx: (targetX - fromX) / 100,
+                vy: (targetY - fromY) / 100,
+                dead: false
+            };
+            
+            particles.push(particle);
+        }
+
+        function startAnimation() {
+            if (isAnimating) {
+                isAnimating = false;
+                cancelAnimationFrame(animationId);
+                document.getElementById('animateBtn').textContent = '▶️ 播放能量流动';
+                return;
+            }
+
+            isAnimating = true;
+            document.getElementById('animateBtn').textContent = '⏸ 暂停';
+
+            // 创建太阳到生产者的粒子流
+            function addParticle() {
+                if (!isAnimating) return;
+                
+                const startX = 0.5 * canvas.width + (Math.random() - 0.5) * 30;
+                const startY = 0.15 * canvas.height;
+                createParticle(startX, startY, 0.5, 0.28, 1);
+                
+                if (isAnimating) {
+                    setTimeout(addParticle, 200);
+                }
+            }
+
+            addParticle();
+            animate();
+        }
+
+        function updateEfficiency() {
+            efficiency = parseInt(document.getElementById('efficiencySlider').value);
+            document.getElementById('efficiencyDisplay').textContent = efficiency + '%';
+            document.getElementById('efficiencyValue').textContent = efficiency + '%';
+
+            // 更新能量值
+            levels.grass.energy = Math.round(10000 * efficiency / 100);
+            levels.grasshopper.energy = Math.round(levels.grass.energy * efficiency / 100);
+            levels.frog.energy = Math.round(levels.grasshopper.energy * efficiency / 100);
+            levels.snake.energy = Math.round(levels.frog.energy * efficiency / 100);
+
+            // 更新显示
+            document.getElementById('grassValue').textContent = levels.grass.energy;
+            document.getElementById('grassEnergy').textContent = levels.grass.energy;
+            document.getElementById('grasshopperEnergy').textContent = levels.grasshopper.energy;
+            document.getElementById('frogEnergy').textContent = levels.frog.energy;
+            document.getElementById('snakeEnergy').textContent = levels.snake.energy;
+
+            draw();
+        }
+
+        function showPyramid() {
+            alert('能量金字塔特点：\n\n1. 正金字塔形：每个营养级能量逐级递减\n2. 永远不会倒置\n3. 表明能量沿食物链流动时不断减少\n4. 通常每个营养级约10%传到下一级\n\n典型比例：生产者1000 → 初级100 → 次级10 → 三级1');
+        }
+
+        document.getElementById('animateBtn').addEventListener('click', startAnimation);
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            isAnimating = false;
+            cancelAnimationFrame(animationId);
+            particles = [];
+            document.getElementById('animateBtn').textContent = '▶️ 播放能量流动';
+            draw();
+        });
+        document.getElementById('showPyramidBtn').addEventListener('click', showPyramid);
+        document.getElementById('efficiencySlider').addEventListener('input', updateEfficiency);
+
+        window.addEventListener('resize', () => {
+            initCanvas();
+            draw();
+        });
+
+        initCanvas();
+        draw();
+    </script>
+</body>
+</html>

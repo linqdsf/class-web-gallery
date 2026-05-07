@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孟德尔遗传定律演示 - 高中生物</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #6ee7b7;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            padding: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .experiment-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: #6ee7b7;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .parent-selector {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .parent-box {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .parent-label {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 15px;
+        }
+
+        .trait-display {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .genotype {
+            font-size: 1.1rem;
+            color: #a7f3d0;
+            margin-bottom: 5px;
+        }
+
+        .phenotype {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .cross-symbol {
+            font-size: 2rem;
+            color: #6ee7b7;
+        }
+
+        .trait-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .trait-btn {
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .trait-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .trait-btn.selected {
+            border-color: #6ee7b7;
+            background: rgba(110, 231, 183, 0.2);
+        }
+
+        .offspring-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .offspring {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .offspring:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .offspring.yellow {
+            background: linear-gradient(135deg, #fcd34d, #f59e0b);
+        }
+
+        .offspring.green {
+            background: linear-gradient(135deg, #34d399, #059669);
+        }
+
+        .offspring.round {
+            border-radius: 50%;
+        }
+
+        .offspring.wrinkled {
+            border-radius: 20%;
+        }
+
+        .offspring-tile {
+            background: rgba(255,255,255,0.9);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.6rem;
+            color: #064e3b;
+            position: absolute;
+            bottom: 2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #6ee7b7;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6ee7b7, #34d399);
+            color: #064e3b;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(110, 231, 183, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .theory-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .theory-card h4 {
+            color: #a7f3d0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .theory-card p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .formula {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.3rem;
+            text-align: center;
+            padding: 15px;
+            background: rgba(110, 231, 183, 0.1);
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .law-box {
+            background: rgba(110, 231, 183, 0.1);
+            border-left: 4px solid #6ee7b7;
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 15px;
+        }
+
+        .law-box h4 {
+            color: #a7f3d0;
+            margin-bottom: 8px;
+        }
+
+        .law-box p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .punnett-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .punnett-table th,
+        .punnett-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .punnett-table th {
+            background: rgba(110, 231, 183, 0.2);
+            color: #a7f3d0;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 孟德尔遗传定律演示</h1>
+        <div class="header-info">
+            <span>高中生物 · 遗传与进化</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="experiment-area">
+            <div class="card">
+                <div class="section-title">🌱 选择亲本性状</div>
+                
+                <div class="trait-buttons">
+                    <button class="trait-btn selected" data-trait="shape" data-value="round">⭕ 圆粒</button>
+                    <button class="trait-btn" data-trait="shape" data-value="wrinkled">🟫 皱粒</button>
+                    <button class="trait-btn selected" data-trait="color" data-value="yellow">🟡 黄粒</button>
+                    <button class="trait-btn" data-trait="color" data-value="green">🟢 绿粒</button>
+                </div>
+
+                <div class="parent-selector">
+                    <div class="parent-box">
+                        <div class="parent-label">♂ 父本</div>
+                        <div class="trait-display" id="maleTrait">⭕🟡</div>
+                        <div class="genotype" id="maleGenotype">RrYy</div>
+                        <div class="phenotype" id="malePhenotype">圆粒黄粒</div>
+                    </div>
+                    
+                    <div class="cross-symbol">×</div>
+                    
+                    <div class="parent-box">
+                        <div class="parent-label">♀ 母本</div>
+                        <div class="trait-display" id="femaleTrait">⭕🟡</div>
+                        <div class="genotype" id="femaleGenotype">RrYy</div>
+                        <div class="phenotype" id="femalePhenotype">圆粒黄粒</div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="crossBtn">🔬 进行杂交</button>
+                    <button class="btn btn-secondary" id="resetBtn">🔄 重置</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">📊 子代表现</div>
+                <div class="offspring-grid" id="offspringGrid"></div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="statYY">-</div>
+                        <div class="stat-label">黄圆</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statYG">-</div>
+                        <div class="stat-label">黄皱</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statGY">-</div>
+                        <div class="stat-label">绿圆</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statGG">-</div>
+                        <div class="stat-label">绿皱</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statRatio">-</div>
+                        <div class="stat-label">比例</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="statTotal">0</div>
+                        <div class="stat-label">总数</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">🧮 庞尼特方格</div>
+                <table class="punnett-table" id="punnettTable">
+                    <tr><th></th><th>RY</th><th>rY</th><th>Ry</th><th>ry</th></tr>
+                    <tr><th>RY</th><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr><th>rY</th><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr><th>Ry</th><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    <tr><th>ry</th><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="card">
+                <div class="section-title">📚 孟德尔定律</div>
+                
+                <div class="law-box">
+                    <h4>分离定律</h4>
+                    <p>在生物的体细胞中，控制同一性状的遗传因子成对存在，不相融合；在形成配子时，成对的遗传因子发生分离，分离后的遗传因子分别进入不同的配子中。</p>
+                </div>
+
+                <div class="law-box">
+                    <h4>自由组合定律</h4>
+                    <p>控制不同性状的遗传因子的分离和组合是互不干扰的；在形成配子时，决定同一性状的成对的遗传因子彼此分离，决定不同性状的遗传因子自由组合。</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">🔬 实验原理</div>
+                
+                <div class="theory-card">
+                    <h4>豌豆杂交实验</h4>
+                    <p>孟德尔用豌豆进行杂交实验，研究了7对相对性状，发现了遗传的基本规律。</p>
+                </div>
+
+                <div class="formula">
+                    P: RRYY × rryy<br>
+                    ↓<br>
+                    F₁: RrYy (全部黄圆)<br>
+                    ↓ 自交<br>
+                    F₂: 9黄圆:3黄皱:3绿圆:1绿皱
+                </div>
+
+                <div class="theory-card">
+                    <h4>显隐性关系</h4>
+                    <p>
+                        <strong>圆粒(R) > 皱粒(r)</strong>：显性<br>
+                        <strong>黄粒(Y) > 绿粒(y)</strong>：显性
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">🧬 基因型分析</div>
+                <div class="theory-card">
+                    <h4>纯合与杂合</h4>
+                    <p>
+                        <strong>纯合子：</strong>RR, rr, YY, yy<br>
+                        <strong>杂合子：</strong>Rr, Yy<br>
+                        <strong>双杂合：</strong>RrYy
+                    </p>
+                </div>
+                <div class="theory-card">
+                    <h4>基因型比例</h4>
+                    <p>F₂代基因型共16种组合：<br>
+                    纯合4种 + 单杂4种 + 双杂4种 +...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let maleGenotype = { R: 'Rr', Y: 'Yy' };
+        let femaleGenotype = { R: 'Rr', Y: 'Yy' };
+        let offspring = [];
+
+        const traitMap = {
+            round: { symbol: '⭕', class: 'round' },
+            wrinkled: { symbol: '🟫', class: 'wrinkled' },
+            yellow: { symbol: '🟡', class: 'yellow' },
+            green: { symbol: '🟢', class: 'green' }
+        };
+
+        function getRandomAllele(parent, gene) {
+            return parent[gene].charAt(Math.random() > 0.5 ? 0 : 1);
+        }
+
+        function getPhenotype(R, Y) {
+            const shape = (R === 'R' || R === 'R') ? 'round' : 'wrinkled';
+            const color = (Y === 'Y' || Y === 'Y') ? 'yellow' : 'green';
+            const phenotype = (shape === 'round' ? '圆' : '皱') + (color === 'yellow' ? '黄' : '绿');
+            return { shape, color, phenotype, symbol: traitMap[shape].symbol + traitMap[color].symbol };
+        }
+
+        function updateParentDisplay() {
+            const maleR = maleGenotype.R;
+            const maleY = maleGenotype.Y;
+            const femaleR = femaleGenotype.R;
+            const femaleY = femaleGenotype.Y;
+
+            document.getElementById('maleTrait').textContent = 
+                (maleR === 'R' ? '⭕' : '🟫') + (maleY === 'Y' ? '🟡' : '🟢');
+            document.getElementById('maleGenotype').textContent = 
+                `${maleGenotype.R}${maleGenotype.Y}`;
+            const malePhen = getPhenotype(maleR === 'R' ? 'R' : 'r', maleY === 'Y' ? 'Y' : 'y');
+            document.getElementById('malePhenotype').textContent = 
+                (maleR === 'R' ? '圆' : '皱') + (maleY === 'Y' ? '黄' : '绿') + '粒';
+
+            document.getElementById('femaleTrait').textContent = 
+                (femaleR === 'R' ? '⭕' : '🟫') + (femaleY === 'Y' ? '🟡' : '🟢');
+            document.getElementById('femaleGenotype').textContent = 
+                `${femaleGenotype.R}${femaleGenotype.Y}`;
+            document.getElementById('femalePhenotype').textContent = 
+                (femaleR === 'R' ? '圆' : '皱') + (femaleY === 'Y' ? '黄' : '绿') + '粒';
+
+            updatePunnettTable();
+        }
+
+        function updatePunnettTable() {
+            const maleGametes = [
+                maleGenotype.R[0] + maleGenotype.Y[0],
+                maleGenotype.R[0] + maleGenotype.Y[1],
+                maleGenotype.R[1] + maleGenotype.Y[0],
+                maleGenatype.R[1] + maleGenotype.Y[1]
+            ];
+            const femaleGametes = [
+                femaleGenotype.R[0] + femaleGenotype.Y[0],
+                femaleGenotype.R[0] + femaleGenotype.Y[1],
+                femaleGenotype.R[1] + femaleGenotype.Y[0],
+                femaleGenotype.R[1] + femaleGenotype.Y[1]
+            ];
+
+            const table = document.getElementById('punnettTable');
+            const headers = table.querySelectorAll('th');
+            
+            headers[1].textContent = maleGametes[0];
+            headers[2].textContent = maleGametes[1];
+            headers[3].textContent = maleGametes[2];
+            headers[4].textContent = maleGametes[3];
+
+            const rows = table.querySelectorAll('tr');
+            rows[1].querySelector('th').textContent = femaleGametes[0];
+            rows[2].querySelector('th').textContent = femaleGametes[1];
+            rows[3].querySelector('th').textContent = femaleGametes[2];
+            rows[4].querySelector('th').textContent = femaleGametes[3];
+
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const genotype = sortGenotype(femaleGametes[i] + maleGametes[j]);
+                    const phen = getPhenotype(
+                        genotype.includes('RR') || genotype.match(/R[^Yy]/) ? 'R' : 'r',
+                        genotype.includes('YY') || genotype.match(/Y[^Rr]/) ? 'Y' : 'y'
+                    );
+                    rows[i + 1].querySelectorAll('td')[j].textContent = genotype;
+                }
+            }
+        }
+
+        function sortGenotype(gene) {
+            const alleles = gene.split('');
+            const R = alleles.filter(a => a === 'R' || a === 'r');
+            const Y = alleles.filter(a => a === 'Y' || a === 'y');
+            return R.join('') + Y.join('');
+        }
+
+        function cross() {
+            offspring = [];
+            const count = { YY: 0, YG: 0, GY: 0, GG: 0 };
+
+            for (let i = 0; i < 100; i++) {
+                const R = getRandomAllele(maleGenotype, 'R') + getRandomAllele(femaleGenotype, 'R');
+                const Y = getRandomAllele(maleGenotype, 'Y') + getRandomAllele(femaleGenotype, 'Y');
+                
+                const isRound = R.includes('R');
+                const isYellow = Y.includes('Y');
+                
+                const key = (isYellow ? 'Y' : 'G') + (isRound ? 'Y' : 'G');
+                count[key]++;
+                
+                offspring.push({
+                    R, Y,
+                    shape: isRound ? 'round' : 'wrinkled',
+                    color: isYellow ? 'yellow' : 'green',
+                    phenotype: (isRound ? '圆' : '皱') + (isYellow ? '黄' : '绿') + '粒'
+                });
+            }
+
+            renderOffspring();
+            updateStats(count);
+        }
+
+        function renderOffspring() {
+            const grid = document.getElementById('offspringGrid');
+            grid.innerHTML = '';
+
+            offspring.forEach((o, i) => {
+                const div = document.createElement('div');
+                div.className = `offspring ${o.color} ${o.shape}`;
+                div.innerHTML = o.symbol;
+                
+                const label = document.createElement('span');
+                label.className = 'offspring-tile';
+                label.textContent = o.phenotype.substring(0, 2);
+                div.appendChild(label);
+
+                div.title = `${o.phenotype}\n基因型: ${sortGenotype(o.R + o.Y)}`;
+                grid.appendChild(div);
+            });
+        }
+
+        function updateStats(count) {
+            document.getElementById('statYY').textContent = count.YY;
+            document.getElementById('statYG').textContent = count.YG;
+            document.getElementById('statGY').textContent = count.GY;
+            document.getElementById('statGG').textContent = count.GG;
+            document.getElementById('statTotal').textContent = 100;
+
+            const total = count.YY + count.YG + count.GY + count.GG;
+            const ratio = `${count.YY}:${count.YG}:${count.GY}:${count.GG}`;
+            document.getElementById('statRatio').textContent = ratio;
+        }
+
+        document.querySelectorAll('.trait-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const trait = btn.dataset.trait;
+                const value = btn.dataset.value;
+                const parent = btn.closest('.parent-box');
+
+                document.querySelectorAll(`.trait-btn[data-trait="${trait}"]`).forEach(b => {
+                    b.classList.remove('selected');
+                });
+                btn.classList.add('selected');
+
+                if (parent.querySelector('.parent-label').textContent.includes('父')) {
+                    if (trait === 'shape') {
+                        maleGenotype.R = value === 'round' ? 'RR' : 'rr';
+                    } else {
+                        maleGenotype.Y = value === 'yellow' ? 'YY' : 'yy';
+                    }
+                } else {
+                    if (trait === 'shape') {
+                        femaleGenotype.R = value === 'round' ? 'RR' : 'rr';
+                    } else {
+                        femaleGenotype.Y = value === 'yellow' ? 'YY' : 'yy';
+                    }
+                }
+
+                updateParentDisplay();
+            });
+        });
+
+        document.getElementById('crossBtn').addEventListener('click', cross);
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            offspring = [];
+            document.getElementById('offspringGrid').innerHTML = '';
+            document.getElementById('statYY').textContent = '-';
+            document.getElementById('statYG').textContent = '-';
+            document.getElementById('statGY').textContent = '-';
+            document.getElementById('statGG').textContent = '-';
+            document.getElementById('statRatio').textContent = '-';
+            document.getElementById('statTotal').textContent = '0';
+        });
+
+        updateParentDisplay();
+    </script>
+</body>
+</html>

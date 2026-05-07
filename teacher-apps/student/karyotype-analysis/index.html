@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>染色体核型分析工具 - 高中生物</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #3b82f6 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.2);
+            padding: 20px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+        }
+
+        .main-container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+        }
+
+        .chromosome-pool {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        .pool-label {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 15px;
+        }
+
+        .chromosomes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chromosome {
+            width: 25px;
+            height: 60px;
+            background: linear-gradient(180deg, #93c5fd, #3b82f6, #93c5fd);
+            border-radius: 12px 12px 6px 6px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #1e3a5f;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .chromosome::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 44px;
+            background: rgba(30, 58, 95, 0.3);
+        }
+
+        .chromosome:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .chromosome.dragging {
+            opacity: 0.5;
+        }
+
+        .chromosome-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .group-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .arrangement-area {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .arrangement-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .column-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-height: 350px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 10px;
+            border: 2px dashed rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+
+        .column-slot.drag-over {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .slot-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .slot-chromosome {
+            width: 22px;
+            height: 55px;
+            background: linear-gradient(180deg, #93c5fd, #3b82f6, #93c5fd);
+            border-radius: 11px 11px 5px 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #1e3a5f;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .result-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .result-card h4 {
+            color: #93c5fd;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .normal-badge {
+            color: #22c55e;
+        }
+
+        .abnormal-badge {
+            color: #ef4444;
+        }
+
+        .preset-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .preset-btn.selected {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .preset-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .preset-label {
+            font-size: 0.8rem;
+        }
+
+        .knowledge-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .knowledge-card h4 {
+            color: #93c5fd;
+            margin-bottom: 10px;
+        }
+
+        .knowledge-card p {
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.8);
+        }
+
+        @media (max-width: 900px) {
+            .workspace { grid-template-columns: 1fr; }
+            .arrangement-grid { grid-template-columns: repeat(4, 1fr); }
+            .result-panel { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔬 染色体核型分析工具</h1>
+        <p>学习染色体核型分析的基本方法</p>
+    </div>
+
+    <div class="main-container">
+        <div class="card">
+            <div class="section-title">🎯 选择核型类型</div>
+            <div class="preset-selector">
+                <button class="preset-btn selected" data-preset="normal">
+                    <div class="preset-icon">✅</div>
+                    <div class="preset-label">正常核型</div>
+                    <div style="font-size:0.7rem;opacity:0.7;">46,XX 或 46,XY</div>
+                </button>
+                <button class="preset-btn" data-preset="down">
+                    <div class="preset-icon">🧬</div>
+                    <div class="preset-label">唐氏综合征</div>
+                    <div style="font-size:0.7rem;opacity:0.7;">47,XX,+21</div>
+                </button>
+                <button class="preset-btn" data-preset="turner">
+                    <div class="preset-icon">👩</div>
+                    <div class="preset-label">特纳综合征</div>
+                    <div style="font-size:0.7rem;opacity:0.7;">45,X</div>
+                </button>
+            </div>
+
+            <div class="workspace">
+                <div>
+                    <div class="chromosome-pool">
+                        <div class="pool-label">🧬 染色体池 (拖拽到下方排列)</div>
+                        <div class="chromosomes" id="chromosomePool"></div>
+                    </div>
+
+                    <div class="arrangement-area">
+                        <div class="pool-label">📋 核型排列区 (按大小和着丝粒位置排列)</div>
+                        <div class="arrangement-grid" id="arrangementGrid"></div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-primary" id="loadBtn">📥 加载核型</button>
+                        <button class="btn btn-secondary" id="checkBtn">🔍 检查排列</button>
+                        <button class="btn btn-secondary" id="clearBtn">🗑️ 清空</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="result-card">
+                        <h4>📊 核型分析结果</h4>
+                        <div class="result-item">
+                            <span>核型公式</span>
+                            <span id="formulaResult">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>性染色体</span>
+                            <span id="sexResult">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>常染色体总数</span>
+                            <span id="autoResult">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span>状态</span>
+                            <span id="statusResult" class="normal-badge">-</span>
+                        </div>
+                    </div>
+
+                    <div class="knowledge-card">
+                        <h4>📚 核型分析知识</h4>
+                        <p>
+                            <strong>正常核型：</strong>人类体细胞有46条染色体，其中22对常染色体和1对性染色体。<br><br>
+                            <strong>核型描述：</strong>46,XX(女性) 或 46,XY(男性)<br><br>
+                            <strong>常见异常：</strong><br>
+                            - 唐氏综合征：47,+21<br>
+                            - 特纳综合征：45,X<br>
+                            - 克氏综合征：47,XXY
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const presets = {
+            normal: {
+                formula: '46,XX',
+                sex: 'XX',
+                autosomes: 44,
+                description: '正常女性核型',
+                chromosomes: [
+                    ...Array(6).fill('A1'), ...Array(6).fill('A2'), ...Array(6).fill('A3'),
+                    ...Array(4).fill('A4'), ...Array(4).fill('B'), ...Array(8).fill('C'),
+                    ...Array(6).fill('D'), ...Array(6).fill('E'), ...Array(4).fill('F'),
+                    ...Array(4).fill('G'), 'X', 'X'
+                ]
+            },
+            down: {
+                formula: '47,XX,+21',
+                sex: 'XX',
+                autosomes: 45,
+                extra: '21',
+                description: '唐氏综合征',
+                chromosomes: [
+                    ...Array(6).fill('A1'), ...Array(6).fill('A2'), ...Array(6).fill('A3'),
+                    ...Array(4).fill('A4'), ...Array(4).fill('B'), ...Array(8).fill('C'),
+                    ...Array(6).fill('D'), ...Array(6).fill('E'), ...Array(4).fill('F'),
+                    ...Array(6).fill('G'), 'X', 'X', '21'
+                ]
+            },
+            turner: {
+                formula: '45,X',
+                sex: 'X',
+                autosomes: 44,
+                description: '特纳综合征(女性)',
+                chromosomes: [
+                    ...Array(6).fill('A1'), ...Array(6).fill('A2'), ...Array(6).fill('A3'),
+                    ...Array(4).fill('A4'), ...Array(4).fill('B'), ...Array(8).fill('C'),
+                    ...Array(6).fill('D'), ...Array(6).fill('E'), ...Array(4).fill('F'),
+                    ...Array(4).fill('G'), 'X'
+                ]
+            }
+        };
+
+        let currentPreset = 'normal';
+        let placedChromosomes = [];
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initGrid() {
+            const grid = document.getElementById('arrangementGrid');
+            grid.innerHTML = '';
+            
+            const labels = ['1-3', '4-5', '6-12', '13-15', '16-17', '18', '19-20'];
+            for (let i = 0; i < 7; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'column-slot';
+                slot.dataset.column = i;
+                slot.innerHTML = `<span class="slot-label">${labels[i]}</span>`;
+                grid.appendChild(slot);
+            }
+        }
+
+        function loadPreset(preset) {
+            currentPreset = preset;
+            const data = presets[preset];
+            
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.preset === preset);
+            });
+
+            const pool = document.getElementById('chromosomePool');
+            pool.innerHTML = '';
+
+            const shuffled = shuffle(data.chromosomes);
+            shuffled.forEach((chr, i) => {
+                const div = document.createElement('div');
+                div.className = 'chromosome';
+                div.draggable = true;
+                div.dataset.type = chr;
+                div.dataset.id = i;
+                div.textContent = chr.replace('A', '').replace('X', 'X');
+                div.title = chr;
+                
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragend', handleDragEnd);
+                
+                pool.appendChild(div);
+            });
+
+            // 清空排列区
+            initGrid();
+            placedChromosomes = [];
+            updateResults();
+        }
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', e.target.dataset.id);
+            e.dataTransfer.setData('type', e.target.dataset.type);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function initGridEvents() {
+            const grid = document.getElementById('arrangementGrid');
+            
+            grid.querySelectorAll('.column-slot').forEach(slot => {
+                slot.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    slot.classList.add('drag-over');
+                });
+
+                slot.addEventListener('dragleave', () => {
+                    slot.classList.remove('drag-over');
+                });
+
+                slot.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    slot.classList.remove('drag-over');
+                    
+                    const chrId = e.dataTransfer.getData('text/plain');
+                    const chrType = e.dataTransfer.getData('type');
+                    const chrElement = document.querySelector(`.chromosome[data-id="${chrId}"]`);
+                    
+                    if (chrElement) {
+                        const clone = chrElement.cloneNode(true);
+                        clone.className = 'slot-chromosome';
+                        clone.draggable = false;
+                        clone.dataset.type = chrType;
+                        clone.onclick = function() {
+                            this.remove();
+                            placedChromosomes = placedChromosomes.filter(c => c.id !== chrId);
+                            updateResults();
+                        };
+                        slot.appendChild(clone);
+                        
+                        placedChromosomes.push({ id: chrId, type: chrType, column: slot.dataset.column });
+                        chrElement.remove();
+                        updateResults();
+                    }
+                });
+            });
+        }
+
+        function updateResults() {
+            const data = presets[currentPreset];
+            
+            document.getElementById('formulaResult').textContent = data.formula;
+            document.getElementById('sexResult').textContent = data.sex;
+            document.getElementById('autoResult').textContent = data.autosomes;
+
+            const status = document.getElementById('statusResult');
+            status.textContent = data.description;
+            status.className = currentPreset === 'normal' ? 'normal-badge' : 'abnormal-badge';
+        }
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => loadPreset(btn.dataset.preset));
+        });
+
+        document.getElementById('loadBtn').addEventListener('click', () => {
+            loadPreset(currentPreset);
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            loadPreset(currentPreset);
+        });
+
+        document.getElementById('checkBtn').addEventListener('click', () => {
+            const total = placedChromosomes.length;
+            if (total < 40) {
+                alert('请先排列更多染色体！');
+            } else if (total === 46) {
+                alert('✅ 染色体数量正确！共46条。');
+            } else {
+                alert('⚠️ 染色体数量不正确！当前：' + total + '条');
+            }
+        });
+
+        initGrid();
+        initGridEvents();
+        loadPreset('normal');
+    </script>
+</body>
+</html>
